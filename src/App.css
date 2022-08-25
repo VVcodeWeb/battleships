@@ -27,6 +27,102 @@
 .App-link {
   color: #61dafb;
 }
+.animated_card {
+  transition: all 1s ease-in-out;
+}
+.animated_card:hover {
+  transform: scale(1.1);
+}
+
+div[class^="item"],
+div[class*=" item"] {
+  position: relative;
+}
+
+div[class^="item_r_"]::before,
+div[class*=" item_r_"]::before {
+  position: absolute;
+  right: 30px;
+  top: -30px;
+}
+
+div[class^="item_c_"]::after,
+div[class*=" item_c_"]::after {
+  position: absolute;
+  top: 15px;
+  left: -15px;
+}
+
+.item_r_0::before {
+  content: "A";
+}
+.item_r_1::before {
+  content: "B";
+}
+.item_r_2::before {
+  content: "C";
+}
+.item_r_3::before {
+  content: "D";
+}
+.item_r_4::before {
+  content: "E";
+}
+.item_r_5::before {
+  content: "F";
+}
+.item_r_6::before {
+  content: "G";
+}
+.item_r_7::before {
+  content: "H";
+}
+.item_r_8::before {
+  content: "I";
+}
+.item_r_9::before {
+  content: "J";
+}
+
+.item_c_0::after {
+  content: "1";
+}
+.item_c_10::after {
+  content: "2";
+}
+.item_c_20::after {
+  content: "3";
+}
+.item_c_30::after {
+  content: "4";
+}
+.item_c_40::after {
+  content: "5";
+}
+.item_c_50::after {
+  content: "6";
+}
+.item_c_60::after {
+  content: "7";
+}
+.item_c_70::after {
+  content: "8";
+}
+.item_c_80::after {
+  content: "9";
+}
+.item_c_90::after {
+  content: "10";
+}
+
+.ships_container {
+  /* Created with https://www.css-gradient.com */
+  background: #5984ce;
+  background: -webkit-linear-gradient(top, #5984ce, #3e6f9b);
+  background: -moz-linear-gradient(top, #5984ce, #3e6f9b);
+  background: linear-gradient(to bottom, #5984ce, #3e6f9b);
+  height: 100%;
+}
 
 @keyframes App-logo-spin {
   from {

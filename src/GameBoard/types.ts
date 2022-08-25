@@ -1,16 +1,19 @@
-import { ShipNames, ShipOnBoardType } from "components/types";
+import { ShipType } from "ShipDocks/types";
 import {
   CAN_DROP_AND_VISIBLE,
   DEFAULT_BORDER,
-  HORIZONTAL,
   NO_DROP_AND_VISIBLE,
-  PART_0,
-  PART_1,
-  PART_2,
-  VERTICAL,
 } from "constants/const";
-import { TileType } from "GameBoard/Tile";
-
+export type TileType = {
+  idx: number;
+  x: number;
+  y: number;
+  occupiedBy: ShipType | null;
+  border:
+    | typeof DEFAULT_BORDER
+    | typeof CAN_DROP_AND_VISIBLE
+    | typeof NO_DROP_AND_VISIBLE;
+};
 export const ACTION = {
   PLACE_SHIP_PART_ON_BOARD: "place_ship_on_board" as "place_ship_on_board",
   UPDATE_TILES_BORDER: "update_adjacent_tiles" as "update_adjacent_tiles",
@@ -23,7 +26,7 @@ export type BorderType =
 export type ActionType =
   | {
       type: typeof ACTION.PLACE_SHIP_PART_ON_BOARD;
-      payload: { shipData: ShipDragData };
+      payload: { ship: ShipType };
     }
   | {
       type: typeof ACTION.UPDATE_TILES_BORDER;
@@ -33,16 +36,3 @@ export type ActionType =
 export type State = {
   tiles: Array<TileType>;
 };
-export type ShipPart = null | typeof PART_0 | typeof PART_1 | typeof PART_2;
-export type ShipOrientation = typeof VERTICAL | typeof HORIZONTAL;
-
-export interface Coordinates {
-  x: number;
-  y: number;
-}
-export interface ShipDragData extends Coordinates {
-  name: ShipNames;
-  size: number;
-  shipPart: ShipPart;
-  shipOrientation: ShipOrientation;
-}

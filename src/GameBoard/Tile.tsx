@@ -1,72 +1,66 @@
-import Grid2 from "@mui/material/Unstable_Grid2";
-import { ShipsTypes } from "components/types";
-import {
-  CAN_DROP_AND_VISIBLE,
-  DEFAULT_BORDER,
-  NO_DROP_AND_VISIBLE,
-  SHIP,
-  TILE,
-} from "constants/const";
 import { useContext, useEffect } from "react";
 import { useDrop } from "react-dnd";
+
+import Grid2 from "@mui/material/Unstable_Grid2";
+
+import { PART_1, SHIP, TILE } from "constants/const";
 import waterImg from "components/../../public/water.jpg";
 import { GameContext } from "GameBoard/context/GameBoardContext";
-import { time } from "console";
-import { ShipDragData } from "GameBoard/types";
-
-export type TileType = {
-  idx: number;
-  x: number;
-  y: number;
-  occupiedBy: ShipDragData | null;
-  border:
-    | typeof DEFAULT_BORDER
-    | typeof CAN_DROP_AND_VISIBLE
-    | typeof NO_DROP_AND_VISIBLE;
-};
+import Ship from "ShipDocks/Ship";
+import { TileType } from "GameBoard/types";
+import { getShipPartByIdx } from "utils";
 
 const Tile = ({ tile }: { tile: TileType }) => {
   const idx = tile.idx;
-  const { checkCanDrop, updateTilesBorders, placeShipOnBoard } =
+  const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(GameContext);
-  const [{ isOver, item }, drop] = useDrop(() => ({
-    accept: SHIP,
-    drop: (item: any) => {
-      placeShipOnBoard({
-        ...item,
-        x: tile.x,
-        y: tile.y,
-      });
-    },
-    collect: (monitor) => ({
-      item: monitor.getItem(),
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-    hover: (item: any, monitor) => {
-      updateTilesBorders({
-        shipData: {
+  const [{ isOver, item }, drop] = useDrop(
+    () => ({
+      accept: SHIP,
+      drop: (item: any) => {
+        placeShipOnBoard({
           ...item,
-          x: tile.x,
-          y: tile.y,
-        },
-        hovered: true,
-        canDrop: monitor.canDrop(),
-      });
-    },
-    canDrop: (item: any, monitor) => {
-      if (item) {
-        return checkCanDrop({
-          x: tile.x,
-          y: tile.y,
-          ...item,
+          coordinates: {
+            x: tile.x,
+            y: tile.y,
+          },
         });
-      } else {
-        console.error("no item");
-        return false;
-      }
-    },
-  }));
+      },
+      hover: (item: any, monitor) => {
+        updateTilesBorders({
+          ship: {
+            ...item,
+            coordinates: {
+              x: tile.x,
+              y: tile.y,
+            },
+          },
+          hovered: true,
+          canDrop: monitor.canDrop(),
+        });
+      },
+      canDrop: (item: any, monitor) => {
+        if (item) {
+          return checkCanDrop({
+            ...item,
+            coordinates: {
+              x: tile.x,
+              y: tile.y,
+            },
+          });
+        } else {
+          console.error("no item");
+          return false;
+        }
+      },
+      collect: (monitor) => ({
+        item: monitor.getItem(),
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+      }),
+    }),
+    [placeShipOnBoard, updateTilesBorders, checkCanDrop]
+  );
 
   useEffect(() => {
     const gameTiles = document.getElementsByClassName(
@@ -77,13 +71,16 @@ const Tile = ({ tile }: { tile: TileType }) => {
     if (idx % 10 === 0 && gameTiles[idx])
       gameTiles[idx].classList.add(`item_c_${idx}`);
   }, [idx]);
+
   useEffect(() => {
     if (!isOver)
       updateTilesBorders({
-        shipData: {
+        ship: {
           ...(item as any),
-          x: tile.x,
-          y: tile.y,
+          coordinates: {
+            x: tile.x,
+            y: tile.y,
+          },
         },
         canDrop: false,
         hovered: isOver,
@@ -91,7 +88,14 @@ const Tile = ({ tile }: { tile: TileType }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOver, item]);
 
-  const getPartShipImage = (occupiedBy: ShipDragData) => {};
+  let tileOccupied = {};
+  if (tile.occupiedBy)
+    tileOccupied = {
+      position: "absolute",
+      top: 0,
+      left: 0,
+    };
+
   return (
     <Grid2
       ref={drop}
@@ -102,16 +106,19 @@ const Tile = ({ tile }: { tile: TileType }) => {
         textAlign: "center",
         height: 60,
         width: 60,
-        boxSizing: "border-box",
         border: tile.border,
         background: `url(${waterImg})`,
         backgroundSize: "contain",
+        overflow: "visible",
+        position: "relative",
       }}
     >
-      <div style={{ height: "100%", width: "100%" }}>
-        {tile.occupiedBy && (
-          <p style={{ color: isOver ? "red" : "white" }}>HELLo</p>
-        )}
+      <div style={{ ...tileOccupied }}>
+        {tile.occupiedBy &&
+          tile.occupiedBy.dragPart ===
+            getShipPartByIdx(tile.occupiedBy.size - 1) && (
+            <Ship ship={tile.occupiedBy} />
+          )}
       </div>
     </Grid2>
   );

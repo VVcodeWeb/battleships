@@ -24,3 +24,14 @@ export const VERTICAL = "vertical";
 export const CAN_DROP_AND_VISIBLE = "3px solid green";
 export const NO_DROP_AND_VISIBLE = "3px solid red";
 export const DEFAULT_BORDER = "1px solid white";
+export const MAX_SHIPS = 7;
+export const WIDTH = 60;
+export const HEIGHT = 60;
+
+export const ENEMY_SHIP = "enemy ship";
+export const BOT = "bot";
+export const HUMAN = "human";
+
+export const PLANNING = "planning";
+export const READY = "ready";
+export const FIGHTING = "fighting";

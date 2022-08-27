@@ -27,7 +27,7 @@ export interface Coordinates {
   x: number;
   y: number;
 }
-export type ShipPart =
+export type ShipPartType =
   | null
   | typeof PART_0
   | typeof PART_1
@@ -40,8 +40,7 @@ export interface ShipType {
   name: ShipNames;
   size: number;
   coordinates?: Coordinates;
-  dragPart: ShipPart;
+  dragPart: ShipPartType;
   orientation: ShipOrientation;
-  damagedParts?: Array<ShipPart>;
   isOnBoard: boolean;
 }

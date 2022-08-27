@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 import "./App.css";
 import MainPage from "./components/MainPage";
-import SinglePlayer from "./components/SinglePlayer";
+import SinglePlayer from "./SinglePlayer";
 
 function App() {
   return (

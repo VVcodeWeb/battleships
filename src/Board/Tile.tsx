@@ -3,17 +3,28 @@ import { useDrop } from "react-dnd";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
 
-import { PART_1, SHIP, TILE } from "constants/const";
+import {
+  ENEMY_SHIP,
+  FIGHTING,
+  HEIGHT,
+  HUMAN,
+  NO_DROP_AND_VISIBLE,
+  SHIP,
+  TILE,
+  WIDTH,
+} from "constants/const";
 import waterImg from "components/../../public/water.jpg";
-import { GameContext } from "GameBoard/context/GameBoardContext";
 import Ship from "ShipDocks/Ship";
-import { TileType } from "GameBoard/types";
+import { TileType } from "Board/types";
 import { getShipPartByIdx } from "utils";
+import { BoardContext } from "Board/context/BoardContext";
+import { GameContext } from "SinglePlayer/context/useGameContext";
 
-const Tile = ({ tile }: { tile: TileType }) => {
+const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const idx = tile.idx;
+  const { gameStage, playersTurn, makeMove } = useContext(GameContext);
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
-    useContext(GameContext);
+    useContext(BoardContext);
   const [{ isOver, item }, drop] = useDrop(
     () => ({
       accept: SHIP,
@@ -40,6 +51,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
         });
       },
       canDrop: (item: any, monitor) => {
+        if (item.enemy) return false;
         if (item) {
           return checkCanDrop({
             ...item,
@@ -73,7 +85,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
   }, [idx]);
 
   useEffect(() => {
-    if (!isOver)
+    if (!tile.enemy && !isOver)
       updateTilesBorders({
         ship: {
           ...(item as any),
@@ -96,29 +108,41 @@ const Tile = ({ tile }: { tile: TileType }) => {
       left: 0,
     };
 
+  const onClick = () => {
+    if (gameStage !== FIGHTING)
+      throw new Error("Track board is visible during non fighting stage ");
+    if (tile.enemy && playersTurn === HUMAN) {
+      makeMove({ x: tile.x, y: tile.y, player: HUMAN });
+    }
+  };
   return (
     <Grid2
+      onClick={onClick}
       ref={drop}
       xs={1}
       className={TILE}
       style={{
         color: "white",
         textAlign: "center",
-        height: 60,
-        width: 60,
-        border: tile.border,
+        height: HEIGHT,
+        width: WIDTH,
+        border: inDev ? NO_DROP_AND_VISIBLE : tile.border,
         background: `url(${waterImg})`,
         backgroundSize: "contain",
         overflow: "visible",
         position: "relative",
       }}
     >
+      {tile.shelled && <span>SHELLED</span>}
       <div style={{ ...tileOccupied }}>
         {tile.occupiedBy &&
-          tile.occupiedBy.dragPart ===
+          tile.occupiedBy !== ENEMY_SHIP &&
+          tile.occupiedBy?.dragPart ===
             getShipPartByIdx(tile.occupiedBy.size - 1) && (
             <Ship ship={tile.occupiedBy} />
           )}
+
+        {tile.occupiedBy === ENEMY_SHIP && <span>ENEMY</span>}
       </div>
     </Grid2>
   );

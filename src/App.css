@@ -13,20 +13,6 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
 .animated_card {
   transition: all 1s ease-in-out;
 }
@@ -121,7 +107,7 @@ div[class*=" item_c_"]::after {
   background: -webkit-linear-gradient(top, #5984ce, #3e6f9b);
   background: -moz-linear-gradient(top, #5984ce, #3e6f9b);
   background: linear-gradient(to bottom, #5984ce, #3e6f9b);
-  height: 100%;
+  /* background: transparent; */
 }
 
 @keyframes App-logo-spin {

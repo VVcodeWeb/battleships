@@ -1,27 +1,30 @@
 body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
   font-family: "Evil Empire";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 html {
-  height: 100%;
+  min-height: 100vh;
+  height: 1px;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
-body,
+
 #root {
+  background: no-repeat url("/public/background.jpg");
+  background-size: 100% 100%;
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  height: 100%;
+  overflow-x: hidden;
   box-sizing: border-box;
-}
-#root {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  background: radial-gradient(
+  position: relative;
+  /* radial-gradient(
       66.5% 221.21% at 136.03% -61.44%,
       rgba(161, 155, 217, 0.4) 0%,
       rgba(161, 155, 217, 0) 92.09%
@@ -36,7 +39,7 @@ body,
       rgba(0, 162, 254, 0.7) 0%,
       rgba(0, 162, 254, 0) 92.09%
     ),
-    #1a1a2e;
+    #1a1a2e; */
 }
 
 @font-face {

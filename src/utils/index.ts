@@ -1,11 +1,19 @@
-import { ShipNames, ShipPart, ShipType } from "ShipDocks/types";
+import {
+  Coordinates,
+  ShipNames,
+  ShipPartType,
+  ShipType,
+} from "ShipDocks/types";
 import {
   BATTLESHIP,
+  CAN_DROP_AND_VISIBLE,
   CARAVELA,
+  DEFAULT_BORDER,
   DROMON,
   DROMON_A,
   DROMON_B,
   FRIGATE,
+  NO_DROP_AND_VISIBLE,
   PART_0,
   PART_1,
   PART_2,
@@ -16,8 +24,9 @@ import {
   PATROL_BOAT_B,
   VERTICAL,
 } from "constants/const";
+import { BorderType, TileType } from "Board/types";
 
-import patrolImg from "components/../../public/ships/patrol.png";
+/* import patrolImg from "components/../../public/ships/patrol.png";
 import dromon0Img from "components/../../public/ships/dromon_0.png";
 import dromon1Img from "components/../../public/ships/dromon_1.png";
 
@@ -30,11 +39,11 @@ import frigate1Img from "components/../../public/ships/frigate_1.png";
 import frigate2Img from "components/../../public/ships/frigate_2.png";
 import frigate3Img from "components/../../public/ships/frigate_3.png";
 
-import battleship0Img from "components/../../public/ships/battleship_0.png";
-import battleship1Img from "components/../../public/ships/battleship_1.png";
-import battleship2Img from "components/../../public/ships/battleship_2.png";
-import battleship3Img from "components/../../public/ships/battleship_3.png";
-import battleship4Img from "components/../../public/ships/battleship_4.png";
+import battleship0Img from "components/../../public/ships/battleship/battleship_0.png";
+import battleship1Img from "components/../../public/ships/battleship/battleship_1.png";
+import battleship2Img from "components/../../public/ships/battleship/battleship_2.png";
+import battleship3Img from "components/../../public/ships/battleship/battleship_3.png";
+import battleship4Img from "components/../../public/ships/battleship/battleship_4.png"; */
 
 export const getAllships = (): ShipType[] => {
   const fleet: ShipType[] = [];
@@ -43,7 +52,7 @@ export const getAllships = (): ShipType[] => {
     if (n === BATTLESHIP) return 5;
     if (n === FRIGATE) return 4;
     if (n === CARAVELA) return 3;
-    if (n.includes("dromon")) return 2;
+    if (n.includes(DROMON)) return 2;
     return 1;
   };
   const buildShip = (name: ShipNames): ShipType => ({
@@ -63,7 +72,7 @@ export const getAllships = (): ShipType[] => {
 
   return fleet;
 };
-export const getShipPartByIdx = (idx: number): ShipPart => {
+export const getShipPartByIdx = (idx: number): ShipPartType => {
   switch (idx) {
     case 0:
       return PART_0;
@@ -80,7 +89,7 @@ export const getShipPartByIdx = (idx: number): ShipPart => {
   }
 };
 
-export const getTilesBehindShipPart = (shipPart: ShipPart): number => {
+export const getTilesBehindShipPart = (shipPart: ShipPartType): number => {
   switch (shipPart) {
     case PART_0:
       return 0;
@@ -93,11 +102,77 @@ export const getTilesBehindShipPart = (shipPart: ShipPart): number => {
     case PART_4:
       return 4;
     default:
-      throw new Error("Invalid ship part");
+      throw new Error(`Invalid ship part: ${shipPart}`);
   }
 };
+export const generateTiles = ({
+  enemy,
+}: {
+  enemy: boolean;
+}): Array<TileType> => {
+  return Array.from(Array(100).keys()).map((tile) => ({
+    idx: tile,
+    x: tile % 10,
+    y: Math.floor(tile / 10),
+    occupiedBy: null,
+    border: DEFAULT_BORDER,
+    enemy,
+    shelled: false,
+  }));
+};
 
-export const getImage = (idx: number, name: ShipNames) => {
+export const getTile = ({
+  x,
+  y,
+  tiles,
+}: {
+  x: number;
+  y: number;
+  tiles: Array<TileType>;
+}): TileType | null =>
+  tiles.slice().find((tile) => tile.x === x && tile.y === y) ?? null;
+
+export const getAdjacentTiles = (
+  ship: ShipType,
+  tiles: Array<TileType>
+): Array<TileType | null> => {
+  if (ship.coordinates && ship.dragPart) {
+    const { x, y } = ship.coordinates;
+    let itemsLeft = ship.size;
+
+    const tilesToGet: Array<TileType | null> = [];
+    let cursor = -1 * getTilesBehindShipPart(ship.dragPart);
+    while (itemsLeft > 0) {
+      if (ship.orientation === VERTICAL)
+        tilesToGet.push(getTile({ x, y: y - cursor, tiles }));
+      else tilesToGet.push(getTile({ x: x - cursor, y, tiles }));
+      cursor++;
+      itemsLeft--;
+    }
+    return tilesToGet;
+  }
+  return [null];
+};
+export const getBorder = ({
+  hovered,
+  canDrop,
+}: {
+  hovered: boolean;
+  canDrop: boolean;
+}): BorderType => {
+  if (canDrop && hovered) return CAN_DROP_AND_VISIBLE;
+  if (!canDrop && hovered) return NO_DROP_AND_VISIBLE;
+  return DEFAULT_BORDER;
+};
+
+export const getRandomNumber = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+export const getRandomCoordinate = (): Coordinates => ({
+  x: getRandomNumber(0, 9),
+  y: getRandomNumber(0, 9),
+});
+/* export const getImage = (idx: number, name: ShipNames) => {
   const part = getShipPartByIdx(idx);
   if (name.includes(PATROL)) return patrolImg;
   if (name.includes(DROMON)) {
@@ -126,4 +201,4 @@ export const getImage = (idx: number, name: ShipNames) => {
     if (part === PART_4) return battleship4Img;
     throw new Error("Invalid battleship size");
   }
-};
+}; */

@@ -5,6 +5,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import Tile from "Board/Tile";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { TileType } from "Board/types";
+import { COLUMNS, SMALLER_WIDTH, WIDTH } from "constants/const";
 
 const Board = ({ enemy, tiles }: { enemy?: boolean; tiles: TileType[] }) => {
   /* For testing only, delete after */
@@ -18,8 +19,11 @@ const Board = ({ enemy, tiles }: { enemy?: boolean; tiles: TileType[] }) => {
   return (
     <Grid2
       container
-      columns={{ xs: 10 }}
-      style={{ width: enemy ? 400 : 500, padding: 0 }}
+      columns={{ xs: COLUMNS }}
+      style={{
+        width: enemy ? SMALLER_WIDTH * COLUMNS : WIDTH * COLUMNS,
+        padding: 0,
+      }}
     >
       {tiles.map((tile) => (
         <Tile

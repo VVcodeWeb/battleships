@@ -30,11 +30,11 @@ type State = {
   winner: null | Player;
 };
 type Action =
-  | { type: typeof ACTION.PLAY_AGAIN }
+  | { type: typeof ACTION.RESET_STATES }
   | { type: typeof ACTION.END_GAME; payload: { winner: Player } }
   | { type: typeof ACTION.NEXT_PLAYER_TURN }
   | { type: typeof ACTION.SET_GAME_STAGE; payload: { value: StageType } }
-  | { type: typeof ACTION.UPDATE_GAME_LOG; payload: { value: LogEntry } }
+  | { type: typeof ACTION.STORE_AND_PASS_MOVE; payload: { value: LogEntry } }
   | { type: typeof ACTION.HIT_AI_SHIP; payload: { x: number; y: number } }
   | {
       type: typeof ACTION.START_GAME;
@@ -57,7 +57,7 @@ const reducer = (state: State, action: Action) => {
         shipsOnBoardHuman: action.payload.humanBoard,
       };
 
-    case ACTION.UPDATE_GAME_LOG: {
+    case ACTION.STORE_AND_PASS_MOVE: {
       return {
         ...state,
         gameLog: [...state.gameLog, action.payload.value],
@@ -90,7 +90,7 @@ const reducer = (state: State, action: Action) => {
         gameStage: GAME_OVER as StageType,
       };
     }
-    case ACTION.PLAY_AGAIN: {
+    case ACTION.RESET_STATES: {
       return {
         ...initialState,
       };
@@ -103,11 +103,11 @@ const reducer = (state: State, action: Action) => {
 export const ACTION = {
   SET_GAME_STAGE: "set_game_stage" as "set_game_stage",
   START_GAME: "start_game" as "start_game",
-  UPDATE_GAME_LOG: "update_game_log" as "update_game_log",
+  STORE_AND_PASS_MOVE: "update_game_log" as "update_game_log",
   HIT_AI_SHIP: "hit_ai_ship" as "hit_ai_ship",
   NEXT_PLAYER_TURN: "next player turn" as "next player turn",
   END_GAME: "end game" as "end game",
-  PLAY_AGAIN: "play again" as "play again",
+  RESET_STATES: "play again" as "play again",
 };
 export const GameContext = React.createContext({
   ...initialState,
@@ -122,7 +122,7 @@ export const GameContext = React.createContext({
 const GameProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const playAgain = () => dispatch({ type: ACTION.PLAY_AGAIN });
+  const playAgain = () => dispatch({ type: ACTION.RESET_STATES });
   const surrender = () => setWinner(BOT);
   const setWinner = (value: Player) =>
     dispatch({ type: ACTION.END_GAME, payload: { winner: value } });
@@ -180,7 +180,7 @@ const GameProvider = ({ children }: any) => {
     const didHit = shipsToCheck.find((ship) => ship.x === x && ship.y === y);
 
     dispatch({
-      type: ACTION.UPDATE_GAME_LOG,
+      type: ACTION.STORE_AND_PASS_MOVE,
       payload: {
         value: {
           player,
@@ -214,7 +214,7 @@ const GameProvider = ({ children }: any) => {
               (ship) => ship.x === x && ship.y === y
             );
             dispatch({
-              type: ACTION.UPDATE_GAME_LOG,
+              type: ACTION.STORE_AND_PASS_MOVE,
               payload: {
                 value: {
                   player: BOT,

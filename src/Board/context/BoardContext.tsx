@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useReducer } from "react";
 
 import { BOT, DEFAULT_BORDER, ENEMY_SHIP, HUMAN, READY } from "constants/const";
-import { BorderType, State, TileType } from "Board/types";
+import { BorderType, TileType } from "Board/types";
 import {
   generateTiles,
   getAdjacentTiles,
@@ -20,7 +20,13 @@ const initialState = {
   dockShips: getAllships() as ShipType[],
 };
 
-export type ActionType =
+type State = {
+  tiles: TileType[];
+  enemyTiles: TileType[];
+  localGameLog: LogEntry[];
+  dockShips: ShipType[];
+};
+type ActionType =
   | { type: typeof ACTION.AUTO_SET_BOARD; payload: { tiles: TileType[] } }
   | { type: typeof ACTION.RESET_BOARD }
   | {
@@ -110,12 +116,15 @@ const reducer = (state: State, action: ActionType): State | never => {
     case ACTION.RESET_BOARD: {
       return {
         ...initialState,
+        tiles: generateTiles({ enemy: false }),
+        enemyTiles: generateTiles({ enemy: true }),
       };
     }
     case ACTION.AUTO_SET_BOARD: {
       return {
         ...initialState,
         tiles: action.payload.tiles,
+        enemyTiles: generateTiles({ enemy: true }),
         dockShips: [],
       };
     }
@@ -148,7 +157,7 @@ export const BoardContext = React.createContext({
 
 const BoardProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { gameLog, gameStage, getHumansBoardAndStart } =
+  const { gameLog, gameStage, getHumansBoardAndStart, winner } =
     useContext(GameContext);
 
   const resetBoard = () => dispatch({ type: ACTION.RESET_BOARD });
@@ -204,6 +213,8 @@ const BoardProvider = ({ children }: any) => {
     }
   };
 
+  /* new game */
+  useEffect(() => (winner === null ? resetBoard() : undefined), [winner]);
   /* returns ships positions from the board upwards  */
   useEffect(() => {
     if (gameStage === READY) {
@@ -246,7 +257,6 @@ const BoardProvider = ({ children }: any) => {
     if (state.localGameLog.length < 1) return;
     const newLogs = state.localGameLog.filter((log) => !log.notificated);
     if (newLogs.length > 0) {
-      console.log({ newLogs });
       dispatch({ type: ACTION.SHELLING_BOARD, payload: newLogs });
       dispatch({
         type: ACTION.UPDATE_LOCAL_GAME_LOG,

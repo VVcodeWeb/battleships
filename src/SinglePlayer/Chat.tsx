@@ -9,13 +9,12 @@ import { HUMAN } from "constants/const";
 import defaultAvatarImg from "components/../../public/default_avatar.jpg";
 const container: React.CSSProperties = {
   overflowY: "scroll",
-  height: "100px",
-  scrollbarWidth: "none",
+  height: 80,
   overflowX: "hidden",
 };
 const entryLog: React.CSSProperties = {
   fontFamily: "serif",
-  height: 60,
+  height: 50,
 };
 
 const emptyLogStyle: React.CSSProperties = {
@@ -40,12 +39,12 @@ const Chat = () => {
       <Grid2
         container
         justifyContent="flex-start"
-        alignContent="center"
+        alignItems="center"
         direction={log.player === HUMAN ? "row" : "row-reverse"}
         style={entryLog}
       >
         <Avatar
-          sx={{ width: 40, height: 40, background: "#ffb562" }}
+          sx={{ width: 35, height: 35, background: "#ffb562" }}
           src={log.player === HUMAN ? defaultAvatarImg : undefined}
         >
           {log.player !== HUMAN && (
@@ -70,17 +69,21 @@ const Chat = () => {
   return (
     <Card
       style={{
-        minWidth: 300,
+        minWidth: 350,
         width: "40%",
       }}
     >
       <CardHeader
         title="Game Log"
         disableTypography
-        style={{ fontSize: 30, textAlign: "center", color: "#7a394f" }}
+        style={{
+          fontSize: 25,
+          textAlign: "center",
+          color: "#7a394f",
+        }}
       />
-      <CardContent>
-        <div style={container}>
+      <CardContent style={{ padding: 0 }}>
+        <div style={{ ...container, padding: 10 }} className="no_scroll_bar">
           {gameLog.length < 1 && <div style={emptyLogStyle}>Empty</div>}
           {gameLog.map((log) => (
             <Entry

@@ -25,9 +25,11 @@ const SinglePlayer = () => {
   const { winner, playAgain } = useContext(GameContext);
   const [open, setOpen] = useState<boolean>(false);
   const naviagte = useNavigate();
-  const handleModalClose = () => setOpen(false);
   const onPlayAgainClick = () => playAgain();
-  const onMainMenuClick = () => naviagte("/");
+  const onMainMenuClick = () => {
+    playAgain();
+    naviagte("/");
+  };
 
   useEffect(() => setOpen(Boolean(winner)), [winner]);
 
@@ -42,7 +44,7 @@ const SinglePlayer = () => {
   };
   return (
     <DndProvider backend={HTML5Backend}>
-      <Modal open={open} onClose={handleModalClose}>
+      <Modal open={open}>
         <Grid2
           container
           justifyContent="flex-end"
@@ -60,20 +62,27 @@ const SinglePlayer = () => {
           </Grid2>
         </Grid2>
       </Modal>
-      <Grid2 container direction="row" justifyContent="center" height="100%">
+      <Grid2
+        container
+        direction="row"
+        height="100%"
+        justifyContent="center"
+        alignItems="flex-start"
+      >
+        <Grid2 container xs={12} md={12} justifyContent="center">
+          <Chat />
+        </Grid2>
         <Grid2
           container
           xs={12}
           md={12}
-          justifyContent="center"
-          alignItems="flex-start"
-          marginTop={2}
+          justifyContent="space-between"
+          margin={4}
         >
-          <Chat />
+          <BoardProvider>
+            <Game />
+          </BoardProvider>
         </Grid2>
-        <BoardProvider>
-          <Game />
-        </BoardProvider>
       </Grid2>
     </DndProvider>
   );

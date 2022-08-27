@@ -26,11 +26,11 @@ export const NO_DROP_AND_VISIBLE = "3px solid red";
 export const DEFAULT_BORDER = "1px solid white";
 export const MAX_SHIPS = 7;
 export const MAX_SHIP_PARTS = 18;
-export const WIDTH = 50;
-export const HEIGHT = 50;
+export const WIDTH = 40;
+export const HEIGHT = 40;
 export const SMALLER_HEIGHT = 40;
 export const SMALLER_WIDTH = 40;
-
+export const COLUMNS = 10;
 export const ENEMY_SHIP = "enemy ship";
 export const BOT = "bot";
 export const HUMAN = "human";

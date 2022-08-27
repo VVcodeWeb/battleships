@@ -110,7 +110,13 @@ div[class*=" item_c_"]::after {
   background: linear-gradient(to bottom, #5984ce, #3e6f9b);
   /* background: transparent;*/
 }
-
+.no_scroll_bar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no_scroll_bar::-webkit-scrollbar {
+  display: none;
+}
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);

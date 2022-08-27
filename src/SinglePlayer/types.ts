@@ -25,6 +25,6 @@ export type ShipOnBoardAI = {
 };
 export type StageType =
   | typeof PLANNING
-  | typeof FIGHTING
   | typeof READY
+  | typeof FIGHTING
   | typeof GAME_OVER;

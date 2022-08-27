@@ -13,10 +13,11 @@ const ShipDocks = () => {
   return (
     <Box
       className="ships_container"
-      style={{ minHeight: 600 }}
       justifyContent="center"
-      alignItems="center"
+      alignItems="top"
       display="flex"
+      minHeight={dockShips.length > 0 ? 450 : 0}
+      width={dockShips.length > 0 ? 400 : 0}
     >
       {dockShips.length > 0 && (
         <Grid2 container sx={{ width: "100%", margin: 0 }}>

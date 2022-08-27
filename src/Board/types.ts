@@ -5,7 +5,6 @@ import {
   ENEMY_SHIP,
   NO_DROP_AND_VISIBLE,
 } from "constants/const";
-import { LogEntry } from "SinglePlayer/types";
 export type TileType = {
   idx: number;
   x: number;
@@ -23,10 +22,3 @@ export type BorderType =
   | typeof CAN_DROP_AND_VISIBLE
   | typeof NO_DROP_AND_VISIBLE
   | typeof DEFAULT_BORDER;
-
-export type State = {
-  tiles: TileType[];
-  enemyTiles: TileType[];
-  localGameLog: LogEntry[];
-  dockShips: ShipType[];
-};

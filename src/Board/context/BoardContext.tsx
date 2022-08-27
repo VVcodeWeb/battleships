@@ -1,33 +1,28 @@
 import React, { useContext, useEffect, useReducer } from "react";
 
-import {
-  BOT,
-  DEFAULT_BORDER,
-  ENEMY_SHIP,
-  HUMAN,
-  PATROL_BOAT_A,
-  READY,
-  VERTICAL,
-} from "constants/const";
+import { BOT, DEFAULT_BORDER, ENEMY_SHIP, HUMAN, READY } from "constants/const";
 import { BorderType, State, TileType } from "Board/types";
 import {
   generateTiles,
   getAdjacentTiles,
+  getAllships,
   getBorder,
   getShipPartByIdx,
 } from "utils";
 import { ShipType } from "ShipDocks/types";
-import { GameContext } from "SinglePlayer/context/useGameContext";
+import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry, Player } from "SinglePlayer/types";
-import { title } from "process";
 
 const initialState = {
   tiles: generateTiles({ enemy: false }) as Array<TileType>,
   enemyTiles: generateTiles({ enemy: true }) as Array<TileType>,
   localGameLog: [] as LogEntry[],
+  dockShips: getAllships() as ShipType[],
 };
 
 export type ActionType =
+  | { type: typeof ACTION.AUTO_SET_BOARD; payload: { tiles: TileType[] } }
+  | { type: typeof ACTION.RESET_BOARD }
   | {
       type: typeof ACTION.SHELLING_BOARD;
       payload: { x: number; y: number; success: boolean; player: Player }[];
@@ -47,6 +42,8 @@ const ACTION = {
   UPDATE_TILES_BORDER: "update_adjacent_tiles" as "update_adjacent_tiles",
   UPDATE_LOCAL_GAME_LOG: "update_local_game_log" as "update_local_game_log",
   SHELLING_BOARD: "shelling_board" as "shelling_board",
+  RESET_BOARD: "reset board" as "reset board",
+  AUTO_SET_BOARD: "auto set board" as "auto set board",
 };
 
 const reducer = (state: State, action: ActionType): State | never => {
@@ -54,6 +51,9 @@ const reducer = (state: State, action: ActionType): State | never => {
     case ACTION.PLACE_SHIP_PART_ON_BOARD:
       return {
         ...state,
+        dockShips: state.dockShips.filter(
+          (ship) => ship.name !== action.payload.ship.name
+        ),
         tiles: state.tiles.map((tile) => {
           if (
             tile.x === action.payload.ship.coordinates?.x &&
@@ -89,23 +89,36 @@ const reducer = (state: State, action: ActionType): State | never => {
       return {
         ...state,
         tiles: state.tiles.map((tile) => {
-          for (let { x, y, success, player } of action.payload) {
-            if (player === HUMAN) return tile;
-            if (tile.x === x && tile.y === y) tile.shelled = true;
+          for (let { x, y, player } of action.payload) {
+            if (player !== HUMAN && tile.x === x && tile.y === y)
+              tile.shelled = true;
           }
           return tile;
         }),
         enemyTiles: state.enemyTiles.map((tile) => {
           for (let { x, y, success, player } of action.payload) {
-            if (player === BOT) return tile;
-            if (tile.x === x && tile.y === y) {
-              tile.shelled = true;
-              if (success) tile.occupiedBy = ENEMY_SHIP;
+            if (player !== BOT) {
+              if (tile.x === x && tile.y === y) {
+                tile.shelled = true;
+                if (success) tile.occupiedBy = ENEMY_SHIP;
+              }
             }
           }
           return tile;
         }),
       };
+    case ACTION.RESET_BOARD: {
+      return {
+        ...initialState,
+      };
+    }
+    case ACTION.AUTO_SET_BOARD: {
+      return {
+        ...initialState,
+        tiles: action.payload.tiles,
+        dockShips: [],
+      };
+    }
     default:
       throw new Error("Invalid action game reducer");
   }
@@ -124,6 +137,8 @@ export const BoardContext = React.createContext({
   ...initialState,
   checkCanDrop: (test: any): any => {},
   placeShipOnBoard: (ship: ShipType) => {},
+  resetBoard: () => {},
+  autoSetBoard: (tiles: TileType[]) => {},
   updateTilesBorders: ({
     ship,
     hovered,
@@ -136,25 +151,18 @@ const BoardProvider = ({ children }: any) => {
   const { gameLog, gameStage, getHumansBoardAndStart } =
     useContext(GameContext);
 
-  /* returns ships from the board */
-  useEffect(() => {
-    if (gameStage === READY) {
-      const ships = state.tiles
-        .filter((tile) => tile.occupiedBy)
-        .map((tile) => {
-          if (!tile.occupiedBy || tile.occupiedBy === ENEMY_SHIP)
-            throw new Error(`Tile on our board is occupiedBy enemy ship`);
-          return {
-            x: tile.x,
-            y: tile.y,
-            damaged: false,
-            name: tile.occupiedBy.name,
-          };
-        });
-      getHumansBoardAndStart(ships);
-    }
-  }, [gameStage, getHumansBoardAndStart, state.tiles]);
+  const resetBoard = () => dispatch({ type: ACTION.RESET_BOARD });
+  const autoSetBoard = (tiles: TileType[]) =>
+    dispatch({ type: ACTION.AUTO_SET_BOARD, payload: { tiles } });
 
+  const checkCanDrop = (ship: ShipType) => {
+    const tilesToCheck = getAdjacentTiles(ship, state.tiles);
+    return (
+      tilesToCheck.findIndex(
+        (tile) => tile === null || tile.occupiedBy !== null
+      ) === -1
+    );
+  };
   const updateTilesBorders = ({
     ship,
     hovered,
@@ -173,16 +181,6 @@ const BoardProvider = ({ children }: any) => {
       }
     });
   };
-
-  const checkCanDrop = (ship: ShipType) => {
-    const tilesToCheck = getAdjacentTiles(ship, state.tiles);
-    return (
-      tilesToCheck.findIndex(
-        (tile) => tile === null || tile.occupiedBy !== null
-      ) === -1
-    );
-  };
-
   const placeShipOnBoard = (ship: ShipType) => {
     const claimedTiles = getAdjacentTiles(ship, state.tiles);
     for (let i = 0; i < claimedTiles.length; i++) {
@@ -205,6 +203,25 @@ const BoardProvider = ({ children }: any) => {
       } else throw new Error("Try to place ship over null tile");
     }
   };
+
+  /* returns ships positions from the board upwards  */
+  useEffect(() => {
+    if (gameStage === READY) {
+      const ships = state.tiles
+        .filter((tile) => tile.occupiedBy)
+        .map((tile) => {
+          if (!tile.occupiedBy || tile.occupiedBy === ENEMY_SHIP)
+            throw new Error(`Tile on our board is occupiedBy enemy ship`);
+          return {
+            x: tile.x,
+            y: tile.y,
+            damaged: false,
+            name: tile.occupiedBy.name,
+          };
+        });
+      getHumansBoardAndStart(ships);
+    }
+  }, [gameStage, getHumansBoardAndStart, state.tiles]);
 
   /* Update game local game log when original is updated */
   useEffect(() => {
@@ -240,6 +257,7 @@ const BoardProvider = ({ children }: any) => {
       });
     }
   }, [state.localGameLog]);
+
   return (
     <BoardContext.Provider
       value={{
@@ -247,6 +265,8 @@ const BoardProvider = ({ children }: any) => {
         updateTilesBorders,
         placeShipOnBoard,
         checkCanDrop,
+        resetBoard,
+        autoSetBoard,
       }}
     >
       {children}

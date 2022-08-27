@@ -21,6 +21,7 @@ import {
   getRandomCoordinate,
   getTile,
   getAdjacentTiles,
+  getShipPartByIdx,
 } from "utils";
 
 export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
@@ -28,7 +29,7 @@ export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
   return getRandomNumber(0, 1) === 0 ? VERTICAL : HORIZONTAL;
 };
 
-export const placeShipOnBoard = (
+export const placeShipOnTemporarBoard = (
   ship: ShipType,
   adjacentTiles: Array<TileType | null>,
   tiles: TileType[],
@@ -45,14 +46,20 @@ export const placeShipOnBoard = (
       });
       tiles.forEach((tile) => {
         if (tile.x === dropOnTile.x && tile.y === dropOnTile.y) {
-          tile.occupiedBy = ship;
+          tile.occupiedBy = {
+            ...ship,
+            dragPart: getShipPartByIdx(i),
+          };
           tile.border = DEFAULT_BORDER;
         }
       });
     } else throw new Error("Try to place ship over null tile");
   }
 };
-export const generateBoardAI = (): ShipOnBoardAI[] => {
+export const generateBoardAI = (): {
+  shipsOnBoardAI: ShipOnBoardAI[];
+  tiles: TileType[];
+} => {
   const tiles = generateTiles({ enemy: false });
   const ships = getAllships();
   const shipsOnBoardAI: Array<ShipOnBoardAI> = [];
@@ -65,7 +72,7 @@ export const generateBoardAI = (): ShipOnBoardAI[] => {
       const tile = getTile({ x, y, tiles });
       if (!tile?.occupiedBy) {
         const ship = ships[0];
-        if (!ship) return shipsOnBoardAI;
+        if (!ship) return { shipsOnBoardAI, tiles };
 
         ship.orientation = getRandomOrientation(ship.name);
         ship.dragPart = PART_0;
@@ -77,7 +84,7 @@ export const generateBoardAI = (): ShipOnBoardAI[] => {
           ) === -1;
         if (canPlace) {
           ship.isOnBoard = true;
-          placeShipOnBoard(ship, adjacentTiles, tiles, shipsOnBoardAI);
+          placeShipOnTemporarBoard(ship, adjacentTiles, tiles, shipsOnBoardAI);
           ships.shift();
         } else invalidCoordinates.push({ x, y });
         if (shipsOnBoardAI.length === MAX_SHIPS) allShipsPlaced = true;
@@ -88,5 +95,5 @@ export const generateBoardAI = (): ShipOnBoardAI[] => {
   }
   if (shipsOnBoardAI.length < MAX_SHIPS)
     throw new Error("Not enough ships placed by AI");
-  return shipsOnBoardAI;
+  return { shipsOnBoardAI, tiles };
 };

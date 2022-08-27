@@ -28,8 +28,8 @@ div[class*=" item"] {
 div[class^="item_r_"]::before,
 div[class*=" item_r_"]::before {
   position: absolute;
-  right: 30px;
-  top: -30px;
+  right: 20px;
+  top: -25px;
 }
 
 div[class^="item_c_"]::after,
@@ -104,10 +104,11 @@ div[class*=" item_c_"]::after {
 .ships_container {
   /* Created with https://www.css-gradient.com */
   background: #5984ce;
+  /* background: urL("/public/test.jpg"); */
   background: -webkit-linear-gradient(top, #5984ce, #3e6f9b);
   background: -moz-linear-gradient(top, #5984ce, #3e6f9b);
   background: linear-gradient(to bottom, #5984ce, #3e6f9b);
-  /* background: transparent; */
+  /* background: transparent;*/
 }
 
 @keyframes App-logo-spin {

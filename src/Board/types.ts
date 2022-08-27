@@ -28,4 +28,5 @@ export type State = {
   tiles: TileType[];
   enemyTiles: TileType[];
   localGameLog: LogEntry[];
+  dockShips: ShipType[];
 };

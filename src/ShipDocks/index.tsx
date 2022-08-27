@@ -1,55 +1,34 @@
-import { useState, useEffect, useContext } from "react";
+import { useContext } from "react";
 
-import { Button, Box, ImageList, ImageListItem } from "@mui/material";
+import { Box } from "@mui/material";
 
-import { ShipNames, ShipType } from "ShipDocks/types";
+import Grid2 from "@mui/material/Unstable_Grid2";
+
 import Ship from "ShipDocks/Ship";
-import { getAllships } from "utils";
-import { GameContext } from "SinglePlayer/context/useGameContext";
-import { HEIGHT, READY, WIDTH } from "constants/const";
+import { HEIGHT, WIDTH } from "constants/const";
+import { BoardContext } from "Board/context/BoardContext";
 
 const ShipDocks = () => {
-  const [dockShips, setDockShips] = useState<Array<ShipType>>(getAllships());
-  const [displayReadyButton, setDisplayReadyButton] = useState<boolean>(false);
-  const { setGameStage } = useContext(GameContext);
-
-  useEffect(
-    () => setDisplayReadyButton(dockShips.length === 0),
-    [dockShips, setGameStage]
-  );
-
-  const removeShipFromDock = (name: ShipNames) => {
-    return setDockShips((prevState) =>
-      prevState.filter((ship) => ship.name !== name)
-    );
-  };
-  const onReadyClick = () => setGameStage(READY);
-
+  const { dockShips } = useContext(BoardContext);
   return (
-    <Box className="ships_container" style={{ height: "100%" }}>
-      {displayReadyButton && (
-        <Box
-          height="100%"
-          justifyContent="center"
-          display="flex"
-          alignItems="center"
-        >
-          <Button variant="contained" onClick={onReadyClick}>
-            Ready
-          </Button>
-        </Box>
-      )}
+    <Box
+      className="ships_container"
+      style={{ minHeight: 600 }}
+      justifyContent="center"
+      alignItems="center"
+      display="flex"
+    >
       {dockShips.length > 0 && (
-        <ImageList sx={{ width: "100%", margin: 0 }}>
-          {dockShips.map((item, idx) => (
-            <ImageListItem
+        <Grid2 container sx={{ width: "100%", margin: 0 }}>
+          {dockShips.map((item) => (
+            <Grid2
               style={{ width: item.size * WIDTH, height: item.size * HEIGHT }}
               key={`${item.name}_${item.dragPart}_imglist`}
             >
-              <Ship ship={item} removeShipFromDock={removeShipFromDock} />
-            </ImageListItem>
+              <Ship ship={item} />
+            </Grid2>
           ))}
-        </ImageList>
+        </Grid2>
       )}
     </Box>
   );

@@ -8,16 +8,17 @@ import Ship from "ShipDocks/Ship";
 import { HEIGHT, WIDTH } from "constants/const";
 import { BoardContext } from "Board/context/BoardContext";
 
-const ShipDocks = () => {
+const ShipDocks = ({ hidden }: { hidden?: boolean }) => {
   const { dockShips } = useContext(BoardContext);
+  if (hidden) return <></>;
   return (
     <Box
       className="ships_container"
       justifyContent="center"
       alignItems="top"
       display="flex"
-      minHeight={dockShips.length > 0 ? 450 : 0}
-      width={dockShips.length > 0 ? 400 : 0}
+      minHeight={400}
+      width={400}
     >
       {dockShips.length > 0 && (
         <Grid2 container sx={{ width: "100%", margin: 0 }}>

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useTransition } from "react";
 import { DropTargetMonitor, useDrop } from "react-dnd";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
@@ -24,6 +24,7 @@ import { GameContext } from "SinglePlayer/context/GameContext";
 import shellImg from "components/../../public/shell.png";
 import lolImg from "components/../../public/lol.png";
 import fireImg from "components/../../public/fire2.png";
+import { animated, useSpring } from "react-spring";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const { gameStage, playersTurn, makeMove } = useContext(GameContext);
@@ -154,13 +155,12 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const RenderShell = () => {
     if (tile.shelled) {
       if (tile.occupiedBy === null) return <Icon src={shellImg} />;
-      if (tile.enemy && tile.occupiedBy === ENEMY_SHIP)
-        return <Icon src={lolImg} />;
-      if (!tile.enemy && tile.occupiedBy) return <Icon src={fireImg} />;
+      return <Icon src={fireImg} />;
     }
 
     return <></>;
   };
+
   return (
     <Grid2
       onClick={onClick}

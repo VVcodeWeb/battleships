@@ -165,6 +165,9 @@ export const getBorder = ({
   return DEFAULT_BORDER;
 };
 
+export const areXYsEual = (x1: number, x2: number, y1: number, y2: number) =>
+  x1 === x2 && y1 === y2;
+
 export const getRandomNumber = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 

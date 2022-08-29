@@ -19,14 +19,14 @@ const entryLog: React.CSSProperties = {
 
 const emptyLogStyle: React.CSSProperties = {
   textAlign: "center",
-  color: "gray",
+  color: "white",
   fontStyle: "italic",
 };
 const getLetterByX = (x: number) => String.fromCharCode(65 + x);
 //TODO: add system messages like game stage, winner etc
 //Expand the log on click
 const Chat = () => {
-  const { gameLog } = useContext(GameContext);
+  const { gameLog, gameStage } = useContext(GameContext);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -51,16 +51,22 @@ const Chat = () => {
             <SmartToyOutlinedIcon style={{ color: "white" }} />
           )}
         </Avatar>
-        <Grid2>
-          <span
-            style={{
-              fontWeight: "bold",
-            }}
-          >
-            {log.player}
-          </span>{" "}
-          shells {getLetterByX(log.x)}:{log.y + 1}.
-          {log.success ? " Success" : "   Miss"}
+        <Grid2
+          style={{
+            background: "#ffb562",
+            padding: 10,
+            borderRadius: 30,
+            color: "white",
+            fontWeight: "bold",
+          }}
+        >
+          <span style={{}}>{log.player}</span> shells {getLetterByX(log.x)}:
+          {log.y + 1}.
+          {log.success ? (
+            <span style={{ color: "aquamarine", paddingLeft: 5 }}>Success</span>
+          ) : (
+            "   Miss"
+          )}
         </Grid2>
       </Grid2>
     );
@@ -71,19 +77,24 @@ const Chat = () => {
       style={{
         minWidth: 350,
         width: "40%",
+        /* background: "#B75E64", */
+        background: "white",
+        color: "white",
       }}
     >
       <CardHeader
         title="Game Log"
         disableTypography
         style={{
-          fontSize: 25,
+          fontSize: 20,
+          padding: 10,
           textAlign: "center",
-          color: "#7a394f",
+          /* color: "white", */
+          background: "#ffb562",
         }}
       />
       <CardContent style={{ padding: 0 }}>
-        <div style={{ ...container, padding: 10 }} className="no_scroll_bar">
+        <div style={{ ...container, padding: 15 }} className="no_scroll_bar">
           {gameLog.length < 1 && <div style={emptyLogStyle}>Empty</div>}
           {gameLog.map((log) => (
             <Entry

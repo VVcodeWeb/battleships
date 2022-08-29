@@ -6,10 +6,11 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Divider, Modal } from "@mui/material";
 
 import BoardProvider from "Board/context/BoardContext";
-import { GameContext } from "SinglePlayer/context/GameContext";
+import GameProvider, { GameContext } from "SinglePlayer/context/GameContext";
 import { BOT, HUMAN } from "constants/const";
 import loseImg from "components/../../public/lose.png";
 import winImg from "components/../../public/win.png";
+import background2 from "components/../../public/background_2.jpg";
 import { useNavigate } from "react-router-dom";
 import Chat from "SinglePlayer/Chat";
 import { Player } from "SinglePlayer/types";
@@ -27,15 +28,14 @@ const SinglePlayer = () => {
   const naviagte = useNavigate();
   const onPlayAgainClick = () => playAgain();
   const onMainMenuClick = () => {
-    playAgain();
     naviagte("/");
   };
-
+  const onGoBackClick = () => {};
   useEffect(() => setOpen(Boolean(winner)), [winner]);
 
   const GameOverImage = ({ winner }: { winner: Player | null }) => {
     const imgSize = {
-      width: 400,
+      width: 500,
       height: 400,
     };
     if (winner === HUMAN) return <img style={imgSize} src={winImg} alt="win" />;
@@ -65,11 +65,22 @@ const SinglePlayer = () => {
       <Grid2
         container
         direction="row"
-        height="100%"
+        minHeight="100vh"
         justifyContent="center"
         alignItems="flex-start"
+        style={{
+          background: `url(${background2})`,
+          backgroundSize: "100% 100%",
+        }}
       >
-        <Grid2 container xs={12} md={12} justifyContent="center">
+        <Grid2
+          container
+          xs={12}
+          md={12}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <GameButton text="Go back" onClick={onMainMenuClick} />
           <Chat />
         </Grid2>
         <Grid2
@@ -77,6 +88,7 @@ const SinglePlayer = () => {
           xs={12}
           md={12}
           justifyContent="space-between"
+          alignItems="center"
           margin={4}
         >
           <BoardProvider>

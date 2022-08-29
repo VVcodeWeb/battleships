@@ -215,6 +215,7 @@ const BoardProvider = ({ children }: any) => {
 
   /* new game */
   useEffect(() => (winner === null ? resetBoard() : undefined), [winner]);
+
   /* returns ships positions from the board upwards  */
   useEffect(() => {
     if (gameStage === READY) {

@@ -10,8 +10,7 @@ import {
   READY,
 } from "constants/const";
 import { LogEntry, Player, ShipOnBoardAI, StageType } from "SinglePlayer/types";
-import { generateBoardAI } from "utils/ai";
-import { getRandomCoordinate } from "utils";
+import { generateBoardAI, takeTurnAI } from "utils/ai";
 
 const initialState = {
   gameStage: PLANNING as StageType,
@@ -121,7 +120,6 @@ export const GameContext = React.createContext({
 //TODO: remove damaged field after testing
 const GameProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-
   const playAgain = () => dispatch({ type: ACTION.RESET_STATES });
   const surrender = () => setWinner(BOT);
   const setWinner = (value: Player) =>
@@ -198,38 +196,30 @@ const GameProvider = ({ children }: any) => {
 
   /* BOT takes a turn */
   useEffect(() => {
-    if (state.playersTurn === BOT) {
+    if (
+      state.playersTurn === BOT &&
+      state.gameLog[state.gameLog.length - 1].player === HUMAN
+    ) {
       setTimeout(() => {
-        const tilesShelledByBot = state.gameLog.filter(
-          (log) => log.player === BOT
+        const { x, y } = takeTurnAI({ gameLog: state.gameLog });
+        const didHit = state.shipsOnBoardHuman.find(
+          (ship) => ship.x === x && ship.y === y
         );
-        let moveMade = false;
-        while (!moveMade) {
-          const { x, y } = getRandomCoordinate();
-          const alreadyShelled = tilesShelledByBot.find(
-            (l) => l.x === x && l.y === y
-          );
-          if (!alreadyShelled) {
-            const didHit = state.shipsOnBoardHuman.find(
-              (ship) => ship.x === x && ship.y === y
-            );
-            dispatch({
-              type: ACTION.STORE_AND_PASS_MOVE,
-              payload: {
-                value: {
-                  player: BOT,
-                  x,
-                  y,
-                  success: Boolean(didHit),
-                },
-              },
-            });
-            moveMade = true;
-          }
-        }
-      }, 200);
+        dispatch({
+          type: ACTION.STORE_AND_PASS_MOVE,
+          payload: {
+            value: {
+              player: BOT,
+              x,
+              y,
+              success: Boolean(didHit),
+            },
+          },
+        });
+      }, 500);
     }
-  }, [state.gameLog, state.playersTurn, state.shipsOnBoardHuman]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.gameLog, state.playersTurn]);
   return (
     <GameContext.Provider
       value={{

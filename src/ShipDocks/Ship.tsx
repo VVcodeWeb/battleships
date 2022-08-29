@@ -126,6 +126,7 @@ const Ship = ({ ship }: { ship: ShipType }) => {
         ...size,
         zIndex: 5,
         position: "relative",
+        cursor: ship.isOnBoard ? "default" : "grab",
       }}
     >
       <RotateIcon />

@@ -6,6 +6,7 @@ import {
   DEFAULT_BORDER,
   PART_0,
   MAX_SHIPS,
+  BOT,
 } from "constants/const";
 import {
   ShipNames,
@@ -13,7 +14,7 @@ import {
   ShipType,
   Coordinates,
 } from "ShipDocks/types";
-import { ShipOnBoardAI } from "SinglePlayer/types";
+import { LogEntry, ShipOnBoardAI } from "SinglePlayer/types";
 import {
   getRandomNumber,
   generateTiles,
@@ -54,6 +55,37 @@ export const placeShipOnTemporarBoard = (
         }
       });
     } else throw new Error("Try to place ship over null tile");
+  }
+};
+const shelledBefore = (x: number, y: number, log: LogEntry[]): boolean =>
+  Boolean(log.find((l) => l.x === x && l.y === y));
+
+export const takeTurnAI = ({
+  gameLog,
+}: {
+  gameLog: LogEntry[];
+}): Coordinates => {
+  const shells = gameLog.filter((log) => log.player === BOT);
+  const hits = shells.filter((shell) => shell.success);
+  const suggestions: Coordinates[] = [];
+  for (let hit of hits) {
+    suggestions.push({ x: hit.x, y: hit.y + 1 });
+    suggestions.push({ x: hit.x, y: hit.y - 1 });
+    suggestions.push({ x: hit.x + 1, y: hit.y });
+    suggestions.push({ x: hit.x - 1, y: hit.y });
+  }
+  const validSuggestions = suggestions.filter(
+    (sug) => !shelledBefore(sug.x, sug.y, shells)
+  );
+  if (validSuggestions.length > 0) {
+    //hunt
+    return validSuggestions[validSuggestions.length - 1];
+  } else {
+    //scout
+    while (true) {
+      const { x, y } = getRandomCoordinate();
+      if (!shelledBefore(x, y, shells)) return { x, y };
+    }
   }
 };
 export const generateBoardAI = (): {

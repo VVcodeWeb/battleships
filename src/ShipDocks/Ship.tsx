@@ -16,7 +16,7 @@ import {
   SMALLER_WIDTH,
   SMALLER_HEIGHT,
 } from "constants/const";
-import { getShipPartByIdx } from "utils";
+import { getShipPartByIdx, getSize } from "utils";
 
 const Ship = ({ ship }: { ship: ShipType }) => {
   const [icon, setIcon] = useState<string>("");
@@ -36,7 +36,6 @@ const Ship = ({ ship }: { ship: ShipType }) => {
     {
       type: SHIP,
       item: {
-        size: ship.size,
         name: ship.name,
         dragPart: shipPartInDrag,
         orientation: shipOrientation,
@@ -58,7 +57,7 @@ const Ship = ({ ship }: { ship: ShipType }) => {
   //TODO: allow ships to be rotated on the board if it has enough space
   // Idea: make it rotatable by following clicked mouses
   const RotateIcon = () => {
-    if (ship.isOnBoard || ship.size < 2) return null;
+    if (ship.isOnBoard || getSize(ship) < 2) return null;
     return (
       <div
         style={{
@@ -126,11 +125,11 @@ const Ship = ({ ship }: { ship: ShipType }) => {
   const size: React.CSSProperties = {
     width:
       shipOrientation === HORIZONTAL
-        ? getWholeSize(ship.size, isWiderMD)
+        ? getWholeSize(getSize(ship), isWiderMD)
         : WIDTH,
     height:
       shipOrientation === VERTICAL
-        ? getWholeSize(ship.size, isWiderMD)
+        ? getWholeSize(getSize(ship), isWiderMD)
         : HEIGHT,
   };
 
@@ -155,9 +154,7 @@ const Ship = ({ ship }: { ship: ShipType }) => {
     >
       <RotateIcon />
       <img
-        style={{
-          ...size,
-        }}
+        style={size}
         src={icon}
         srcSet={icon}
         onDragStart={onDragStart}

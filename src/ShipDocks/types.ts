@@ -38,7 +38,6 @@ export type ShipOrientation = typeof VERTICAL | typeof HORIZONTAL;
 
 export interface ShipType {
   name: ShipNames;
-  size: number;
   coordinates?: Coordinates;
   dragPart: ShipPartType;
   orientation: ShipOrientation;

@@ -7,6 +7,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import Ship from "ShipDocks/Ship";
 import { HEIGHT, WIDTH } from "constants/const";
 import { BoardContext } from "Board/context/BoardContext";
+import { getSize } from "utils";
 
 const ShipDocks = ({ hidden }: { hidden?: boolean }) => {
   const { dockShips } = useContext(BoardContext);
@@ -24,7 +25,10 @@ const ShipDocks = ({ hidden }: { hidden?: boolean }) => {
         <Grid2 container sx={{ width: "100%", margin: 0 }}>
           {dockShips.map((item) => (
             <Grid2
-              style={{ width: item.size * WIDTH, height: item.size * HEIGHT }}
+              style={{
+                width: getSize(item) * WIDTH,
+                height: getSize(item) * HEIGHT,
+              }}
               key={`${item.name}_${item.dragPart}_imglist`}
             >
               <Ship ship={item} />

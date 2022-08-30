@@ -26,38 +26,21 @@ import {
 } from "constants/const";
 import { BorderType, TileType } from "Board/types";
 
-/* import patrolImg from "components/../../public/ships/patrol.png";
-import dromon0Img from "components/../../public/ships/dromon_0.png";
-import dromon1Img from "components/../../public/ships/dromon_1.png";
-
-import caravela0Img from "components/../../public/ships/caravela_0.png";
-import caravela1Img from "components/../../public/ships/caravela_1.png";
-import caravela2Img from "components/../../public/ships/caravela_2.png";
-
-import frigate0Img from "components/../../public/ships/frigate_0.png";
-import frigate1Img from "components/../../public/ships/frigate_1.png";
-import frigate2Img from "components/../../public/ships/frigate_2.png";
-import frigate3Img from "components/../../public/ships/frigate_3.png";
-
-import battleship0Img from "components/../../public/ships/battleship/battleship_0.png";
-import battleship1Img from "components/../../public/ships/battleship/battleship_1.png";
-import battleship2Img from "components/../../public/ships/battleship/battleship_2.png";
-import battleship3Img from "components/../../public/ships/battleship/battleship_3.png";
-import battleship4Img from "components/../../public/ships/battleship/battleship_4.png"; */
-
+export const getSize = (ship: ShipType): number => {
+  const name = ship.name;
+  const n = name.toLowerCase();
+  if (n === BATTLESHIP) return 5;
+  if (n === FRIGATE) return 4;
+  if (n === CARAVELA) return 3;
+  if (n.includes(DROMON)) return 2;
+  if (n.includes(PATROL)) return 1;
+  throw new Error(`Invalid ship name ${ship.name}`);
+};
 export const getAllships = (): ShipType[] => {
   const fleet: ShipType[] = [];
-  const getSize = (name: ShipNames): number => {
-    const n = name.toLowerCase();
-    if (n === BATTLESHIP) return 5;
-    if (n === FRIGATE) return 4;
-    if (n === CARAVELA) return 3;
-    if (n.includes(DROMON)) return 2;
-    return 1;
-  };
+
   const buildShip = (name: ShipNames): ShipType => ({
     name,
-    size: getSize(name),
     orientation: VERTICAL,
     dragPart: null,
     isOnBoard: false,
@@ -134,7 +117,7 @@ export const getAdjacentTiles = (
 ): Array<TileType | null> => {
   if (ship.coordinates && ship.dragPart) {
     const { x, y } = ship.coordinates;
-    let itemsLeft = ship.size;
+    let itemsLeft = getSize(ship);
 
     const tilesToGet: Array<TileType | null> = [];
     let cursor = -1 * getTilesBehindShipPart(ship.dragPart);
@@ -161,7 +144,7 @@ export const getBorder = ({
   return DEFAULT_BORDER;
 };
 
-export const areXYsEual = (x1: number, x2: number, y1: number, y2: number) =>
+export const areXYsEual = (x1: number, y1: number, x2: number, y2: number) =>
   x1 === x2 && y1 === y2;
 
 export const getRandomNumber = (min: number, max: number) =>

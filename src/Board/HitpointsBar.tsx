@@ -1,19 +1,14 @@
-import { useMediaQuery } from "@mui/material";
-import {
-  BOT,
-  FULL_HP,
-  HUMAN,
-  MAX_SHIP_PARTS,
-  MIN_MD_WIDTH,
-} from "constants/const";
 import { useContext, useEffect, useState } from "react";
 import { animated, useSpring } from "react-spring";
+
+import { useMediaQuery } from "@mui/material";
+
+import { FULL_HP, MAX_SHIP_PARTS, MIN_MD_WIDTH } from "constants/const";
 import { GameContext } from "SinglePlayer/context/GameContext";
 
-const ProgressBar = ({ enemy }: { enemy: boolean }) => {
+const HitpointsBar = ({ numDamagedParts }: { numDamagedParts: number }) => {
   const [completed, setCompleted] = useState<number>(FULL_HP);
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
-  const { gameLog } = useContext(GameContext);
 
   const [styles, api] = useSpring(() => ({
     from: { width: 0 },
@@ -22,19 +17,10 @@ const ProgressBar = ({ enemy }: { enemy: boolean }) => {
 
   const calcCompleted = (val: number) =>
     Math.floor(FULL_HP - val * (FULL_HP / MAX_SHIP_PARTS));
+
   useEffect(() => {
-    let numHits;
-    if (enemy) {
-      numHits = gameLog.filter(
-        (log) => log.player === HUMAN && log.success
-      ).length;
-    } else {
-      numHits = gameLog.filter(
-        (log) => log.player === BOT && log.success
-      ).length;
-    }
-    setCompleted(calcCompleted(numHits));
-  }, [enemy, gameLog]);
+    setCompleted(calcCompleted(numDamagedParts));
+  }, [numDamagedParts]);
 
   const containerStyles: React.CSSProperties = {
     height: isWiderMD ? 250 : 30,
@@ -74,4 +60,4 @@ const ProgressBar = ({ enemy }: { enemy: boolean }) => {
     </animated.div>
   );
 };
-export default ProgressBar;
+export default HitpointsBar;

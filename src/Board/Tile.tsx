@@ -23,7 +23,7 @@ import {
 import waterImg from "components/../../public/water.jpg";
 import Ship from "ShipDocks/Ship";
 import { TileType } from "Board/types";
-import { getShipPartByIdx } from "utils";
+import { getShipPartByIdx, getSize } from "utils";
 import { BoardContext } from "Board/context/BoardContext";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import shellImg from "components/../../public/shell.png";
@@ -175,7 +175,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
       {tile.occupiedBy &&
         tile.occupiedBy !== ENEMY_SHIP &&
         tile.occupiedBy.dragPart ===
-          getShipPartByIdx(tile.occupiedBy.size - 1) && (
+          getShipPartByIdx(getSize(tile.occupiedBy) - 1) && (
           <div
             style={{
               position: "absolute",

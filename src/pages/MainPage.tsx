@@ -23,6 +23,18 @@ const MainPageCard = ({ title, content, onClick }: any) => {
     boxShadow:
       "0 .25rem 2.75rem rgba(32,17,46,.2),0 1.125rem 2.25rem -1.125rem rgba(0,0,0,.24),0 1.875rem 3.75rem -.625rem rgba(0,0,0,.16)",
   };
+
+  const cardStyle: React.CSSProperties = {
+    width: 300,
+    ...boxShadow,
+    backgroundSize: "contain",
+    height: 200,
+    fontWeight: "bold",
+    color: "#7a394f",
+    textAlign: "center",
+    fontSize: 20,
+    position: "relative",
+  };
   return (
     <Card
       elevation={3}
@@ -30,17 +42,7 @@ const MainPageCard = ({ title, content, onClick }: any) => {
       onMouseOver={() => onHover(true)}
       onMouseLeave={() => onHover(false)}
       onClick={onClick}
-      style={{
-        width: 300,
-        ...boxShadow,
-        backgroundSize: "contain",
-        height: 200,
-        fontWeight: "bold",
-        color: "#7a394f",
-        textAlign: "center",
-        fontSize: 20,
-        position: "relative",
-      }}
+      style={cardStyle}
     >
       <animated.img
         style={{

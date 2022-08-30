@@ -65,7 +65,7 @@ const Chat = () => {
           {log.success ? (
             <span style={{ color: "aquamarine", paddingLeft: 5 }}>Success</span>
           ) : (
-            "   Miss"
+            <> Miss</>
           )}
         </Grid2>
       </Grid2>

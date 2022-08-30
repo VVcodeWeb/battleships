@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Grid } from "@mui/material";
+import { Grid, useMediaQuery } from "@mui/material";
 import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
 import { useDrag } from "react-dnd";
 
@@ -12,11 +12,16 @@ import {
   DROMON,
   HEIGHT,
   WIDTH,
+  MIN_MD_WIDTH,
+  SMALLER_WIDTH,
+  SMALLER_HEIGHT,
 } from "constants/const";
 import { getShipPartByIdx } from "utils";
 
 const Ship = ({ ship }: { ship: ShipType }) => {
   const [icon, setIcon] = useState<string>("");
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
+
   const [shipPartInDrag, setShipPartInDrag] = useState<ShipPartType>(
     ship.dragPart ?? null
   );
@@ -82,8 +87,15 @@ const Ship = ({ ship }: { ship: ShipType }) => {
       const { right, bottom } = grabImgDiv.getBoundingClientRect();
       let part;
       if (shipOrientation === VERTICAL)
-        part = getShipPartByIdx(Math.floor((bottom - clicked.y) / HEIGHT));
-      else part = getShipPartByIdx(Math.floor((right - clicked.x) / WIDTH));
+        part = getShipPartByIdx(
+          Math.floor(
+            (bottom - clicked.y) / (isWiderMD ? HEIGHT : SMALLER_HEIGHT)
+          )
+        );
+      else
+        part = getShipPartByIdx(
+          Math.floor((right - clicked.x) / (isWiderMD ? WIDTH : SMALLER_WIDTH))
+        );
       setShipPartInDrag(part);
     } else throw new Error("Unknown drag object");
   };
@@ -108,10 +120,27 @@ const Ship = ({ ship }: { ship: ShipType }) => {
     setIcon(getIconPath());
   }, [ship.name, shipOrientation]);
 
+  const getWholeSize = (size: number, isWiderMD: boolean) =>
+    isWiderMD ? size * WIDTH : size * SMALLER_WIDTH;
+
   const size: React.CSSProperties = {
-    width: shipOrientation === HORIZONTAL ? ship.size * WIDTH : WIDTH,
-    height: shipOrientation === VERTICAL ? ship.size * HEIGHT : HEIGHT,
+    width:
+      shipOrientation === HORIZONTAL
+        ? getWholeSize(ship.size, isWiderMD)
+        : WIDTH,
+    height:
+      shipOrientation === VERTICAL
+        ? getWholeSize(ship.size, isWiderMD)
+        : HEIGHT,
   };
+
+  const containerStyle: React.CSSProperties = {
+    ...size,
+    zIndex: 5,
+    position: "relative",
+    cursor: ship.isOnBoard ? "default" : "grab",
+  };
+
   if (collected.isDragging) return <div ref={preview} />;
   return (
     <Grid
@@ -122,12 +151,7 @@ const Ship = ({ ship }: { ship: ShipType }) => {
           : "row"
       }
       container
-      style={{
-        ...size,
-        zIndex: 5,
-        position: "relative",
-        cursor: ship.isOnBoard ? "default" : "grab",
-      }}
+      style={containerStyle}
     >
       <RotateIcon />
       <img

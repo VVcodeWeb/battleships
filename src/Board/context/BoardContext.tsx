@@ -14,8 +14,8 @@ import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry, Player } from "SinglePlayer/types";
 
 const initialState = {
-  tiles: generateTiles({ enemy: false }) as Array<TileType>,
-  enemyTiles: generateTiles({ enemy: true }) as Array<TileType>,
+  tiles: generateTiles({ enemy: false }) as TileType[],
+  enemyTiles: generateTiles({ enemy: true }) as TileType[],
   localGameLog: [] as LogEntry[],
   dockShips: getAllships() as ShipType[],
 };

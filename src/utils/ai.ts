@@ -14,7 +14,7 @@ import {
   ShipType,
   Coordinates,
 } from "ShipDocks/types";
-import { LogEntry, ShipOnBoardAI } from "SinglePlayer/types";
+import { LogEntry, LogShip } from "SinglePlayer/types";
 import {
   getRandomNumber,
   generateTiles,
@@ -34,12 +34,12 @@ export const placeShipOnTemporarBoard = (
   ship: ShipType,
   adjacentTiles: Array<TileType | null>,
   tiles: TileType[],
-  shipsOnBoardAI: ShipOnBoardAI[]
+  enemyShips: LogShip[]
 ) => {
   for (let i = 0; i < adjacentTiles.length; i++) {
     const dropOnTile = adjacentTiles[i];
     if (dropOnTile && ship.coordinates) {
-      shipsOnBoardAI.push({
+      enemyShips.push({
         x: dropOnTile.x,
         y: dropOnTile.y,
         damaged: false,
@@ -89,14 +89,14 @@ export const takeTurnAI = ({
   }
 };
 export const generateBoardAI = (): {
-  shipsOnBoardAI: ShipOnBoardAI[];
+  enemyShips: LogShip[];
   tiles: TileType[];
 } => {
   const tiles = generateTiles({ enemy: false });
   const ships = getAllships();
-  const shipsOnBoardAI: Array<ShipOnBoardAI> = [];
-  let allShipsPlaced = false;
+  const enemyShips: Array<LogShip> = [];
   const invalidCoordinates: Coordinates[] = [];
+  let allShipsPlaced = false;
   let breaker = 0;
   while (!allShipsPlaced && breaker < 200) {
     const { x, y } = getRandomCoordinate();
@@ -104,7 +104,7 @@ export const generateBoardAI = (): {
       const tile = getTile({ x, y, tiles });
       if (!tile?.occupiedBy) {
         const ship = ships[0];
-        if (!ship) return { shipsOnBoardAI, tiles };
+        if (!ship) return { enemyShips, tiles };
 
         ship.orientation = getRandomOrientation(ship.name);
         ship.dragPart = PART_0;
@@ -116,16 +116,16 @@ export const generateBoardAI = (): {
           ) === -1;
         if (canPlace) {
           ship.isOnBoard = true;
-          placeShipOnTemporarBoard(ship, adjacentTiles, tiles, shipsOnBoardAI);
+          placeShipOnTemporarBoard(ship, adjacentTiles, tiles, enemyShips);
           ships.shift();
         } else invalidCoordinates.push({ x, y });
-        if (shipsOnBoardAI.length === MAX_SHIPS) allShipsPlaced = true;
+        if (enemyShips.length === MAX_SHIPS) allShipsPlaced = true;
       }
     }
 
     breaker++;
   }
-  if (shipsOnBoardAI.length < MAX_SHIPS)
+  if (enemyShips.length < MAX_SHIPS)
     throw new Error("Not enough ships placed by AI");
-  return { shipsOnBoardAI, tiles };
+  return { enemyShips, tiles };
 };

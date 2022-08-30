@@ -3,11 +3,11 @@ import { useContext, useEffect, useState } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Divider, Modal } from "@mui/material";
+import { Divider, Modal, useMediaQuery } from "@mui/material";
 
 import BoardProvider from "Board/context/BoardContext";
 import GameProvider, { GameContext } from "SinglePlayer/context/GameContext";
-import { BOT, HUMAN } from "constants/const";
+import { BOT, HUMAN, MIN_MD_WIDTH } from "constants/const";
 import loseImg from "components/../../public/lose.png";
 import winImg from "components/../../public/win.png";
 import background2 from "components/../../public/background_2.jpg";
@@ -25,17 +25,17 @@ export const flex = {
 const SinglePlayer = () => {
   const { winner, playAgain } = useContext(GameContext);
   const [open, setOpen] = useState<boolean>(false);
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
   const naviagte = useNavigate();
   const onPlayAgainClick = () => playAgain();
   const onMainMenuClick = () => {
     naviagte("/");
   };
-  const onGoBackClick = () => {};
   useEffect(() => setOpen(Boolean(winner)), [winner]);
-
   const GameOverImage = ({ winner }: { winner: Player | null }) => {
     const imgSize = {
-      width: 500,
+      width: isWiderMD ? 500 : 350,
+      maxWidth: "100%",
       height: 400,
     };
     if (winner === HUMAN) return <img style={imgSize} src={winImg} alt="win" />;

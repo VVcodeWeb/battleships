@@ -105,11 +105,7 @@ export const getTilesBehindShipPart = (shipPart: ShipPartType): number => {
       throw new Error(`Invalid ship part: ${shipPart}`);
   }
 };
-export const generateTiles = ({
-  enemy,
-}: {
-  enemy: boolean;
-}): Array<TileType> => {
+export const generateTiles = ({ enemy }: { enemy: boolean }): TileType[] => {
   return Array.from(Array(100).keys()).map((tile) => ({
     idx: tile,
     x: tile % 10,
@@ -128,13 +124,13 @@ export const getTile = ({
 }: {
   x: number;
   y: number;
-  tiles: Array<TileType>;
+  tiles: TileType[];
 }): TileType | null =>
   tiles.slice().find((tile) => tile.x === x && tile.y === y) ?? null;
 
 export const getAdjacentTiles = (
   ship: ShipType,
-  tiles: Array<TileType>
+  tiles: TileType[]
 ): Array<TileType | null> => {
   if (ship.coordinates && ship.dragPart) {
     const { x, y } = ship.coordinates;
@@ -175,33 +171,3 @@ export const getRandomCoordinate = (): Coordinates => ({
   x: getRandomNumber(0, 9),
   y: getRandomNumber(0, 9),
 });
-/* export const getImage = (idx: number, name: ShipNames) => {
-  const part = getShipPartByIdx(idx);
-  if (name.includes(PATROL)) return patrolImg;
-  if (name.includes(DROMON)) {
-    if (part === PART_0) return dromon0Img;
-    if (part === PART_1) return dromon1Img;
-    throw new Error("Invalid dromon size");
-  }
-  if (name === CARAVELA) {
-    if (part === PART_0) return caravela0Img;
-    if (part === PART_1) return caravela1Img;
-    if (part === PART_2) return caravela2Img;
-    throw new Error("Invalid caravela size");
-  }
-  if (name === FRIGATE) {
-    if (part === PART_0) return frigate0Img;
-    if (part === PART_1) return frigate1Img;
-    if (part === PART_2) return frigate2Img;
-    if (part === PART_3) return frigate3Img;
-    throw new Error("Invalid frigate size");
-  }
-  if (name === BATTLESHIP) {
-    if (part === PART_0) return battleship0Img;
-    if (part === PART_1) return battleship1Img;
-    if (part === PART_2) return battleship2Img;
-    if (part === PART_3) return battleship3Img;
-    if (part === PART_4) return battleship4Img;
-    throw new Error("Invalid battleship size");
-  }
-}; */

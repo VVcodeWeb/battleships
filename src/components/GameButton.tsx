@@ -1,5 +1,7 @@
-import { Button } from "@mui/material";
-import { useState } from "react";
+import { HearingDisabledRounded } from "@mui/icons-material";
+import { Button, useMediaQuery } from "@mui/material";
+import { MIN_MD_WIDTH } from "constants/const";
+import { useState, useEffect } from "react";
 import { animated, useSpring } from "react-spring";
 
 const GameButton = ({
@@ -12,6 +14,7 @@ const GameButton = ({
   hidden?: boolean;
 }) => {
   const [disable, setDisabled] = useState<boolean>(false);
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const handleClick = () => {
     setDisabled(true);
@@ -20,28 +23,28 @@ const GameButton = ({
       setDisabled(false);
     }, 100);
   };
-  const [styles] = useSpring(() => ({
-    config: {
-      duration: 1000,
-    },
-    from: {
-      opacity: 0,
-      transform: "translateY(0)",
-    },
-    to: {
-      opacity: 1,
-      transfrom: "translateY(0)",
-    },
-  }));
+
+  const [styles, api] = useSpring(
+    () => ({
+      from: {
+        opacity: 0,
+        transform: hidden ? "translate3d(0, -30px, 0)" : "translate3d(0, 0, 0)",
+      },
+      to: {
+        opacity: !hidden ? 1 : 0,
+        transform: "translate3d(0, 0, 0)",
+      },
+    }),
+    [hidden]
+  );
   return (
-    <animated.div style={{ ...styles, textAlign: "center" }}>
+    <animated.div style={styles}>
       <Button
         variant="contained"
         className="gameButton"
         onClick={handleClick}
         disabled={hidden || disable}
         style={{
-          opacity: hidden ? 0 : 1,
           borderRadius: 20,
           background: "#ffb562",
           fontWeight: "bold",

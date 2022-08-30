@@ -17,7 +17,7 @@ export type LogEntry = {
   notificated?: boolean;
 };
 
-export type ShipOnBoardAI = {
+export type LogShip = {
   x: number;
   y: number;
   damaged: boolean;

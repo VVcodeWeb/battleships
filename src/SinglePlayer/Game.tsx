@@ -1,33 +1,38 @@
 import { useContext } from "react";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { useMediaQuery } from "@mui/material";
 
 import { BoardContext } from "Board/context/BoardContext";
-import {
-  FIGHTING,
-  GAME_OVER,
-  MAX_SHIPS,
-  PLANNING,
-  READY,
-} from "constants/const";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { generateBoardAI } from "utils/ai";
 import ShipDocks from "ShipDocks";
 import Board from "Board";
 import GameButton from "components/GameButton";
+import {
+  FIGHTING,
+  GAME_OVER,
+  MAX_SHIPS,
+  MIN_MD_WIDTH,
+  PLANNING,
+  READY,
+} from "constants/const";
 
 const Game = () => {
   const { gameStage, setGameStage, surrender } = useContext(GameContext);
   const { dockShips, autoSetBoard, tiles, enemyTiles, resetBoard } =
     useContext(BoardContext);
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const onAutoPlacementBoard = () => autoSetBoard(generateBoardAI().tiles);
   const onReadyClick = () => setGameStage(READY);
   const onSurrenderClick = () => surrender();
   const onResetClick = () => resetBoard();
+
+  //TODO: idea: add transition animation for the buttons
   return (
     <>
-      <Grid2 xs={12} md={5}>
+      <Grid2 xs={12} md={5} justifyContent={isWiderMD ? "center" : "start"}>
         <Board enemy={false} tiles={tiles} />
       </Grid2>
       <Grid2
@@ -71,7 +76,7 @@ const Game = () => {
       <Grid2
         xs={12}
         md={5}
-        justifyContent="end"
+        justifyContent={isWiderMD ? "center" : "start"}
         alignItems="flex-start"
         container
       >

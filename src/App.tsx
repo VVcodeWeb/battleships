@@ -11,7 +11,7 @@ import { animated, useTransition } from "react-spring";
 import GameProvider from "SinglePlayer/context/GameContext";
 import GameButton from "components/GameButton";
 import "./App.css";
-import MainPage from "./components/MainPage";
+import MainPage from "./pages/MainPage";
 import SinglePlayer from "./SinglePlayer";
 const SINGLE = "single";
 const MAIN = "main";

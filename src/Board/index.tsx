@@ -1,7 +1,8 @@
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { animated, useSpring } from "react-spring";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { useMediaQuery } from "@mui/material";
 
 import Tile from "Board/Tile";
 import { GameContext } from "SinglePlayer/context/GameContext";
@@ -10,6 +11,7 @@ import {
   COLUMNS,
   FIGHTING,
   GAME_OVER,
+  MIN_MD_WIDTH,
   SMALLER_WIDTH,
   WIDTH,
 } from "constants/const";
@@ -24,41 +26,41 @@ const Board = ({
   tiles: TileType[];
   hidden?: boolean;
 }) => {
-  /* For testing only, delete after */
-  const { shipsOnBoardAI, gameStage } = useContext(GameContext);
+  const { enemyShips, gameStage } = useContext(GameContext);
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
+
   const [styles, api] = useSpring(() => ({
     from: { opacity: 0 },
     to: { opacity: 1 },
   }));
 
-  useEffect(() => {
-    api.start();
-  }, [api]);
-  const occupiedByAI = (tile: any, ships: any) => {
+  const occupiedByEnemy = (tile: any, ships: any) => {
     if (gameStage !== GAME_OVER) return false;
     for (let ship of ships)
       if (ship.x === tile.x && ship.y === tile.y) return true;
 
     return false;
   };
+
   if (hidden) return <></>;
   return (
     <animated.div style={styles}>
-      <Grid2 container direction="row" justifyContent="center" alignItems="top">
+      <Grid2
+        container
+        direction={{ md: "row", xs: "column" }}
+        justifyContent="center"
+        alignItems="top"
+      >
         <Grid2
           container
-          columns={{ xs: COLUMNS }}
+          columns={COLUMNS}
           style={{
-            width: enemy ? SMALLER_WIDTH * COLUMNS : WIDTH * COLUMNS,
             padding: 0,
+            width: isWiderMD ? COLUMNS * WIDTH : COLUMNS * SMALLER_WIDTH,
           }}
         >
           {tiles.map((tile) => (
-            <Tile
-              key={tile.idx}
-              tile={tile}
-              inDev={enemy && occupiedByAI(tile, shipsOnBoardAI)}
-            />
+            <Tile key={tile.idx} tile={tile} />
           ))}
         </Grid2>
         {(gameStage === FIGHTING || gameStage === GAME_OVER) && (

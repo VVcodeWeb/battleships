@@ -1,18 +1,23 @@
-import { useContext, useEffect, useState, useTransition } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DropTargetMonitor, useDrop } from "react-dnd";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { useMediaQuery } from "@mui/material";
 
 import {
   ENEMY_SHIP,
   FIGHTING,
+  GAME_OVER,
   HEIGHT,
+  HORIZONTAL,
   HUMAN,
+  MIN_MD_WIDTH,
   NO_DROP_AND_VISIBLE,
   SHIP,
   SMALLER_HEIGHT,
   SMALLER_WIDTH,
   TILE,
+  VERTICAL,
   WIDTH,
 } from "constants/const";
 import waterImg from "components/../../public/water.jpg";
@@ -22,15 +27,14 @@ import { getShipPartByIdx } from "utils";
 import { BoardContext } from "Board/context/BoardContext";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import shellImg from "components/../../public/shell.png";
-import lolImg from "components/../../public/lol.png";
 import fireImg from "components/../../public/fire2.png";
-import { animated, useSpring } from "react-spring";
 
-const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
+const Tile = ({ tile }: { tile: TileType }) => {
   const { gameStage, playersTurn, makeMove } = useContext(GameContext);
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
   const [canBeShelled, setCanBeShelled] = useState<boolean>(false);
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const handleDragDrop = (item: any) =>
     placeShipOnBoard({
@@ -55,19 +59,15 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     });
 
   const handleCanDrop = (item: any) => {
+    if (!item || item.enemy) return false;
     if (item.enemy) return false;
-    if (item) {
-      return checkCanDrop({
-        ...item,
-        coordinates: {
-          x: tile.x,
-          y: tile.y,
-        },
-      });
-    } else {
-      console.error("no item");
-      return false;
-    }
+    return checkCanDrop({
+      ...item,
+      coordinates: {
+        x: tile.x,
+        y: tile.y,
+      },
+    });
   };
 
   const [{ isOver, item }, drop] = useDrop(
@@ -92,14 +92,6 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
       makeMove({ x: tile.x, y: tile.y, player: HUMAN });
     }
   };
-
-  let tileOccupied = {};
-  if (tile.occupiedBy)
-    tileOccupied = {
-      position: "absolute",
-      top: 0,
-      left: 0,
-    };
 
   useEffect(() => {
     setCanBeShelled(playersTurn === HUMAN && tile.enemy && !tile.shelled);
@@ -136,59 +128,68 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   }, [isOver, item]);
 
   const Icon = ({ src }: { src: string }) => {
-    return (
-      <img
-        src={src}
-        alt={src}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: tile.enemy ? SMALLER_WIDTH : WIDTH,
-          height: tile.enemy ? SMALLER_HEIGHT : HEIGHT,
-          zIndex: 6,
-          pointerEvents: "none",
-        }}
-      />
-    );
+    const imgStyle: React.CSSProperties = {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: isWiderMD ? WIDTH : SMALLER_WIDTH,
+      height: isWiderMD ? HEIGHT : SMALLER_HEIGHT,
+      zIndex: 6,
+      pointerEvents: "none",
+    };
+    return <img src={src} alt={src} style={imgStyle} />;
   };
+
+  //TODO: add animations
   const RenderShell = () => {
-    if (tile.shelled) {
-      if (tile.occupiedBy === null) return <Icon src={shellImg} />;
-      return <Icon src={fireImg} />;
-    }
-
-    return <></>;
+    if (!tile.shelled) return <></>;
+    if (tile.occupiedBy === null) return <Icon src={shellImg} />;
+    return <Icon src={fireImg} />;
   };
 
+  const tileStyle: React.CSSProperties = {
+    color: "white",
+    textAlign: "center",
+    height: isWiderMD ? HEIGHT : SMALLER_HEIGHT,
+    width: isWiderMD ? WIDTH : SMALLER_WIDTH,
+    border:
+      gameStage === GAME_OVER && tile.occupiedBy
+        ? NO_DROP_AND_VISIBLE
+        : tile.border,
+    background: `url(${waterImg})`,
+    backgroundSize: "contain",
+    overflow: "visible",
+    position: "relative",
+    cursor: canBeShelled ? "pointer" : "default",
+  };
+  //TODO: add proper type check for occupied by
   return (
     <Grid2
       onClick={onClick}
       ref={drop}
       xs={1}
       className={tile.enemy ? `${TILE}_enemy` : TILE}
-      style={{
-        color: "white",
-        textAlign: "center",
-        height: tile.enemy ? SMALLER_HEIGHT : HEIGHT,
-        width: tile.enemy ? SMALLER_WIDTH : WIDTH,
-        border: inDev ? NO_DROP_AND_VISIBLE : tile.border,
-        background: `url(${waterImg})`,
-        backgroundSize: "contain",
-        overflow: "visible",
-        position: "relative",
-        cursor: canBeShelled ? "pointer" : "default",
-      }}
+      style={tileStyle}
     >
       <RenderShell />
-      <div style={{ ...tileOccupied }}>
-        {tile.occupiedBy !== null &&
-          tile.occupiedBy !== ENEMY_SHIP &&
-          tile.occupiedBy.dragPart ===
-            getShipPartByIdx(tile.occupiedBy.size - 1) && (
+      {tile.occupiedBy &&
+        tile.occupiedBy !== ENEMY_SHIP &&
+        tile.occupiedBy.dragPart ===
+          getShipPartByIdx(tile.occupiedBy.size - 1) && (
+          <div
+            style={{
+              position: "absolute",
+              top:
+                tile.occupiedBy.orientation === HORIZONTAL && !isWiderMD
+                  ? -5
+                  : 0,
+              left:
+                tile.occupiedBy.orientation === VERTICAL && !isWiderMD ? -5 : 0,
+            }}
+          >
             <Ship ship={tile.occupiedBy} />
-          )}
-      </div>
+          </div>
+        )}
     </Grid2>
   );
 };

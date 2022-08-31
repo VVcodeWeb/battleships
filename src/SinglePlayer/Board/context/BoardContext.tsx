@@ -8,7 +8,7 @@ import {
   HUMAN,
   READY,
 } from "constants/const";
-import { BorderType, TileType } from "Board/types";
+import { BorderType, TileType } from "SinglePlayer/Board/types";
 import {
   areXYsEual,
   generateTiles,
@@ -19,7 +19,7 @@ import {
 } from "utils";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry, Player } from "SinglePlayer/types";
-import { ShipType } from "ShipDocks/types";
+import { ShipType } from "SinglePlayer/ShipDocks/types";
 
 const initialState = {
   tiles: generateTiles({ enemy: false }) as TileType[],

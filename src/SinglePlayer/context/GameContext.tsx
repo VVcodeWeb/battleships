@@ -11,7 +11,7 @@ import {
 } from "constants/const";
 import { LogEntry, Player, StageType } from "SinglePlayer/types";
 import { generateBoardAI, takeTurnAI } from "utils/ai";
-import { ShipType } from "ShipDocks/types";
+import { ShipType } from "SinglePlayer/ShipDocks/types";
 
 const initialState = {
   enemyShips: [] as ShipType[],

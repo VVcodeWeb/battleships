@@ -3,11 +3,11 @@ import { useContext } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useMediaQuery } from "@mui/material";
 
-import { BoardContext } from "Board/context/BoardContext";
+import { BoardContext } from "SinglePlayer/Board/context/BoardContext";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { generateBoardAI } from "utils/ai";
-import ShipDocks from "ShipDocks";
-import Board from "Board";
+import ShipDocks from "SinglePlayer/ShipDocks";
+import Board from "SinglePlayer/Board";
 import GameButton from "components/GameButton";
 import {
   FIGHTING,

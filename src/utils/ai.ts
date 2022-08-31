@@ -1,4 +1,4 @@
-import { TileType } from "Board/types";
+import { TileType } from "SinglePlayer/Board/types";
 import {
   PATROL,
   VERTICAL,
@@ -13,7 +13,7 @@ import {
   ShipOrientation,
   Coordinates,
   ShipType,
-} from "ShipDocks/types";
+} from "SinglePlayer/ShipDocks/types";
 import { LogEntry } from "SinglePlayer/types";
 import {
   getRandomNumber,

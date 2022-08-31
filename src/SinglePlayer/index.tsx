@@ -5,7 +5,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Divider, Modal, useMediaQuery } from "@mui/material";
 
-import BoardProvider from "Board/context/BoardContext";
+import BoardProvider from "SinglePlayer/Board/context/BoardContext";
 import GameProvider, { GameContext } from "SinglePlayer/context/GameContext";
 import { BOT, HUMAN, MIN_MD_WIDTH } from "constants/const";
 import loseImg from "components/../../public/lose.png";

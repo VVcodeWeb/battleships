@@ -4,9 +4,9 @@ import { animated, useSpring } from "react-spring";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useMediaQuery } from "@mui/material";
 
-import Tile from "Board/Tile";
+import Tile from "SinglePlayer/Board/Tile";
 import { GameContext } from "SinglePlayer/context/GameContext";
-import { TileType } from "Board/types";
+import { TileType } from "SinglePlayer/Board/types";
 import {
   COLUMNS,
   MIN_MD_WIDTH,
@@ -15,7 +15,7 @@ import {
   SMALLER_WIDTH,
   WIDTH,
 } from "constants/const";
-import HitpointsBar from "Board/HitpointsBar";
+import HitpointsBar from "SinglePlayer/Board/HitpointsBar";
 
 //TODO: add whois turn
 const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {

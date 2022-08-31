@@ -22,10 +22,10 @@ import {
   WIDTH,
 } from "constants/const";
 import waterImg from "components/../../public/water.jpg";
-import Ship from "ShipDocks/Ship";
-import { TileType } from "Board/types";
+import Ship from "SinglePlayer/ShipDocks/Ship";
+import { TileType } from "SinglePlayer/Board/types";
 import { getShipPartByIdx, getSize } from "utils";
-import { BoardContext } from "Board/context/BoardContext";
+import { BoardContext } from "SinglePlayer/Board/context/BoardContext";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import shellImg from "components/../../public/shell.png";
 import fireImg from "components/../../public/fire2.png";

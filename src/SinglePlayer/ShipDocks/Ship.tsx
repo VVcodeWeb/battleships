@@ -3,7 +3,11 @@ import { Grid, useMediaQuery } from "@mui/material";
 import Rotate90DegreesCwIcon from "@mui/icons-material/Rotate90DegreesCw";
 import { useDrag } from "react-dnd";
 
-import { ShipOrientation, ShipPartType, ShipType } from "ShipDocks/types";
+import {
+  ShipOrientation,
+  ShipPartType,
+  ShipType,
+} from "SinglePlayer/ShipDocks/types";
 import {
   VERTICAL,
   SHIP,

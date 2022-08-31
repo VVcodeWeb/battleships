@@ -4,9 +4,9 @@ import { Box } from "@mui/material";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
 
-import Ship from "ShipDocks/Ship";
+import Ship from "SinglePlayer/ShipDocks/Ship";
 import { HEIGHT, WIDTH } from "constants/const";
-import { BoardContext } from "Board/context/BoardContext";
+import { BoardContext } from "SinglePlayer/Board/context/BoardContext";
 import { getSize } from "utils";
 
 const ShipDocks = ({ hidden }: { hidden?: boolean }) => {

@@ -3,7 +3,7 @@ import {
   ShipNames,
   ShipPartType,
   ShipType,
-} from "ShipDocks/types";
+} from "SinglePlayer/ShipDocks/types";
 import {
   BATTLESHIP,
   CAN_DROP_AND_VISIBLE,
@@ -25,7 +25,7 @@ import {
   PATROL_BOAT_B,
   VERTICAL,
 } from "constants/const";
-import { BorderType, TileType } from "Board/types";
+import { BorderType, TileType } from "SinglePlayer/Board/types";
 
 export const getSize = (ship: ShipType): number => {
   const name = ship.name;

@@ -6,7 +6,6 @@ import {
   PLANNING,
   READY,
 } from "constants/const";
-import { ShipNames } from "ShipDocks/types";
 
 export type Player = typeof BOT | typeof HUMAN;
 export type LogEntry = {
@@ -17,12 +16,6 @@ export type LogEntry = {
   notificated?: boolean;
 };
 
-export type LogShip = {
-  x: number;
-  y: number;
-  damaged: boolean;
-  name: ShipNames;
-};
 export type StageType =
   | typeof PLANNING
   | typeof READY

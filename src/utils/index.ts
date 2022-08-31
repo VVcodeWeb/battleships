@@ -13,6 +13,7 @@ import {
   DROMON_A,
   DROMON_B,
   FRIGATE,
+  NOT_ON_BOARD,
   NO_DROP_AND_VISIBLE,
   PART_0,
   PART_1,
@@ -42,8 +43,10 @@ export const getAllships = (): ShipType[] => {
   const buildShip = (name: ShipNames): ShipType => ({
     name,
     orientation: VERTICAL,
-    dragPart: null,
-    isOnBoard: false,
+    part: null,
+    damaged: false,
+    x: NOT_ON_BOARD,
+    y: NOT_ON_BOARD,
   });
   fleet.push(buildShip(BATTLESHIP));
   fleet.push(buildShip(FRIGATE));
@@ -109,18 +112,18 @@ export const getTile = ({
   y: number;
   tiles: TileType[];
 }): TileType | null =>
-  tiles.slice().find((tile) => tile.x === x && tile.y === y) ?? null;
+  tiles.find((tile) => tile.x === x && tile.y === y) ?? null;
 
 export const getAdjacentTiles = (
   ship: ShipType,
   tiles: TileType[]
 ): Array<TileType | null> => {
-  if (ship.coordinates && ship.dragPart) {
-    const { x, y } = ship.coordinates;
+  if (ship) {
+    const { x, y } = ship;
     let itemsLeft = getSize(ship);
 
     const tilesToGet: Array<TileType | null> = [];
-    let cursor = -1 * getTilesBehindShipPart(ship.dragPart);
+    let cursor = -1 * getTilesBehindShipPart(ship.part);
     while (itemsLeft > 0) {
       if (ship.orientation === VERTICAL)
         tilesToGet.push(getTile({ x, y: y - cursor, tiles }));

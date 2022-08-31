@@ -29,7 +29,7 @@ const ShipDocks = ({ hidden }: { hidden?: boolean }) => {
                 width: getSize(item) * WIDTH,
                 height: getSize(item) * HEIGHT,
               }}
-              key={`${item.name}_${item.dragPart}_imglist`}
+              key={`${item.name}_${item.part}_imglist`}
             >
               <Ship ship={item} />
             </Grid2>

@@ -41,3 +41,5 @@ export const PLANNING = "planning";
 export const READY = "ready";
 export const FIGHTING = "fighting";
 export const GAME_OVER = "game over";
+
+export const NOT_ON_BOARD = -1;

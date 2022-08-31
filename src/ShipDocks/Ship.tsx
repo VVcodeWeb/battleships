@@ -15,6 +15,7 @@ import {
   MIN_MD_WIDTH,
   SMALLER_WIDTH,
   SMALLER_HEIGHT,
+  NOT_ON_BOARD,
 } from "constants/const";
 import { getShipPartByIdx, getSize } from "utils";
 
@@ -23,7 +24,7 @@ const Ship = ({ ship }: { ship: ShipType }) => {
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const [shipPartInDrag, setShipPartInDrag] = useState<ShipPartType>(
-    ship.dragPart ?? null
+    ship.part ?? null
   );
   const [shipOrientation, setShipOrientation] = useState<ShipOrientation>(
     ship.orientation ?? VERTICAL
@@ -36,13 +37,12 @@ const Ship = ({ ship }: { ship: ShipType }) => {
     {
       type: SHIP,
       item: {
-        name: ship.name,
-        dragPart: shipPartInDrag,
+        ...ship,
+        part: shipPartInDrag,
         orientation: shipOrientation,
-        isOnBoard: ship.isOnBoard,
       },
       canDrag(monitor) {
-        return !ship.isOnBoard;
+        return ship.x === NOT_ON_BOARD;
       },
       collect: (monitor) => ({
         item: monitor.getItem(),
@@ -51,13 +51,13 @@ const Ship = ({ ship }: { ship: ShipType }) => {
         handlerId: monitor.getHandlerId(),
       }),
     },
-    [shipOrientation, shipPartInDrag]
+    [shipOrientation, shipPartInDrag, ship]
   );
 
   //TODO: allow ships to be rotated on the board if it has enough space
   // Idea: make it rotatable by following clicked mouses
   const RotateIcon = () => {
-    if (ship.isOnBoard || getSize(ship) < 2) return null;
+    if (ship.x !== NOT_ON_BOARD || getSize(ship) < 2) return null;
     return (
       <div
         style={{
@@ -137,7 +137,7 @@ const Ship = ({ ship }: { ship: ShipType }) => {
     ...size,
     zIndex: 5,
     position: "relative",
-    cursor: ship.isOnBoard ? "default" : "grab",
+    cursor: ship.x === NOT_ON_BOARD ? "grab" : "default",
   };
 
   if (collected.isDragging) return <div ref={preview} />;

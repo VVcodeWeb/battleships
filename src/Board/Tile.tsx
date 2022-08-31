@@ -5,6 +5,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import { useMediaQuery } from "@mui/material";
 
 import {
+  CAN_DROP_AND_VISIBLE,
   ENEMY_SHIP,
   FIGHTING,
   GAME_OVER,
@@ -39,20 +40,16 @@ const Tile = ({ tile }: { tile: TileType }) => {
   const handleDragDrop = (item: any) =>
     placeShipOnBoard({
       ...item,
-      coordinates: {
-        x: tile.x,
-        y: tile.y,
-      },
+      x: tile.x,
+      y: tile.y,
     });
 
   const handleHover = (item: any, monitor: DropTargetMonitor<any, unknown>) =>
     updateTilesBorders({
       ship: {
         ...item,
-        coordinates: {
-          x: tile.x,
-          y: tile.y,
-        },
+        x: tile.x,
+        y: tile.y,
       },
       hovered: true,
       canDrop: monitor.canDrop(),
@@ -63,10 +60,8 @@ const Tile = ({ tile }: { tile: TileType }) => {
     if (item.enemy) return false;
     return checkCanDrop({
       ...item,
-      coordinates: {
-        x: tile.x,
-        y: tile.y,
-      },
+      x: tile.x,
+      y: tile.y,
     });
   };
 
@@ -112,14 +107,13 @@ const Tile = ({ tile }: { tile: TileType }) => {
 
   /* if not hovered anymore remove border styles */
   useEffect(() => {
-    if (!tile.enemy && !isOver)
+    console.log({ item });
+    if (!tile.enemy && !isOver && item)
       updateTilesBorders({
         ship: {
           ...(item as any),
-          coordinates: {
-            x: tile.x,
-            y: tile.y,
-          },
+          x: tile.x,
+          y: tile.y,
         },
         canDrop: false,
         hovered: isOver,
@@ -154,7 +148,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
     width: isWiderMD ? WIDTH : SMALLER_WIDTH,
     border:
       gameStage === GAME_OVER && tile.occupiedBy
-        ? NO_DROP_AND_VISIBLE
+        ? CAN_DROP_AND_VISIBLE
         : tile.border,
     background: `url(${waterImg})`,
     backgroundSize: "contain",
@@ -174,7 +168,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
       <RenderShell />
       {tile.occupiedBy &&
         tile.occupiedBy !== ENEMY_SHIP &&
-        tile.occupiedBy.dragPart ===
+        tile.occupiedBy.part ===
           getShipPartByIdx(getSize(tile.occupiedBy) - 1) && (
           <div
             style={{

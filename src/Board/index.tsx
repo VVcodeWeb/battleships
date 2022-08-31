@@ -1,13 +1,34 @@
+import { useContext } from "react";
 import { animated, useSpring } from "react-spring";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { useMediaQuery } from "@mui/material";
 
-const Board = ({ hidden, children }: { hidden?: boolean; children: any }) => {
-  //TODO: add animations
+import Tile from "Board/Tile";
+import { GameContext } from "SinglePlayer/context/GameContext";
+import { TileType } from "Board/types";
+import {
+  COLUMNS,
+  MIN_MD_WIDTH,
+  PLANNING,
+  READY,
+  SMALLER_WIDTH,
+  WIDTH,
+} from "constants/const";
+import HitpointsBar from "Board/HitpointsBar";
+
+//TODO: add whois turn
+const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
+  const { gameStage } = useContext(GameContext);
+  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
+
   const [styles, api] = useSpring(() => ({
     from: { opacity: 0 },
     to: { opacity: 1 },
   }));
+
+  const getPartsDamaged = (tiles: TileType[]): number =>
+    tiles.filter((tile) => tile.shelled && tile.occupiedBy).length;
 
   if (hidden) return <></>;
   return (
@@ -18,7 +39,22 @@ const Board = ({ hidden, children }: { hidden?: boolean; children: any }) => {
         justifyContent="center"
         alignItems="top"
       >
-        {children}
+        <Grid2
+          container
+          columns={COLUMNS}
+          style={{
+            padding: 0,
+            width: isWiderMD ? COLUMNS * WIDTH : COLUMNS * SMALLER_WIDTH,
+          }}
+        >
+          {tiles.map((tile) => (
+            <Tile key={tile.idx} tile={tile} />
+          ))}
+        </Grid2>
+        <HitpointsBar
+          hidden={gameStage === PLANNING || gameStage === READY}
+          numPartsDamaged={getPartsDamaged(tiles)}
+        />
       </Grid2>
     </animated.div>
   );

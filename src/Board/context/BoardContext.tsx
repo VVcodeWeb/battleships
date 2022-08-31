@@ -17,9 +17,9 @@ import {
   getBorder,
   getShipPartByIdx,
 } from "utils";
-import { ShipType } from "ShipDocks/types";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry, Player } from "SinglePlayer/types";
+import { ShipType } from "ShipDocks/types";
 
 const initialState = {
   tiles: generateTiles({ enemy: false }) as TileType[],
@@ -35,7 +35,7 @@ type State = {
   dockShips: ShipType[];
 };
 type ActionType =
-  | { type: typeof ACTION.DISPOSE_ENEMY; payload: { ship: ShipType } }
+  | { type: typeof ACTION.DISPOSE_ENEMY; payload: { ships: ShipType[] } }
   | { type: typeof ACTION.AUTO_SET_BOARD; payload: { tiles: TileType[] } }
   | { type: typeof ACTION.RESET_BOARD }
   | {
@@ -72,8 +72,8 @@ const reducer = (state: State, action: ActionType): State | never => {
         ),
         tiles: state.tiles.map((tile) => {
           if (
-            tile.x === action.payload.ship.coordinates?.x &&
-            tile.y === action.payload.ship.coordinates.y
+            tile.x === action.payload.ship?.x &&
+            tile.y === action.payload.ship.y
           )
             return {
               ...tile,
@@ -106,7 +106,7 @@ const reducer = (state: State, action: ActionType): State | never => {
         for (let { x, y, success, player } of action.payload) {
           if (player !== ofPlayer && areXYsEual(tile.x, tile.y, x, y)) {
             tile.shelled = true;
-            if (player === BOT && success) tile.occupiedBy = ENEMY_SHIP;
+            if (player === HUMAN && success) tile.occupiedBy = ENEMY_SHIP;
           }
         }
         return tile;
@@ -119,20 +119,13 @@ const reducer = (state: State, action: ActionType): State | never => {
 
     case ACTION.DISPOSE_ENEMY: {
       return {
-        ...initialState,
+        ...state,
         enemyTiles: state.enemyTiles.map((tile) => {
-          if (!action.payload.ship.coordinates)
-            throw new Error(`Invalid ship coordinations ${action.payload}`);
-
-          if (
-            areXYsEual(
-              tile.x,
-              tile.y,
-              action.payload.ship.coordinates.x,
-              action.payload.ship.coordinates.y
-            )
-          )
-            tile.occupiedBy = action.payload.ship;
+          for (let ship of action.payload.ships) {
+            if (areXYsEual(tile.x, tile.y, ship.x, ship.y)) {
+              tile.occupiedBy = ship;
+            }
+          }
           return tile;
         }),
       };
@@ -142,6 +135,7 @@ const reducer = (state: State, action: ActionType): State | never => {
         ...initialState,
         tiles: generateTiles({ enemy: false }),
         enemyTiles: generateTiles({ enemy: true }),
+        dockShips: getAllships(),
       };
     }
     case ACTION.AUTO_SET_BOARD: {
@@ -181,7 +175,7 @@ export const BoardContext = React.createContext({
 
 const BoardProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { gameLog, gameStage, getHumansBoardAndStart, winner } =
+  const { gameLog, gameStage, getHumansBoardAndStart, winner, disposeEnemy } =
     useContext(GameContext);
 
   const resetBoard = () => dispatch({ type: ACTION.RESET_BOARD });
@@ -218,18 +212,15 @@ const BoardProvider = ({ children }: any) => {
     const claimedTiles = getAdjacentTiles(ship, state.tiles);
     for (let i = 0; i < claimedTiles.length; i++) {
       const tile = claimedTiles[i];
-      if (tile && ship.coordinates) {
+      if (tile) {
         dispatch({
           type: ACTION.PLACE_SHIP_PART_ON_BOARD,
           payload: {
             ship: {
               ...ship,
-              coordinates: {
-                x: tile.x,
-                y: tile.y,
-              },
-              dragPart: getShipPartByIdx(i),
-              isOnBoard: true,
+              x: tile.x,
+              y: tile.y,
+              part: getShipPartByIdx(i),
             },
           },
         });
@@ -253,6 +244,8 @@ const BoardProvider = ({ children }: any) => {
             y: tile.y,
             damaged: false,
             name: tile.occupiedBy.name,
+            orientation: tile.occupiedBy.orientation,
+            part: tile.occupiedBy.part,
           };
         });
       getHumansBoardAndStart(ships);
@@ -261,48 +254,15 @@ const BoardProvider = ({ children }: any) => {
 
   useEffect(() => {
     if (gameStage === GAME_OVER) {
+      const ships = disposeEnemy();
+      dispatch({ type: ACTION.DISPOSE_ENEMY, payload: { ships } });
     }
-  }, [gameStage]);
-
-  /* Update game local game log when original is updated */
-  /*     useEffect(() => {
-    if (gameLog?.length > 0) {
-      if (gameLog.length === state.localGameLog.length) {
-        console.warn("Same length logs");
-      } else {
-        const tempArr: any[] = [
-          ...state.localGameLog,
-          ...gameLog
-            .slice(state.localGameLog.length)
-            .map((log) => ({ ...log, notificated: false })),
-        ];
-        dispatch({ type: ACTION.UPDATE_LOCAL_GAME_LOG, payload: tempArr });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameLog]); */
+  }, [disposeEnemy, gameStage]);
 
   useEffect(() => {
     gameLog.length > 0 &&
       dispatch({ type: ACTION.UPDATE_BOARD, payload: gameLog });
   }, [gameLog]);
-
-  /* Repeat new actions from the log */
-  /*   useEffect(() => {
-    if (state.localGameLog.length < 1) return;
-    const newLogs = state.localGameLog.filter((log) => !log.notificated);
-    if (newLogs.length > 0) {
-      //todo: refactor.
-      dispatch({ type: ACTION.UPDATE_BOARD, payload: newLogs });
-      dispatch({
-        type: ACTION.UPDATE_LOCAL_GAME_LOG,
-        payload: state.localGameLog.map((log) => ({
-          ...log,
-          notificated: true,
-        })),
-      });
-    }
-  }, [state.localGameLog]); */
 
   return (
     <BoardContext.Provider

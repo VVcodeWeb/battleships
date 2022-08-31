@@ -9,23 +9,24 @@ import {
   PLANNING,
   READY,
 } from "constants/const";
-import { LogEntry, Player, LogShip, StageType } from "SinglePlayer/types";
+import { LogEntry, Player, StageType } from "SinglePlayer/types";
 import { generateBoardAI, takeTurnAI } from "utils/ai";
+import { ShipType } from "ShipDocks/types";
 
 const initialState = {
-  gameStage: PLANNING as StageType,
+  enemyShips: [] as ShipType[],
+  allyShips: [] as ShipType[],
   gameLog: [] as LogEntry[],
+  gameStage: PLANNING as StageType,
   playersTurn: null as null | Player,
-  enemyShips: [] as LogShip[],
-  allyShips: [] as LogShip[],
   winner: null as null | Player,
 };
 type State = {
-  gameStage: StageType;
+  enemyShips: ShipType[];
+  allyShips: ShipType[];
   gameLog: LogEntry[];
+  gameStage: StageType;
   playersTurn: null | Player;
-  enemyShips: LogShip[];
-  allyShips: LogShip[];
   winner: null | Player;
 };
 type Action =
@@ -37,7 +38,7 @@ type Action =
   | { type: typeof ACTION.HIT_AI_SHIP; payload: { x: number; y: number } }
   | {
       type: typeof ACTION.START_GAME;
-      payload: { humanBoard: LogShip[] };
+      payload: { humanBoard: ShipType[] };
     };
 
 const reducer = (state: State, action: Action) => {
@@ -105,9 +106,10 @@ export const GameContext = React.createContext({
   ...initialState,
   setGameStage: (value: StageType) => {},
   makeMove: ({ x, y, player }: { x: number; y: number; player: Player }) => {},
-  getHumansBoardAndStart: (board: LogShip[]) => {},
+  getHumansBoardAndStart: (board: ShipType[]) => {},
   playAgain: () => {},
   surrender: () => {},
+  disposeEnemy: (): ShipType[] => [],
 });
 
 //TODO: remove damaged field after testing
@@ -132,11 +134,12 @@ const GameProvider = ({ children }: any) => {
       dispatch({ type: ACTION.SET_GAME_STAGE, payload: { value } });
   };
 
-  const getHumansBoardAndStart = (board: LogShip[]) => {
+  const getHumansBoardAndStart = (board: ShipType[]) => {
     if (state.gameStage === READY)
       dispatch({ type: ACTION.START_GAME, payload: { humanBoard: board } });
     else throw new Error(`Gets humans board at ${state.gameStage} game stage`);
   };
+  const disposeEnemy = () => state.enemyShips;
 
   /* check for win condition */
   useEffect(() => {
@@ -223,6 +226,7 @@ const GameProvider = ({ children }: any) => {
         getHumansBoardAndStart,
         playAgain,
         surrender,
+        disposeEnemy,
       }}
     >
       {children}

@@ -10,21 +10,17 @@ import ShipDocks from "ShipDocks";
 import Board from "Board";
 import GameButton from "components/GameButton";
 import {
-  COLUMNS,
   FIGHTING,
   GAME_OVER,
   MAX_SHIPS,
   MIN_MD_WIDTH,
   PLANNING,
   READY,
-  SMALLER_WIDTH,
-  WIDTH,
 } from "constants/const";
-import Tile from "Board/Tile";
-import HitpointsBar from "Board/HitpointsBar";
-import { TileType } from "Board/types";
+import { useNavigate } from "react-router-dom";
 
 const Game = () => {
+  const navigate = useNavigate();
   const { gameStage, setGameStage, surrender } = useContext(GameContext);
   const { dockShips, autoSetBoard, tiles, enemyTiles, resetBoard } =
     useContext(BoardContext);
@@ -34,34 +30,13 @@ const Game = () => {
   const onReadyClick = () => setGameStage(READY);
   const onSurrenderClick = () => surrender();
   const onResetClick = () => resetBoard();
-
-  const getPartsDamaged = (tiles: TileType[]): number =>
-    tiles.filter((tile) => tile.shelled && tile.occupiedBy).length;
-  const TilesContainer = ({ children }: any) => (
-    <Grid2
-      container
-      columns={COLUMNS}
-      style={{
-        padding: 0,
-        width: isWiderMD ? COLUMNS * WIDTH : COLUMNS * SMALLER_WIDTH,
-      }}
-    >
-      {children}
-    </Grid2>
-  );
+  const onMainMenuClick = () => navigate("/");
 
   //TODO: idea: add transition animation for the buttons
   return (
     <>
       <Grid2 xs={12} md={5} justifyContent={isWiderMD ? "center" : "start"}>
-        <Board>
-          <TilesContainer>
-            {tiles.map((tile) => (
-              <Tile key={tile.idx} tile={tile} />
-            ))}
-          </TilesContainer>
-          <HitpointsBar numDamagedParts={getPartsDamaged(tiles)} />
-        </Board>
+        <Board tiles={tiles} />
       </Grid2>
       <Grid2
         xs={12}
@@ -72,6 +47,9 @@ const Game = () => {
         container
         spacing={4}
       >
+        <Grid2>
+          <GameButton text="Go back" onClick={onMainMenuClick} />
+        </Grid2>
         <Grid2>
           <GameButton
             hidden={gameStage !== FIGHTING}
@@ -109,14 +87,10 @@ const Game = () => {
         container
       >
         <ShipDocks hidden={gameStage !== PLANNING} />
-        <Board hidden={gameStage !== GAME_OVER && gameStage !== FIGHTING}>
-          <TilesContainer>
-            {enemyTiles.map((tile) => (
-              <Tile key={tile.idx} tile={tile} />
-            ))}
-          </TilesContainer>
-          <HitpointsBar numDamagedParts={getPartsDamaged(enemyTiles)} />
-        </Board>
+        <Board
+          tiles={enemyTiles}
+          hidden={gameStage !== FIGHTING && gameStage !== GAME_OVER}
+        />
       </Grid2>
     </>
   );

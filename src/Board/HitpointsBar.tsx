@@ -1,16 +1,21 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { animated, useSpring } from "react-spring";
 
 import { useMediaQuery } from "@mui/material";
 
 import { FULL_HP, MAX_SHIP_PARTS, MIN_MD_WIDTH } from "constants/const";
-import { GameContext } from "SinglePlayer/context/GameContext";
 
-const HitpointsBar = ({ numDamagedParts }: { numDamagedParts: number }) => {
+const HitpointsBar = ({
+  numPartsDamaged,
+  hidden,
+}: {
+  numPartsDamaged: number;
+  hidden?: boolean;
+}) => {
   const [completed, setCompleted] = useState<number>(FULL_HP);
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
-  const [styles, api] = useSpring(() => ({
+  const [styles] = useSpring(() => ({
     from: { width: 0 },
     to: { width: 30 },
   }));
@@ -18,9 +23,10 @@ const HitpointsBar = ({ numDamagedParts }: { numDamagedParts: number }) => {
   const calcCompleted = (val: number) =>
     Math.floor(FULL_HP - val * (FULL_HP / MAX_SHIP_PARTS));
 
-  useEffect(() => {
-    setCompleted(calcCompleted(numDamagedParts));
-  }, [numDamagedParts]);
+  useEffect(
+    () => setCompleted(calcCompleted(numPartsDamaged)),
+    [numPartsDamaged]
+  );
 
   const containerStyles: React.CSSProperties = {
     height: isWiderMD ? 250 : 30,
@@ -50,6 +56,7 @@ const HitpointsBar = ({ numDamagedParts }: { numDamagedParts: number }) => {
     color: "white",
   };
 
+  if (hidden) return <></>;
   return (
     <animated.div style={styles}>
       <div style={containerStyles}>

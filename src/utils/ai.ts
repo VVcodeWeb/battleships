@@ -11,10 +11,10 @@ import {
 import {
   ShipNames,
   ShipOrientation,
-  ShipType,
   Coordinates,
+  ShipType,
 } from "ShipDocks/types";
-import { LogEntry, LogShip } from "SinglePlayer/types";
+import { LogEntry } from "SinglePlayer/types";
 import {
   getRandomNumber,
   generateTiles,
@@ -34,22 +34,25 @@ export const placeShipOnTemporarBoard = (
   ship: ShipType,
   adjacentTiles: Array<TileType | null>,
   tiles: TileType[],
-  enemyShips: LogShip[]
+  enemyShips: ShipType[]
 ) => {
   for (let i = 0; i < adjacentTiles.length; i++) {
     const dropOnTile = adjacentTiles[i];
-    if (dropOnTile && ship.coordinates) {
+    console.log({ dropOnTile });
+    if (dropOnTile) {
       enemyShips.push({
         x: dropOnTile.x,
         y: dropOnTile.y,
-        damaged: false,
         name: ship.name,
+        part: getShipPartByIdx(i),
+        orientation: ship.orientation,
+        damaged: false,
       });
       tiles.forEach((tile) => {
         if (tile.x === dropOnTile.x && tile.y === dropOnTile.y) {
           tile.occupiedBy = {
             ...ship,
-            dragPart: getShipPartByIdx(i),
+            part: getShipPartByIdx(i),
           };
           tile.border = DEFAULT_BORDER;
         }
@@ -89,12 +92,12 @@ export const takeTurnAI = ({
   }
 };
 export const generateBoardAI = (): {
-  enemyShips: LogShip[];
+  enemyShips: ShipType[];
   tiles: TileType[];
 } => {
   const tiles = generateTiles({ enemy: false });
   const ships = getAllships();
-  const enemyShips: Array<LogShip> = [];
+  const enemyShips: Array<ShipType> = [];
   const invalidCoordinates: Coordinates[] = [];
   let allShipsPlaced = false;
   let breaker = 0;
@@ -107,15 +110,15 @@ export const generateBoardAI = (): {
         if (!ship) return { enemyShips, tiles };
 
         ship.orientation = getRandomOrientation(ship.name);
-        ship.dragPart = PART_0;
-        ship.coordinates = { x, y };
+        ship.part = PART_0;
+        ship.x = x;
+        ship.y = y;
         const adjacentTiles = getAdjacentTiles(ship, tiles);
         const canPlace =
           adjacentTiles.findIndex(
             (tile) => tile === null || tile.occupiedBy !== null
           ) === -1;
         if (canPlace) {
-          ship.isOnBoard = true;
           placeShipOnTemporarBoard(ship, adjacentTiles, tiles, enemyShips);
           ships.shift();
         } else invalidCoordinates.push({ x, y });

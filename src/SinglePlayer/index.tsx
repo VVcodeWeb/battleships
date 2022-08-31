@@ -14,7 +14,7 @@ import background2 from "components/../../public/background_2.jpg";
 import { useNavigate } from "react-router-dom";
 import Chat from "SinglePlayer/Chat";
 import { Player } from "SinglePlayer/types";
-import Game from "SinglePlayer/Game";
+import Game from "SinglePlayer/PlayGround";
 import GameButton from "components/GameButton";
 export const flex = {
   display: "flex",
@@ -23,15 +23,15 @@ export const flex = {
 };
 
 const SinglePlayer = () => {
+  const naviagte = useNavigate();
   const { winner, playAgain } = useContext(GameContext);
   const [open, setOpen] = useState<boolean>(false);
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
-  const naviagte = useNavigate();
   const onPlayAgainClick = () => playAgain();
-  const onMainMenuClick = () => {
-    naviagte("/");
-  };
+  const onMainMenuClick = () => naviagte("/");
   useEffect(() => setOpen(Boolean(winner)), [winner]);
+
+  //todo: add winner avatar
   const GameOverImage = ({ winner }: { winner: Player | null }) => {
     const imgSize = {
       width: isWiderMD ? 500 : 350,
@@ -44,7 +44,7 @@ const SinglePlayer = () => {
   };
   return (
     <DndProvider backend={HTML5Backend}>
-      <Modal open={open}>
+      <Modal open={false}>
         <Grid2
           container
           justifyContent="flex-end"
@@ -80,7 +80,6 @@ const SinglePlayer = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <GameButton text="Go back" onClick={onMainMenuClick} />
           <Chat />
         </Grid2>
         <Grid2

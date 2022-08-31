@@ -35,11 +35,11 @@ export type ShipPartType =
   | typeof PART_3
   | typeof PART_4;
 export type ShipOrientation = typeof VERTICAL | typeof HORIZONTAL;
-
-export interface ShipType {
+export type ShipType = {
+  x: number;
+  y: number;
+  damaged: boolean;
   name: ShipNames;
-  coordinates?: Coordinates;
-  dragPart: ShipPartType;
+  part: ShipPartType;
   orientation: ShipOrientation;
-  isOnBoard: boolean;
-}
+};

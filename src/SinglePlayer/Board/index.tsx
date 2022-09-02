@@ -48,7 +48,7 @@ const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
           }}
         >
           {tiles.map((tile) => (
-            <Tile key={tile.idx} tile={tile} />
+            <Tile key={`tile-${tile.x}-${tile.y}`} tile={tile} />
           ))}
         </Grid2>
         <HitpointsBar

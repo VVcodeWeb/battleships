@@ -6,16 +6,13 @@ import {
   NO_DROP_AND_VISIBLE,
 } from "constants/const";
 export type TileType = {
-  idx: number;
   x: number;
   y: number;
   enemy: boolean;
   shelled: boolean;
+  blocked?: boolean;
   occupiedBy: ShipType | null | typeof ENEMY_SHIP;
-  border:
-    | typeof DEFAULT_BORDER
-    | typeof CAN_DROP_AND_VISIBLE
-    | typeof NO_DROP_AND_VISIBLE;
+  border: BorderType;
 };
 
 export type BorderType =

@@ -21,8 +21,9 @@ import {
   getAllships,
   getRandomCoordinate,
   getTile,
-  getAdjacentTiles,
+  getTilesForShip,
   getShipPartByIdx,
+  getAdjacent,
 } from "utils";
 
 export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
@@ -30,40 +31,10 @@ export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
   return getRandomNumber(0, 1) === 0 ? VERTICAL : HORIZONTAL;
 };
 
-export const placeShipOnTemporarBoard = (
-  ship: ShipType,
-  adjacentTiles: Array<TileType | null>,
-  tiles: TileType[],
-  enemyShips: ShipType[]
-) => {
-  for (let i = 0; i < adjacentTiles.length; i++) {
-    const dropOnTile = adjacentTiles[i];
-    console.log({ dropOnTile });
-    if (dropOnTile) {
-      enemyShips.push({
-        x: dropOnTile.x,
-        y: dropOnTile.y,
-        name: ship.name,
-        part: getShipPartByIdx(i),
-        orientation: ship.orientation,
-        damaged: false,
-      });
-      tiles.forEach((tile) => {
-        if (tile.x === dropOnTile.x && tile.y === dropOnTile.y) {
-          tile.occupiedBy = {
-            ...ship,
-            part: getShipPartByIdx(i),
-          };
-          tile.border = DEFAULT_BORDER;
-        }
-      });
-    } else throw new Error("Try to place ship over null tile");
-  }
-};
 const shelledBefore = (x: number, y: number, log: LogEntry[]): boolean =>
   Boolean(log.find((l) => l.x === x && l.y === y));
 
-export const takeTurnAI = ({
+export const getAttackTarget = ({
   gameLog,
 }: {
   gameLog: LogEntry[];
@@ -91,6 +62,35 @@ export const takeTurnAI = ({
     }
   }
 };
+export const placeShipOnTemporarBoard = (
+  ship: ShipType,
+  shipTiles: TileType[],
+  tiles: TileType[],
+  enemyShips: ShipType[]
+) => {
+  for (let i = 0; i < shipTiles.length; i++) {
+    const dropOnTile = shipTiles[i];
+    if (dropOnTile) {
+      enemyShips.push({
+        x: dropOnTile.x,
+        y: dropOnTile.y,
+        name: ship.name,
+        part: getShipPartByIdx(i),
+        orientation: ship.orientation,
+        damaged: false,
+      });
+      tiles.forEach((tile) => {
+        if (tile.x === dropOnTile.x && tile.y === dropOnTile.y) {
+          tile.occupiedBy = {
+            ...ship,
+            part: getShipPartByIdx(i),
+          };
+          tile.border = DEFAULT_BORDER;
+        }
+      });
+    } else throw new Error("Try to place ship over null tile");
+  }
+};
 export const generateBoardAI = (): {
   enemyShips: ShipType[];
   tiles: TileType[];
@@ -100,35 +100,31 @@ export const generateBoardAI = (): {
   const enemyShips: Array<ShipType> = [];
   const invalidCoordinates: Coordinates[] = [];
   let allShipsPlaced = false;
-  let breaker = 0;
-  while (!allShipsPlaced && breaker < 200) {
+  while (!allShipsPlaced) {
     const { x, y } = getRandomCoordinate();
+    console.log({ enemyShips });
     if (!invalidCoordinates.find((f) => f.x === x && f.y === y)) {
       const tile = getTile({ x, y, tiles });
       if (!tile?.occupiedBy) {
         const ship = ships[0];
         if (!ship) return { enemyShips, tiles };
-
         ship.orientation = getRandomOrientation(ship.name);
         ship.part = PART_0;
         ship.x = x;
         ship.y = y;
-        const adjacentTiles = getAdjacentTiles(ship, tiles);
-        const canPlace =
-          adjacentTiles.findIndex(
-            (tile) => tile === null || tile.occupiedBy !== null
-          ) === -1;
-        if (canPlace) {
-          placeShipOnTemporarBoard(ship, adjacentTiles, tiles, enemyShips);
+        console.log({ ship });
+        const shipTiles = getTilesForShip(ship, tiles);
+        console.log({ shipTiles });
+        const adjacentTiles = getAdjacent(shipTiles);
+        const isOccupied = shipTiles.some((t) => t.occupiedBy !== null);
+        const isBlocked = adjacentTiles.some((t) => t.occupiedBy !== null);
+        if (!isBlocked && !isOccupied) {
+          placeShipOnTemporarBoard(ship, shipTiles, tiles, enemyShips);
           ships.shift();
         } else invalidCoordinates.push({ x, y });
         if (enemyShips.length === MAX_SHIPS) allShipsPlaced = true;
       }
     }
-
-    breaker++;
   }
-  if (enemyShips.length < MAX_SHIPS)
-    throw new Error("Not enough ships placed by AI");
   return { enemyShips, tiles };
 };

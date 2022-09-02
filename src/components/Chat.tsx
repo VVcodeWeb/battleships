@@ -25,8 +25,7 @@ const emptyLogStyle: React.CSSProperties = {
 const getLetterByX = (x: number) => String.fromCharCode(65 + x);
 //TODO: add system messages like game stage, winner etc
 //Expand the log on click
-const Chat = () => {
-  const { gameLog, gameStage } = useContext(GameContext);
+const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {

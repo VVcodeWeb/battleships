@@ -12,7 +12,7 @@ import loseImg from "components/../../public/lose.png";
 import winImg from "components/../../public/win.png";
 import background2 from "components/../../public/background_2.jpg";
 import { useNavigate } from "react-router-dom";
-import Chat from "SinglePlayer/Chat";
+import Chat from "components/Chat";
 import { Player } from "SinglePlayer/types";
 import Game from "SinglePlayer/PlayGround";
 import GameButton from "components/GameButton";
@@ -24,7 +24,7 @@ export const flex = {
 
 const SinglePlayer = () => {
   const naviagte = useNavigate();
-  const { winner, playAgain } = useContext(GameContext);
+  const { winner, playAgain, gameLog } = useContext(GameContext);
   const [open, setOpen] = useState<boolean>(false);
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
   const onPlayAgainClick = () => playAgain();
@@ -44,7 +44,7 @@ const SinglePlayer = () => {
   };
   return (
     <DndProvider backend={HTML5Backend}>
-      <Modal open={false}>
+      <Modal open={open}>
         <Grid2
           container
           justifyContent="flex-end"
@@ -80,7 +80,7 @@ const SinglePlayer = () => {
           justifyContent="center"
           alignItems="center"
         >
-          <Chat />
+          <Chat gameLog={gameLog} />
         </Grid2>
         <Grid2
           container

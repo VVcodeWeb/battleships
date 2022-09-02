@@ -12,10 +12,11 @@ import { BorderType, TileType } from "SinglePlayer/Board/types";
 import {
   areXYsEual,
   generateTiles,
-  getAdjacentTiles,
+  getTilesForShip,
   getAllships,
   getBorder,
   getShipPartByIdx,
+  getAdjacent,
 } from "utils";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry, Player } from "SinglePlayer/types";
@@ -173,6 +174,11 @@ export const BoardContext = React.createContext({
   }: UpdateTilesBordersType) => {},
 });
 
+/**
+ *
+ *  TODO: replace `find` with `some`
+ *
+ */
 const BoardProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { gameLog, gameStage, getHumansBoardAndStart, winner, disposeEnemy } =
@@ -182,20 +188,21 @@ const BoardProvider = ({ children }: any) => {
   const autoSetBoard = (tiles: TileType[]) =>
     dispatch({ type: ACTION.AUTO_SET_BOARD, payload: { tiles } });
 
-  const checkCanDrop = (ship: ShipType) => {
-    const tilesToCheck = getAdjacentTiles(ship, state.tiles);
-    return (
-      tilesToCheck.findIndex(
-        (tile) => tile === null || tile.occupiedBy !== null
-      ) === -1
-    );
+  const checkCanDrop = (ship: ShipType): Boolean => {
+    const tilesToCheck = getTilesForShip(ship, state.tiles);
+    const isOccupied = Boolean(tilesToCheck.find((t) => t.occupiedBy !== null));
+    if (isOccupied) return false;
+    const adjacentTiles = getAdjacent(tilesToCheck);
+    const isBlocked = Boolean(adjacentTiles.find((t) => t.occupiedBy !== null));
+    return !isBlocked;
   };
+
   const updateTilesBorders = ({
     ship,
     hovered,
     canDrop,
   }: UpdateTilesBordersType) => {
-    getAdjacentTiles(ship, state.tiles).forEach((tile) => {
+    getTilesForShip(ship, state.tiles).forEach((tile) => {
       if (tile) {
         dispatch({
           type: ACTION.UPDATE_TILES_BORDER,
@@ -209,7 +216,7 @@ const BoardProvider = ({ children }: any) => {
     });
   };
   const placeShipOnBoard = (ship: ShipType) => {
-    const claimedTiles = getAdjacentTiles(ship, state.tiles);
+    const claimedTiles = getTilesForShip(ship, state.tiles);
     for (let i = 0; i < claimedTiles.length; i++) {
       const tile = claimedTiles[i];
       if (tile) {

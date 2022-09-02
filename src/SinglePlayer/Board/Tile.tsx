@@ -6,6 +6,7 @@ import { useMediaQuery } from "@mui/material";
 
 import {
   CAN_DROP_AND_VISIBLE,
+  COLUMNS,
   ENEMY_SHIP,
   FIGHTING,
   GAME_OVER,
@@ -13,7 +14,6 @@ import {
   HORIZONTAL,
   HUMAN,
   MIN_MD_WIDTH,
-  NO_DROP_AND_VISIBLE,
   SHIP,
   SMALLER_HEIGHT,
   SMALLER_WIDTH,
@@ -31,7 +31,7 @@ import shellImg from "components/../../public/shell.png";
 import fireImg from "components/../../public/fire2.png";
 
 const Tile = ({ tile }: { tile: TileType }) => {
-  const { gameStage, playersTurn, makeMove } = useContext(GameContext);
+  const { gameStage, getCurrentPlayer, makeMove } = useContext(GameContext);
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
   const [canBeShelled, setCanBeShelled] = useState<boolean>(false);
@@ -83,18 +83,19 @@ const Tile = ({ tile }: { tile: TileType }) => {
     if (tile.shelled) return;
     if (tile.enemy && gameStage !== FIGHTING)
       throw new Error("Track board is visible during non fighting stage ");
-    if (tile.enemy && playersTurn === HUMAN) {
+    if (tile.enemy && getCurrentPlayer() === HUMAN)
       makeMove({ x: tile.x, y: tile.y, player: HUMAN });
-    }
   };
 
   useEffect(() => {
-    setCanBeShelled(playersTurn === HUMAN && tile.enemy && !tile.shelled);
-  }, [playersTurn, tile.enemy, tile.shelled]);
+    setCanBeShelled(
+      getCurrentPlayer() === HUMAN && tile.enemy && !tile.shelled
+    );
+  }, [getCurrentPlayer, tile.enemy, tile.shelled]);
 
   /*  x/y board numeration */
   useEffect(() => {
-    const idx = tile.idx;
+    const idx = tile.y * COLUMNS + tile.x;
     const tileClass = tile.enemy ? `${TILE}_enemy` : TILE;
     const gameTiles = document.getElementsByClassName(
       tileClass
@@ -103,11 +104,10 @@ const Tile = ({ tile }: { tile: TileType }) => {
       gameTiles[idx].classList.add(`item_r_${idx}`);
     if (idx % 10 === 0 && gameTiles[idx])
       gameTiles[idx].classList.add(`item_c_${idx}`);
-  }, [tile.enemy, tile.idx]);
+  }, [tile.enemy, tile.x, tile.y]);
 
   /* if not hovered anymore remove border styles */
   useEffect(() => {
-    console.log({ item });
     if (!tile.enemy && !isOver && item)
       updateTilesBorders({
         ship: {

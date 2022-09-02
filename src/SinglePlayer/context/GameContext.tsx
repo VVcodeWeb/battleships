@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useReducer } from "react";
 
 import {
   BOT,
@@ -10,15 +10,15 @@ import {
   READY,
 } from "constants/const";
 import { LogEntry, Player, StageType } from "SinglePlayer/types";
-import { generateBoardAI, takeTurnAI } from "utils/ai";
+import { generateBoardAI, getAttackTarget } from "utils/ai";
 import { ShipType } from "SinglePlayer/ShipDocks/types";
+import { delay } from "utils";
 
 const initialState = {
   enemyShips: [] as ShipType[],
   allyShips: [] as ShipType[],
   gameLog: [] as LogEntry[],
   gameStage: PLANNING as StageType,
-  playersTurn: null as null | Player,
   winner: null as null | Player,
 };
 type State = {
@@ -26,15 +26,13 @@ type State = {
   allyShips: ShipType[];
   gameLog: LogEntry[];
   gameStage: StageType;
-  playersTurn: null | Player;
   winner: null | Player;
 };
 type Action =
   | { type: typeof ACTION.RESET_STATES }
   | { type: typeof ACTION.END_GAME; payload: { winner: Player } }
-  | { type: typeof ACTION.NEXT_PLAYER_TURN }
   | { type: typeof ACTION.SET_GAME_STAGE; payload: { value: StageType } }
-  | { type: typeof ACTION.STORE_AND_PASS_MOVE; payload: { value: LogEntry } }
+  | { type: typeof ACTION.STORE_MOVE; payload: { value: LogEntry } }
   | { type: typeof ACTION.HIT_AI_SHIP; payload: { x: number; y: number } }
   | {
       type: typeof ACTION.START_GAME;
@@ -52,20 +50,16 @@ const reducer = (state: State, action: Action) => {
       return {
         ...state,
         gameStage: FIGHTING as StageType,
-        playersTurn: HUMAN as Player | null,
         enemyShips: generateBoardAI().enemyShips,
         allyShips: action.payload.humanBoard,
       };
 
-    case ACTION.STORE_AND_PASS_MOVE: {
+    case ACTION.STORE_MOVE: {
       return {
         ...state,
         gameLog: [...state.gameLog, action.payload.value],
-        playersTurn:
-          action.payload.value.player === HUMAN ? BOT : (HUMAN as Player),
       };
     }
-    //for testing
     case ACTION.HIT_AI_SHIP: {
       return {
         ...state,
@@ -89,16 +83,15 @@ const reducer = (state: State, action: Action) => {
       };
     }
     default:
-      throw new Error(`Invalid action ${action} game context`);
+      throw new Error(`Invalid action ${action} game context.`);
   }
 };
 
 export const ACTION = {
   SET_GAME_STAGE: "set_game_stage" as "set_game_stage",
   START_GAME: "start_game" as "start_game",
-  STORE_AND_PASS_MOVE: "update_game_log" as "update_game_log",
+  STORE_MOVE: "update_game_log" as "update_game_log",
   HIT_AI_SHIP: "hit_ai_ship" as "hit_ai_ship",
-  NEXT_PLAYER_TURN: "next player turn" as "next player turn",
   END_GAME: "end game" as "end game",
   RESET_STATES: "play again" as "play again",
 };
@@ -110,22 +103,27 @@ export const GameContext = React.createContext({
   playAgain: () => {},
   surrender: () => {},
   disposeEnemy: (): ShipType[] => [],
+  getCurrentPlayer: (): Player => HUMAN,
 });
 
-//TODO: remove damaged field after testing
 const GameProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const playAgain = () => dispatch({ type: ACTION.RESET_STATES });
   const surrender = () => setWinner(BOT);
   const setWinner = (value: Player) =>
     dispatch({ type: ACTION.END_GAME, payload: { winner: value } });
+  const disposeEnemy = () => state.enemyShips;
 
-  const isDuplicateMove = (x: number, y: number, player: Player) =>
+  const isDuplicateMove = (
+    x: number,
+    y: number,
+    player: Player,
+    logs: LogEntry[]
+  ) =>
     Boolean(
-      state.gameLog.find(
-        (log) => log.x === x && log.y === y && log.player === player
-      )
+      logs.find((log) => log.x === x && log.y === y && log.player === player)
     );
+
   const setGameStage = (value: StageType) => {
     if (state.gameStage === FIGHTING) {
       throw new Error(`Cant change gameStage from FIGHTING to ${value}`);
@@ -139,7 +137,6 @@ const GameProvider = ({ children }: any) => {
       dispatch({ type: ACTION.START_GAME, payload: { humanBoard: board } });
     else throw new Error(`Gets humans board at ${state.gameStage} game stage`);
   };
-  const disposeEnemy = () => state.enemyShips;
 
   /* check for win condition */
   useEffect(() => {
@@ -155,6 +152,7 @@ const GameProvider = ({ children }: any) => {
     if (checkIfPlayerWon(BOT)) setWinner(BOT);
   }, [state.gameLog]);
 
+  //TODO: confirm player doesnt shell blocked tile.
   const makeMove = ({
     x,
     y,
@@ -164,16 +162,16 @@ const GameProvider = ({ children }: any) => {
     y: number;
     player: Player;
   }) => {
-    if (player !== state.playersTurn)
+    if (player !== getCurrentPlayer())
       throw new Error(`Player ${player} makes move during enemy turn`);
-    if (isDuplicateMove(x, y, player))
+    if (isDuplicateMove(x, y, player, state.gameLog))
       throw new Error(`Duplicate move ${x}:${y} by ${player}`);
 
     const shipsToCheck = player === HUMAN ? state.enemyShips : state.allyShips;
     const didHit = shipsToCheck.find((ship) => ship.x === x && ship.y === y);
 
     dispatch({
-      type: ACTION.STORE_AND_PASS_MOVE,
+      type: ACTION.STORE_MOVE,
       payload: {
         value: {
           player,
@@ -183,40 +181,46 @@ const GameProvider = ({ children }: any) => {
         },
       },
     });
-    //testing, delete after
-    if (didHit && player === HUMAN) {
+    if (didHit && player === HUMAN)
       dispatch({ type: ACTION.HIT_AI_SHIP, payload: { x, y } });
-    }
   };
+
+  const getCurrentPlayer = useCallback((): Player => {
+    const lastTurn = state.gameLog[state.gameLog.length - 1];
+    if (!lastTurn) return HUMAN;
+    if (lastTurn.player === BOT) {
+      return lastTurn.success ? BOT : HUMAN;
+    }
+    if (lastTurn.player === HUMAN && lastTurn.success) return HUMAN;
+    return BOT;
+  }, [state.gameLog]);
 
   /* BOT takes a turn */
   useEffect(() => {
-    if (
-      state.playersTurn === BOT &&
-      state.gameLog[state.gameLog.length - 1].player === HUMAN
-    ) {
-      setTimeout(() => {
-        const { x, y } = takeTurnAI({ gameLog: state.gameLog });
-        if (isDuplicateMove(x, y, BOT))
-          throw new Error(`Duplicate move ${x}:${y} by ${BOT}`);
-        const didHit = state.allyShips.find(
-          (ship) => ship.x === x && ship.y === y
-        );
-        dispatch({
-          type: ACTION.STORE_AND_PASS_MOVE,
-          payload: {
-            value: {
-              player: BOT,
-              x,
-              y,
-              success: Boolean(didHit),
-            },
+    const takeTurnAI = async () => {
+      await delay(500);
+      const { x, y } = getAttackTarget({ gameLog: state.gameLog });
+      if (isDuplicateMove(x, y, BOT, state.gameLog))
+        throw new Error(`Duplicate move ${x}:${y} by ${BOT}`);
+      const didHit = state.allyShips.find(
+        (ship) => ship.x === x && ship.y === y
+      );
+      dispatch({
+        type: ACTION.STORE_MOVE,
+        payload: {
+          value: {
+            player: BOT,
+            x,
+            y,
+            success: Boolean(didHit),
           },
-        });
-      }, 500);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.gameLog, state.playersTurn]);
+        },
+      });
+    };
+
+    if (getCurrentPlayer() === BOT && state.gameStage === FIGHTING)
+      takeTurnAI();
+  }, [getCurrentPlayer, state.allyShips, state.gameLog, state.gameStage]);
   return (
     <GameContext.Provider
       value={{
@@ -227,6 +231,7 @@ const GameProvider = ({ children }: any) => {
         playAgain,
         surrender,
         disposeEnemy,
+        getCurrentPlayer,
       }}
     >
       {children}

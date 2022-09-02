@@ -8,6 +8,7 @@ import {
   BATTLESHIP,
   CAN_DROP_AND_VISIBLE,
   CARAVELA,
+  COLUMNS,
   DEFAULT_BORDER,
   DROMON,
   DROMON_A,
@@ -102,7 +103,8 @@ export const generateTiles = ({ enemy }: { enemy: boolean }): TileType[] => {
     shelled: false,
   }));
 };
-
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 export const getTile = ({
   x,
   y,
@@ -114,26 +116,47 @@ export const getTile = ({
 }): TileType | null =>
   tiles.find((tile) => tile.x === x && tile.y === y) ?? null;
 
-export const getAdjacentTiles = (
+const getCoordinatesByIdx = (idx: number): { x: number; y: number } => {
+  const x = idx % 10;
+  const y = idx < 10 ? idx : Math.floor(idx / 10);
+  return { x, y };
+};
+export const getTileByIdx = (idx: number, tiles: TileType[]) => {
+  if (idx > 99) return null;
+  const { x, y } = getCoordinatesByIdx(idx);
+
+  return getTile({ x, y, tiles });
+};
+
+export const getAdjacent = (tiles: TileType[]): TileType[] => {
+  const adjacentTiles: Array<TileType | null> = [];
+  const pointers = [COLUMNS + 1, COLUMNS - 1, COLUMNS, 1];
+  for (let { x, y } of tiles) {
+    const idx = y * COLUMNS + x;
+    for (let pointer of pointers) {
+      adjacentTiles.push(getTileByIdx(idx + pointer, tiles));
+      adjacentTiles.push(getTileByIdx(idx - pointer, tiles));
+    }
+  }
+  return adjacentTiles.filter((t) => t !== null) as TileType[];
+};
+export const getTilesForShip = (
   ship: ShipType,
   tiles: TileType[]
-): Array<TileType | null> => {
-  if (ship) {
-    const { x, y } = ship;
-    let itemsLeft = getSize(ship);
+): TileType[] => {
+  const { x, y } = ship;
+  let itemsLeft = getSize(ship);
 
-    const tilesToGet: Array<TileType | null> = [];
-    let cursor = -1 * getTilesBehindShipPart(ship.part);
-    while (itemsLeft > 0) {
-      if (ship.orientation === VERTICAL)
-        tilesToGet.push(getTile({ x, y: y - cursor, tiles }));
-      else tilesToGet.push(getTile({ x: x - cursor, y, tiles }));
-      cursor++;
-      itemsLeft--;
-    }
-    return tilesToGet;
+  const tilesToGet: Array<TileType | null> = [];
+  let cursor = -1 * getTilesBehindShipPart(ship.part);
+  while (itemsLeft > 0) {
+    if (ship.orientation === VERTICAL)
+      tilesToGet.push(getTile({ x, y: y - cursor, tiles }));
+    else tilesToGet.push(getTile({ x: x - cursor, y, tiles }));
+    cursor++;
+    itemsLeft--;
   }
-  return [null];
+  return tilesToGet.filter((tile) => tile !== null) as TileType[];
 };
 export const getBorder = ({
   hovered,

@@ -1,3 +1,5 @@
+import _ from "underscore";
+
 import { TileType } from "SinglePlayer/Board/types";
 import {
   PATROL,
@@ -5,7 +7,6 @@ import {
   HORIZONTAL,
   DEFAULT_BORDER,
   PART_0,
-  MAX_SHIPS,
   BOT,
   COLUMNS,
 } from "constants/const";
@@ -23,19 +24,16 @@ import {
   getTilesForShip,
   getShipPartByIdx,
   getAdjacent,
-  removeNullElements,
+  getBlockedTiles,
 } from "utils";
 
-export const getRandomNumber = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
-
 export const getRandomCoordinate = (): Coordinates => ({
-  x: getRandomNumber(0, COLUMNS - 1),
-  y: getRandomNumber(0, COLUMNS - 1),
+  x: _.random(COLUMNS - 1),
+  y: _.random(COLUMNS - 1),
 });
 export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
   if (name.includes(PATROL)) return VERTICAL;
-  return getRandomNumber(0, 1) === 0 ? VERTICAL : HORIZONTAL;
+  return _.random(1) === 0 ? VERTICAL : HORIZONTAL;
 };
 
 const shelledBefore = (x: number, y: number, log: LogEntry[]): boolean =>
@@ -50,13 +48,17 @@ export const getAttackTarget = ({
   const hits = shells.filter((shell) => shell.success);
   const suggestions: Coordinates[] = [];
   for (let hit of hits) {
-    suggestions.push({ x: hit.x, y: hit.y + 1 });
-    suggestions.push({ x: hit.x, y: hit.y - 1 });
-    suggestions.push({ x: hit.x + 1, y: hit.y });
-    suggestions.push({ x: hit.x - 1, y: hit.y });
+    if (hit.y + 1 < 10) suggestions.push({ x: hit.x, y: hit.y + 1 });
+    if (hit.y - 1 > -1) suggestions.push({ x: hit.x, y: hit.y - 1 });
+    if (hit.x + 1 < 10) suggestions.push({ x: hit.x + 1, y: hit.y });
+    if (hit.x - 1 > -1) suggestions.push({ x: hit.x - 1, y: hit.y });
   }
-  const validSuggestions = suggestions.filter(
+  let validSuggestions = suggestions.filter(
     (sug) => !shelledBefore(sug.x, sug.y, shells)
+  );
+  const blockedCoordinates = getBlockedTiles(gameLog, BOT);
+  validSuggestions = validSuggestions.filter(
+    (sug) => !Boolean(_.findWhere(blockedCoordinates, { x: sug.x, y: sug.y }))
   );
   if (validSuggestions.length > 0) {
     //hunt
@@ -65,12 +67,15 @@ export const getAttackTarget = ({
     //scout
     while (true) {
       const { x, y } = getRandomCoordinate();
-      if (!shelledBefore(x, y, shells)) return { x, y };
+      if (
+        !shelledBefore(x, y, shells) &&
+        !Boolean(_.findWhere(blockedCoordinates, { x, y }))
+      )
+        return { x, y };
     }
   }
 };
 
-//todo: add blocking
 export const placeShipOnTemporarBoard = (
   ship: ShipType,
   shipTiles: TileType[],
@@ -123,7 +128,7 @@ export const generateBoardAI = (): {
       ship.x = x;
       ship.y = y;
       const shipTiles = getTilesForShip(ship, tiles);
-      if (shipTiles.length !== removeNullElements(shipTiles).length) continue;
+      if (shipTiles.length !== _.compact(shipTiles).length) continue;
       const adjacentTiles = getAdjacent(shipTiles as TileType[], tiles);
       const isOccupied = shipTiles.some((t) => t?.occupiedBy !== null);
       const isBlocked = adjacentTiles.some((t) => t?.occupiedBy !== null);

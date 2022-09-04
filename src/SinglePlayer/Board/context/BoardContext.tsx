@@ -17,7 +17,6 @@ import {
   getAllships,
   getShipPartByIdx,
   getAdjacent,
-  removeNullElements,
   getBlockedTiles,
 } from "utils";
 import { GameContext } from "SinglePlayer/context/GameContext";
@@ -101,7 +100,6 @@ const reducer = (state: State, action: ActionType): State | never => {
     case ACTION.UPDATE_BOARD:
       const gameLog = action.payload;
       const blockedCoordinates = getBlockedTiles(gameLog, HUMAN);
-      console.log({ blockedCoordinates });
       const getUpdatedTile = (tile: TileType, ofPlayer: Player) => {
         for (let { x, y, success, player } of gameLog) {
           if (player !== ofPlayer && areXYsEual(tile.x, tile.y, x, y)) {
@@ -192,14 +190,10 @@ const BoardProvider = ({ children }: any) => {
 
   const checkCanDrop = (ship: ShipType): Boolean => {
     const tilesToCheck = getTilesForShip(ship, state.tiles);
-    if (tilesToCheck.length !== removeNullElements(tilesToCheck).length)
-      return false;
+    if (tilesToCheck.length !== _.compact(tilesToCheck).length) return false;
     const isOccupied = tilesToCheck.some((t) => t?.occupiedBy !== null);
     if (isOccupied) return false;
-    const adjacentTiles = getAdjacent(
-      removeNullElements(tilesToCheck),
-      state.tiles
-    );
+    const adjacentTiles = getAdjacent(_.compact(tilesToCheck), state.tiles);
     const isBlocked = adjacentTiles.some((t) => t?.occupiedBy !== null);
     return !isBlocked;
   };

@@ -96,39 +96,29 @@ export const GameContext = React.createContext({
 });
 
 const GameProvider = ({ children }: any) => {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [{ allyShips, enemyShips, gameLog, gameStage, winner }, dispatch] =
+    useReducer(reducer, initialState);
   const playAgain = () => dispatch({ type: ACTION.RESET_STATES });
   const surrender = () => setWinner(BOT);
   const setWinner = (value: Player) =>
     dispatch({ type: ACTION.END_GAME, payload: { winner: value } });
   const disposeEnemy = () => {
-    /* if (state.gameStage !== GAME_OVER)
-      throw new Error("Trying to dispose the enemy during the game"); */
-    return state.enemyShips;
+    if (gameStage !== GAME_OVER)
+      throw new Error("Trying to dispose the enemy during the game");
+    return enemyShips;
   };
-
-  const isDuplicateMove = (
-    x: number,
-    y: number,
-    player: Player,
-    logs: LogEntry[]
-  ) =>
-    Boolean(
-      logs.find((log) => log.x === x && log.y === y && log.player === player)
-    );
-
   const setGameStage = (value: StageType) => {
-    if (state.gameStage === FIGHTING) {
+    if (gameStage === FIGHTING) {
       throw new Error(`Cant change gameStage from FIGHTING to ${value}`);
     }
-    if (value !== state.gameStage)
+    if (value !== gameStage)
       dispatch({ type: ACTION.SET_GAME_STAGE, payload: { value } });
   };
 
   const getHumansBoardAndStart = (board: ShipType[]) => {
-    if (state.gameStage === READY)
+    if (gameStage === READY)
       dispatch({ type: ACTION.START_GAME, payload: { humanBoard: board } });
-    else throw new Error(`Gets humans board at ${state.gameStage} game stage`);
+    else throw new Error(`Gets humans board at ${gameStage} game stage`);
   };
 
   /* check for win condition */
@@ -136,58 +126,52 @@ const GameProvider = ({ children }: any) => {
     const checkIfPlayerWon = (player: Player): boolean => {
       if (player !== HUMAN && player !== BOT)
         throw new Error(`Invalid player ${player}`);
-      const succeededShells = state.gameLog.filter(
+      const succeededShells = gameLog.filter(
         (log) => log.player === (player === HUMAN ? HUMAN : BOT) && log.success
       );
       return succeededShells.length >= MAX_SHIP_PARTS;
     };
     if (checkIfPlayerWon(HUMAN)) setWinner(HUMAN);
     if (checkIfPlayerWon(BOT)) setWinner(BOT);
-  }, [state.gameLog]);
+  }, [gameLog]);
 
   const getCurrentPlayer = useCallback((): Player => {
-    const lastTurn = state.gameLog[state.gameLog.length - 1];
+    const lastTurn = gameLog[gameLog.length - 1];
     if (!lastTurn) return HUMAN;
     if (lastTurn.player === BOT) {
       return lastTurn.success ? BOT : HUMAN;
     }
     if (lastTurn.player === HUMAN && lastTurn.success) return HUMAN;
     return BOT;
-  }, [state.gameLog]);
+  }, [gameLog]);
 
-  //TODO: confirm player doesnt shell blocked tile.
   const makeMove = useCallback(
     ({ x, y, player }: { x: number; y: number; player: Player }) => {
+      if (gameStage !== FIGHTING) throw new Error(`Not a fighting stage`);
       if (player !== getCurrentPlayer())
         throw new Error(`Player ${player} makes move during enemy turn`);
-      if (isDuplicateMove(x, y, player, state.gameLog))
-        throw new Error(`Duplicate move ${x}:${y} by ${player}`);
-      if (player === BOT) console.log({ x, y });
-      const shipsTilesToCheck =
-        player === HUMAN ? state.enemyShips : state.allyShips;
+      const allShipsTilesToCheck = player === HUMAN ? enemyShips : allyShips;
       const shipShelled = _.find(
-        shipsTilesToCheck,
+        allShipsTilesToCheck,
         (ship) => ship.x === x && ship.y === y
       );
       let isShipDestroyed = false;
       let allShipTiles: ShipType[] = [];
-      if (shipShelled && player === HUMAN) {
+      if (shipShelled) {
         allShipTiles = _.filter(
-          shipsTilesToCheck,
+          allShipsTilesToCheck,
           (ship) => ship.name === shipShelled.name
         );
         isShipDestroyed = allShipTiles.every((shipTile) => {
           //current hit
           if (areXYsEual(shipTile.x, shipTile.y, x, y)) return true;
           //previous hits
-          for (let log of state.gameLog.filter((l) => l.player === HUMAN)) {
+          for (let log of gameLog.filter((l) => l.player === player)) {
             if (areXYsEual(shipTile.x, shipTile.y, log.x, log.y)) return true;
           }
           return false;
         });
-        console.log({ isShipDestroyed });
       }
-      if (player === BOT) console.log({ shipShelled });
       dispatch({
         type: ACTION.STORE_MOVE,
         payload: {
@@ -201,29 +185,26 @@ const GameProvider = ({ children }: any) => {
         },
       });
     },
-    [getCurrentPlayer, state.allyShips, state.enemyShips, state.gameLog]
+    [gameStage, getCurrentPlayer, gameLog, enemyShips, allyShips]
   );
 
   /* BOT takes a turn */
   useEffect(() => {
     const takeTurnAI = async () => {
       await delay(500);
-      const { x, y } = getAttackTarget({ gameLog: state.gameLog });
+      const { x, y } = getAttackTarget({ gameLog: gameLog });
       makeMove({ x, y, player: BOT });
     };
-    if (getCurrentPlayer() === BOT && state.gameStage === FIGHTING)
-      takeTurnAI();
-  }, [
-    getCurrentPlayer,
-    makeMove,
-    state.allyShips,
-    state.gameLog,
-    state.gameStage,
-  ]);
+    if (getCurrentPlayer() === BOT && gameStage === FIGHTING) takeTurnAI();
+  }, [getCurrentPlayer, makeMove, allyShips, gameLog, gameStage]);
   return (
     <GameContext.Provider
       value={{
-        ...state,
+        gameLog,
+        gameStage,
+        winner,
+        allyShips,
+        enemyShips,
         setGameStage,
         makeMove,
         getHumansBoardAndStart,

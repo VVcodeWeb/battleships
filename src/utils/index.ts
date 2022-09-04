@@ -6,7 +6,6 @@ import {
 } from "SinglePlayer/ShipDocks/types";
 import {
   BATTLESHIP,
-  CAN_DROP_AND_VISIBLE,
   CARAVELA,
   COLUMNS,
   DEFAULT_BORDER,
@@ -14,9 +13,7 @@ import {
   DROMON_A,
   DROMON_B,
   FRIGATE,
-  HUMAN,
   NOT_ON_BOARD,
-  NO_DROP_AND_VISIBLE,
   PART_0,
   PART_1,
   PART_2,
@@ -233,5 +230,6 @@ export const areXYsEual = (x1: number, y1: number, x2: number, y2: number) =>
 export const areTilesEqual = (fTile: TileType, sTile: TileType) =>
   areXYsEual(fTile.x, fTile.y, sTile.x, sTile.y);
 
+//TODO: replace with underscore js function
 export const removeNullElements = <T>(arr: (T | null)[]) =>
   arr.filter((arr) => arr !== null) as T[];

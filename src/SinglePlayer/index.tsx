@@ -6,7 +6,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Divider, Modal, useMediaQuery } from "@mui/material";
 
 import BoardProvider from "SinglePlayer/Board/context/BoardContext";
-import GameProvider, { GameContext } from "SinglePlayer/context/GameContext";
+import { GameContext } from "SinglePlayer/context/GameContext";
 import { BOT, HUMAN, MIN_MD_WIDTH } from "constants/const";
 import loseImg from "components/../../public/lose.png";
 import winImg from "components/../../public/win.png";
@@ -31,7 +31,7 @@ const SinglePlayer = () => {
   const onMainMenuClick = () => naviagte("/");
   useEffect(() => setOpen(Boolean(winner)), [winner]);
 
-  //todo: add winner avatar
+  //todo: add the winner avatar
   const GameOverImage = ({ winner }: { winner: Player | null }) => {
     const imgSize = {
       width: isWiderMD ? 500 : 350,

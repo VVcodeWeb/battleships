@@ -6,6 +6,7 @@ import {
   PLANNING,
   READY,
 } from "constants/const";
+import { ShipNames, ShipType } from "SinglePlayer/ShipDocks/types";
 
 export type Player = typeof BOT | typeof HUMAN;
 export type LogEntry = {
@@ -13,7 +14,7 @@ export type LogEntry = {
   x: number;
   y: number;
   success: boolean;
-  notificated?: boolean;
+  destroyed: ShipType[] | null;
 };
 
 export type StageType =

@@ -21,7 +21,7 @@ const GameButton = ({
     onClick();
     setTimeout(() => {
       setDisabled(false);
-    }, 100);
+    }, 0);
   };
 
   const [styles, api] = useSpring(

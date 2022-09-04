@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useReducer } from "react";
+import _ from "underscore";
 
 import {
   BOT,
@@ -14,13 +15,15 @@ import {
   generateTiles,
   getTilesForShip,
   getAllships,
-  getBorder,
   getShipPartByIdx,
   getAdjacent,
+  removeNullElements,
+  getBlockedTiles,
 } from "utils";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry, Player } from "SinglePlayer/types";
 import { ShipType } from "SinglePlayer/ShipDocks/types";
+import { getBorder } from "SinglePlayer/Board/utils";
 
 const initialState = {
   tiles: generateTiles({ enemy: false }) as TileType[],
@@ -41,9 +44,8 @@ type ActionType =
   | { type: typeof ACTION.RESET_BOARD }
   | {
       type: typeof ACTION.UPDATE_BOARD;
-      payload: { x: number; y: number; success: boolean; player: Player }[];
+      payload: LogEntry[];
     }
-  | { type: typeof ACTION.UPDATE_LOCAL_GAME_LOG; payload: LogEntry[] }
   | {
       type: typeof ACTION.PLACE_SHIP_PART_ON_BOARD;
       payload: { ship: ShipType };
@@ -66,19 +68,17 @@ const ACTION = {
 const reducer = (state: State, action: ActionType): State | never => {
   switch (action.type) {
     case ACTION.PLACE_SHIP_PART_ON_BOARD:
+      const { ship } = action.payload;
       return {
         ...state,
         dockShips: state.dockShips.filter(
-          (ship) => ship.name !== action.payload.ship.name
+          (dockShip) => dockShip.name !== ship.name
         ),
         tiles: state.tiles.map((tile) => {
-          if (
-            tile.x === action.payload.ship?.x &&
-            tile.y === action.payload.ship.y
-          )
+          if (tile.x === ship?.x && tile.y === ship.y)
             return {
               ...tile,
-              occupiedBy: action.payload.ship,
+              occupiedBy: ship,
               border: DEFAULT_BORDER,
             };
           return tile;
@@ -97,18 +97,22 @@ const reducer = (state: State, action: ActionType): State | never => {
           return tile;
         }),
       };
-    case ACTION.UPDATE_LOCAL_GAME_LOG:
-      return {
-        ...state,
-        localGameLog: action.payload,
-      };
+
     case ACTION.UPDATE_BOARD:
+      const gameLog = action.payload;
+      const blockedCoordinates = getBlockedTiles(gameLog, HUMAN);
+      console.log({ blockedCoordinates });
       const getUpdatedTile = (tile: TileType, ofPlayer: Player) => {
-        for (let { x, y, success, player } of action.payload) {
+        for (let { x, y, success, player } of gameLog) {
           if (player !== ofPlayer && areXYsEual(tile.x, tile.y, x, y)) {
             tile.shelled = true;
             if (player === HUMAN && success) tile.occupiedBy = ENEMY_SHIP;
           }
+          if (
+            ofPlayer !== HUMAN &&
+            _.findWhere(blockedCoordinates, { x: tile.x, y: tile.y })
+          )
+            tile.blocked = true;
         }
         return tile;
       };
@@ -175,9 +179,7 @@ export const BoardContext = React.createContext({
 });
 
 /**
- *
- *  TODO: replace `find` with `some`
- *
+ * Game logic of the board
  */
 const BoardProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -190,10 +192,15 @@ const BoardProvider = ({ children }: any) => {
 
   const checkCanDrop = (ship: ShipType): Boolean => {
     const tilesToCheck = getTilesForShip(ship, state.tiles);
-    const isOccupied = Boolean(tilesToCheck.find((t) => t.occupiedBy !== null));
+    if (tilesToCheck.length !== removeNullElements(tilesToCheck).length)
+      return false;
+    const isOccupied = tilesToCheck.some((t) => t?.occupiedBy !== null);
     if (isOccupied) return false;
-    const adjacentTiles = getAdjacent(tilesToCheck);
-    const isBlocked = Boolean(adjacentTiles.find((t) => t.occupiedBy !== null));
+    const adjacentTiles = getAdjacent(
+      removeNullElements(tilesToCheck),
+      state.tiles
+    );
+    const isBlocked = adjacentTiles.some((t) => t?.occupiedBy !== null);
     return !isBlocked;
   };
 

@@ -27,12 +27,14 @@ const Ship = ({ ship }: { ship: ShipType }) => {
   const [icon, setIcon] = useState<string>("");
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
-  const [shipPartInDrag, setShipPartInDrag] = useState<ShipPartType>(
-    ship.part ?? null
-  );
-  const [shipOrientation, setShipOrientation] = useState<ShipOrientation>(
-    ship.orientation ?? VERTICAL
-  );
+  const [shipPartInDrag, setShipPartInDrag] = useState<ShipPartType>(null);
+  const [shipOrientation, setShipOrientation] =
+    useState<ShipOrientation>(VERTICAL);
+
+  useEffect(() => {
+    setShipOrientation(ship.orientation);
+    setShipPartInDrag(ship.part);
+  }, [ship]);
 
   const onRotateClick = () =>
     setShipOrientation((p) => (p === VERTICAL ? HORIZONTAL : VERTICAL));

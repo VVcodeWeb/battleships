@@ -16,16 +16,24 @@ import {
   WIDTH,
 } from "constants/const";
 import HitpointsBar from "SinglePlayer/Board/HitpointsBar";
+import _ from "underscore";
 
 //TODO: add whois turn
 const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
-  const { gameStage } = useContext(GameContext);
+  const { gameStage, disposeEnemy } = useContext(GameContext);
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const [styles, api] = useSpring(() => ({
     from: { opacity: 0 },
     to: { opacity: 1 },
   }));
+
+  const getInDev = (tile: TileType) => {
+    if (!tile.enemy) return false;
+    const enemyShips = disposeEnemy();
+    if (_.findWhere(enemyShips, { x: tile.x, y: tile.y })) return true;
+    return false;
+  };
 
   const getPartsDamaged = (tiles: TileType[]): number =>
     tiles.filter((tile) => tile.shelled && tile.occupiedBy).length;
@@ -48,7 +56,11 @@ const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
           }}
         >
           {tiles.map((tile) => (
-            <Tile key={`tile-${tile.x}-${tile.y}`} tile={tile} />
+            <Tile
+              key={`tile-${tile.x}-${tile.y}`}
+              tile={tile}
+              inDev={getInDev(tile)}
+            />
           ))}
         </Grid2>
         <HitpointsBar

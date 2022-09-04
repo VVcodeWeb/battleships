@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect, useReducer } from "react";
 
+import _ from "underscore";
+
 import {
   BOT,
   FIGHTING,
@@ -12,7 +14,7 @@ import {
 import { LogEntry, Player, StageType } from "SinglePlayer/types";
 import { generateBoardAI, getAttackTarget } from "utils/ai";
 import { ShipType } from "SinglePlayer/ShipDocks/types";
-import { delay } from "utils";
+import { areXYsEual, delay } from "utils";
 
 const initialState = {
   enemyShips: [] as ShipType[],
@@ -33,7 +35,6 @@ type Action =
   | { type: typeof ACTION.END_GAME; payload: { winner: Player } }
   | { type: typeof ACTION.SET_GAME_STAGE; payload: { value: StageType } }
   | { type: typeof ACTION.STORE_MOVE; payload: { value: LogEntry } }
-  | { type: typeof ACTION.HIT_AI_SHIP; payload: { x: number; y: number } }
   | {
       type: typeof ACTION.START_GAME;
       payload: { humanBoard: ShipType[] };
@@ -41,11 +42,6 @@ type Action =
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
-    case ACTION.SET_GAME_STAGE:
-      return {
-        ...state,
-        gameStage: action.payload.value,
-      };
     case ACTION.START_GAME:
       return {
         ...state,
@@ -53,21 +49,15 @@ const reducer = (state: State, action: Action) => {
         enemyShips: generateBoardAI().enemyShips,
         allyShips: action.payload.humanBoard,
       };
-
+    case ACTION.SET_GAME_STAGE:
+      return {
+        ...state,
+        gameStage: action.payload.value,
+      };
     case ACTION.STORE_MOVE: {
       return {
         ...state,
         gameLog: [...state.gameLog, action.payload.value],
-      };
-    }
-    case ACTION.HIT_AI_SHIP: {
-      return {
-        ...state,
-        enemyShips: state.enemyShips.map((ship) => {
-          if (ship.x === action.payload.x && ship.y === action.payload.y)
-            return { ...ship, damaged: true };
-          return ship;
-        }),
       };
     }
     case ACTION.END_GAME: {
@@ -83,7 +73,7 @@ const reducer = (state: State, action: Action) => {
       };
     }
     default:
-      throw new Error(`Invalid action ${action} game context.`);
+      throw new Error(`Invalid action ${action} in game context.`);
   }
 };
 
@@ -91,7 +81,6 @@ export const ACTION = {
   SET_GAME_STAGE: "set_game_stage" as "set_game_stage",
   START_GAME: "start_game" as "start_game",
   STORE_MOVE: "update_game_log" as "update_game_log",
-  HIT_AI_SHIP: "hit_ai_ship" as "hit_ai_ship",
   END_GAME: "end game" as "end game",
   RESET_STATES: "play again" as "play again",
 };
@@ -112,7 +101,11 @@ const GameProvider = ({ children }: any) => {
   const surrender = () => setWinner(BOT);
   const setWinner = (value: Player) =>
     dispatch({ type: ACTION.END_GAME, payload: { winner: value } });
-  const disposeEnemy = () => state.enemyShips;
+  const disposeEnemy = () => {
+    /* if (state.gameStage !== GAME_OVER)
+      throw new Error("Trying to dispose the enemy during the game"); */
+    return state.enemyShips;
+  };
 
   const isDuplicateMove = (
     x: number,
@@ -152,39 +145,6 @@ const GameProvider = ({ children }: any) => {
     if (checkIfPlayerWon(BOT)) setWinner(BOT);
   }, [state.gameLog]);
 
-  //TODO: confirm player doesnt shell blocked tile.
-  const makeMove = ({
-    x,
-    y,
-    player,
-  }: {
-    x: number;
-    y: number;
-    player: Player;
-  }) => {
-    if (player !== getCurrentPlayer())
-      throw new Error(`Player ${player} makes move during enemy turn`);
-    if (isDuplicateMove(x, y, player, state.gameLog))
-      throw new Error(`Duplicate move ${x}:${y} by ${player}`);
-
-    const shipsToCheck = player === HUMAN ? state.enemyShips : state.allyShips;
-    const didHit = shipsToCheck.find((ship) => ship.x === x && ship.y === y);
-
-    dispatch({
-      type: ACTION.STORE_MOVE,
-      payload: {
-        value: {
-          player,
-          x,
-          y,
-          success: Boolean(didHit),
-        },
-      },
-    });
-    if (didHit && player === HUMAN)
-      dispatch({ type: ACTION.HIT_AI_SHIP, payload: { x, y } });
-  };
-
   const getCurrentPlayer = useCallback((): Player => {
     const lastTurn = state.gameLog[state.gameLog.length - 1];
     if (!lastTurn) return HUMAN;
@@ -195,32 +155,71 @@ const GameProvider = ({ children }: any) => {
     return BOT;
   }, [state.gameLog]);
 
+  //TODO: confirm player doesnt shell blocked tile.
+  const makeMove = useCallback(
+    ({ x, y, player }: { x: number; y: number; player: Player }) => {
+      if (player !== getCurrentPlayer())
+        throw new Error(`Player ${player} makes move during enemy turn`);
+      if (isDuplicateMove(x, y, player, state.gameLog))
+        throw new Error(`Duplicate move ${x}:${y} by ${player}`);
+      if (player === BOT) console.log({ x, y });
+      const shipsTilesToCheck =
+        player === HUMAN ? state.enemyShips : state.allyShips;
+      const shipShelled = _.find(
+        shipsTilesToCheck,
+        (ship) => ship.x === x && ship.y === y
+      );
+      let isShipDestroyed = false;
+      let allShipTiles: ShipType[] = [];
+      if (shipShelled && player === HUMAN) {
+        allShipTiles = _.filter(
+          shipsTilesToCheck,
+          (ship) => ship.name === shipShelled.name
+        );
+        isShipDestroyed = allShipTiles.every((shipTile) => {
+          //current hit
+          if (areXYsEual(shipTile.x, shipTile.y, x, y)) return true;
+          //previous hits
+          for (let log of state.gameLog.filter((l) => l.player === HUMAN)) {
+            if (areXYsEual(shipTile.x, shipTile.y, log.x, log.y)) return true;
+          }
+          return false;
+        });
+        console.log({ isShipDestroyed });
+      }
+      if (player === BOT) console.log({ shipShelled });
+      dispatch({
+        type: ACTION.STORE_MOVE,
+        payload: {
+          value: {
+            player,
+            x,
+            y,
+            success: Boolean(shipShelled),
+            destroyed: shipShelled && isShipDestroyed ? allShipTiles : null,
+          },
+        },
+      });
+    },
+    [getCurrentPlayer, state.allyShips, state.enemyShips, state.gameLog]
+  );
+
   /* BOT takes a turn */
   useEffect(() => {
     const takeTurnAI = async () => {
       await delay(500);
       const { x, y } = getAttackTarget({ gameLog: state.gameLog });
-      if (isDuplicateMove(x, y, BOT, state.gameLog))
-        throw new Error(`Duplicate move ${x}:${y} by ${BOT}`);
-      const didHit = state.allyShips.find(
-        (ship) => ship.x === x && ship.y === y
-      );
-      dispatch({
-        type: ACTION.STORE_MOVE,
-        payload: {
-          value: {
-            player: BOT,
-            x,
-            y,
-            success: Boolean(didHit),
-          },
-        },
-      });
+      makeMove({ x, y, player: BOT });
     };
-
     if (getCurrentPlayer() === BOT && state.gameStage === FIGHTING)
       takeTurnAI();
-  }, [getCurrentPlayer, state.allyShips, state.gameLog, state.gameStage]);
+  }, [
+    getCurrentPlayer,
+    makeMove,
+    state.allyShips,
+    state.gameLog,
+    state.gameStage,
+  ]);
   return (
     <GameContext.Provider
       value={{

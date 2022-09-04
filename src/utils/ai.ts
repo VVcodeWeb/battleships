@@ -7,6 +7,7 @@ import {
   PART_0,
   MAX_SHIPS,
   BOT,
+  COLUMNS,
 } from "constants/const";
 import {
   ShipNames,
@@ -16,16 +17,22 @@ import {
 } from "SinglePlayer/ShipDocks/types";
 import { LogEntry } from "SinglePlayer/types";
 import {
-  getRandomNumber,
   generateTiles,
   getAllships,
-  getRandomCoordinate,
   getTile,
   getTilesForShip,
   getShipPartByIdx,
   getAdjacent,
+  removeNullElements,
 } from "utils";
 
+export const getRandomNumber = (min: number, max: number) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+export const getRandomCoordinate = (): Coordinates => ({
+  x: getRandomNumber(0, COLUMNS - 1),
+  y: getRandomNumber(0, COLUMNS - 1),
+});
 export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
   if (name.includes(PATROL)) return VERTICAL;
   return getRandomNumber(0, 1) === 0 ? VERTICAL : HORIZONTAL;
@@ -62,6 +69,8 @@ export const getAttackTarget = ({
     }
   }
 };
+
+//todo: add blocking
 export const placeShipOnTemporarBoard = (
   ship: ShipType,
   shipTiles: TileType[],
@@ -100,31 +109,33 @@ export const generateBoardAI = (): {
   const enemyShips: Array<ShipType> = [];
   const invalidCoordinates: Coordinates[] = [];
   let allShipsPlaced = false;
-  while (!allShipsPlaced) {
+  let breaker = 0;
+  while (!allShipsPlaced && breaker < 100) {
+    breaker++;
     const { x, y } = getRandomCoordinate();
-    console.log({ enemyShips });
-    if (!invalidCoordinates.find((f) => f.x === x && f.y === y)) {
-      const tile = getTile({ x, y, tiles });
-      if (!tile?.occupiedBy) {
-        const ship = ships[0];
-        if (!ship) return { enemyShips, tiles };
-        ship.orientation = getRandomOrientation(ship.name);
-        ship.part = PART_0;
-        ship.x = x;
-        ship.y = y;
-        console.log({ ship });
-        const shipTiles = getTilesForShip(ship, tiles);
-        console.log({ shipTiles });
-        const adjacentTiles = getAdjacent(shipTiles);
-        const isOccupied = shipTiles.some((t) => t.occupiedBy !== null);
-        const isBlocked = adjacentTiles.some((t) => t.occupiedBy !== null);
-        if (!isBlocked && !isOccupied) {
-          placeShipOnTemporarBoard(ship, shipTiles, tiles, enemyShips);
-          ships.shift();
-        } else invalidCoordinates.push({ x, y });
-        if (enemyShips.length === MAX_SHIPS) allShipsPlaced = true;
-      }
-    }
+    if (invalidCoordinates.find((f) => f.x === x && f.y === y)) continue;
+    const tile = getTile({ x, y, tiles });
+    if (!tile?.occupiedBy) {
+      const ship = ships[0];
+      if (!ship) return { enemyShips, tiles };
+      ship.orientation = getRandomOrientation(ship.name);
+      ship.part = PART_0;
+      ship.x = x;
+      ship.y = y;
+      const shipTiles = getTilesForShip(ship, tiles);
+      if (shipTiles.length !== removeNullElements(shipTiles).length) continue;
+      const adjacentTiles = getAdjacent(shipTiles as TileType[], tiles);
+      const isOccupied = shipTiles.some((t) => t?.occupiedBy !== null);
+      const isBlocked = adjacentTiles.some((t) => t?.occupiedBy !== null);
+      if (isOccupied || isBlocked) continue;
+      placeShipOnTemporarBoard(
+        ship,
+        shipTiles as TileType[],
+        tiles,
+        enemyShips
+      );
+      ships.shift();
+    } else invalidCoordinates.push({ x, y });
   }
   return { enemyShips, tiles };
 };

@@ -14,6 +14,7 @@ import {
   DROMON_A,
   DROMON_B,
   FRIGATE,
+  HUMAN,
   NOT_ON_BOARD,
   NO_DROP_AND_VISIBLE,
   PART_0,
@@ -26,17 +27,20 @@ import {
   PATROL_BOAT_B,
   VERTICAL,
 } from "constants/const";
-import { BorderType, TileType } from "SinglePlayer/Board/types";
+import { TileType } from "SinglePlayer/Board/types";
+import { LogEntry, Player } from "SinglePlayer/types";
 
-export const getSize = (ship: ShipType): number => {
-  const name = ship.name;
+export const getSize = (ship: ShipType | ShipNames): number => {
+  let name = "";
+  if (typeof ship === "string") name = ship;
+  else name = ship.name;
   const n = name.toLowerCase();
   if (n === BATTLESHIP) return 5;
   if (n === FRIGATE) return 4;
   if (n === CARAVELA) return 3;
   if (n.includes(DROMON)) return 2;
   if (n.includes(PATROL)) return 1;
-  throw new Error(`Invalid ship name ${ship.name}`);
+  throw new Error(`Invalid ship name ${ship}`);
 };
 export const getAllships = (): ShipType[] => {
   const fleet: ShipType[] = [];
@@ -76,7 +80,7 @@ export const getShipPartByIdx = (idx: number): ShipPartType => {
   }
 };
 
-export const getTilesBehindShipPart = (shipPart: ShipPartType): number => {
+const getTilesBehindShipPart = (shipPart: ShipPartType): number => {
   switch (shipPart) {
     case PART_0:
       return 0;
@@ -113,41 +117,58 @@ export const getTile = ({
   x: number;
   y: number;
   tiles: TileType[];
-}): TileType | null =>
-  tiles.find((tile) => tile.x === x && tile.y === y) ?? null;
+}): TileType | null => {
+  const tile = tiles.find((tile) => tile.x === x && tile.y === y) ?? null;
+  return tile;
+};
 
-const getCoordinatesByIdx = (idx: number): { x: number; y: number } => {
+const getXYByIdx = (idx: number): { x: number; y: number } => {
+  if (idx > 99) return { x: -1, y: -1 };
   const x = idx % 10;
-  const y = idx < 10 ? idx : Math.floor(idx / 10);
+  const y = idx < 10 ? 0 : Math.floor(idx / 10);
   return { x, y };
 };
+
+const getIdxByXY = (x: number, y: number): number => y * COLUMNS + x;
 export const getTileByIdx = (idx: number, tiles: TileType[]) => {
   if (idx > 99) return null;
-  const { x, y } = getCoordinatesByIdx(idx);
-
-  return getTile({ x, y, tiles });
+  const { x, y } = getXYByIdx(idx);
+  const tile = getTile({ x, y, tiles });
+  return tile;
 };
-
-export const getAdjacent = (tiles: TileType[]): TileType[] => {
-  const adjacentTiles: Array<TileType | null> = [];
-  const pointers = [COLUMNS + 1, COLUMNS - 1, COLUMNS, 1];
+/**
+ * @return returns all non-null adjecent tiles. Doesnt include tiles from tiles array
+ */
+export const getAdjacent = (
+  tiles: TileType[],
+  allTiles: TileType[]
+): TileType[] => {
+  const adjacentTiles: Array<TileType> = [];
+  const cursors = [COLUMNS + 1, COLUMNS - 1, COLUMNS, 1];
   for (let { x, y } of tiles) {
-    const idx = y * COLUMNS + x;
-    for (let pointer of pointers) {
-      adjacentTiles.push(getTileByIdx(idx + pointer, tiles));
-      adjacentTiles.push(getTileByIdx(idx - pointer, tiles));
+    const idx = getIdxByXY(x, y);
+    for (let cursor of cursors) {
+      const firstTile = getTileByIdx(idx + cursor, allTiles);
+      if (firstTile && !tiles.some((t) => areTilesEqual(t, firstTile)))
+        adjacentTiles.push(firstTile as TileType);
+      const secondTile = getTileByIdx(idx - cursor, allTiles);
+      if (secondTile && !tiles.some((t) => areTilesEqual(t, secondTile)))
+        adjacentTiles.push(secondTile as TileType);
     }
   }
-  return adjacentTiles.filter((t) => t !== null) as TileType[];
+  return adjacentTiles;
 };
+
+/**
+ * @return every single tile, even if its null
+ */
 export const getTilesForShip = (
   ship: ShipType,
   tiles: TileType[]
-): TileType[] => {
+): (TileType | null)[] => {
   const { x, y } = ship;
   let itemsLeft = getSize(ship);
-
-  const tilesToGet: Array<TileType | null> = [];
+  const tilesToGet: (TileType | null)[] = [];
   let cursor = -1 * getTilesBehindShipPart(ship.part);
   while (itemsLeft > 0) {
     if (ship.orientation === VERTICAL)
@@ -156,27 +177,61 @@ export const getTilesForShip = (
     cursor++;
     itemsLeft--;
   }
-  return tilesToGet.filter((tile) => tile !== null) as TileType[];
+  return tilesToGet;
 };
-export const getBorder = ({
-  hovered,
-  canDrop,
-}: {
-  hovered: boolean;
-  canDrop: boolean;
-}): BorderType => {
-  if (canDrop && hovered) return CAN_DROP_AND_VISIBLE;
-  if (!canDrop && hovered) return NO_DROP_AND_VISIBLE;
-  return DEFAULT_BORDER;
+
+const isValidCursor = (cursor: number, x: number) => {
+  const allowedCursors0 = [10, -10, 1, -9, 11];
+  const allowedCursors9 = [10, -10, -1, 9, -11];
+  if (x !== 0 && x !== 9) return true;
+  if (allowedCursors0.includes(cursor) && x === 0) return true;
+  if (allowedCursors9.includes(cursor) && x === 9) return true;
+  return false;
+};
+export const getAdjacentCoordinates = (
+  coordinates: Coordinates[]
+): Coordinates[] => {
+  const adjacentTiles: Coordinates[] = [];
+  const cursors = [1, 9, 10, 11];
+  for (let { x, y } of coordinates) {
+    const idx = getIdxByXY(x, y);
+    for (let cursor of cursors) {
+      if (isValidCursor(cursor, x)) {
+        const xyOne = getXYByIdx(idx + cursor);
+        if (!coordinates.some((c) => areXYsEual(c.x, c.y, xyOne.x, xyOne.y)))
+          adjacentTiles.push(xyOne);
+      }
+      if (isValidCursor(-cursor, x)) {
+        const xyTwo = getXYByIdx(idx - cursor);
+        if (!coordinates.some((c) => areXYsEual(c.x, c.y, xyTwo.x, xyTwo.y)))
+          adjacentTiles.push(xyTwo);
+      }
+    }
+  }
+  return adjacentTiles;
+};
+export const getBlockedTiles = (
+  gameLog: LogEntry[],
+  forPlayer: Player
+): Coordinates[] => {
+  const playerShellsLogs = gameLog.filter((log) => log.player === forPlayer);
+  const destroyedEnemyLogs = playerShellsLogs.filter((log) => log.destroyed);
+  const adjacentBlockedTiles: Coordinates[] = [];
+  destroyedEnemyLogs.forEach((log) => {
+    if (!log.destroyed) throw new Error("invalid ship name");
+    const allShipXY = log.destroyed.map((ship) => ({ x: ship.x, y: ship.y }));
+    const blockedCoordinates = getAdjacentCoordinates(allShipXY);
+    adjacentBlockedTiles.push(...blockedCoordinates);
+  });
+
+  return adjacentBlockedTiles;
 };
 
 export const areXYsEual = (x1: number, y1: number, x2: number, y2: number) =>
   x1 === x2 && y1 === y2;
 
-export const getRandomNumber = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1)) + min;
+export const areTilesEqual = (fTile: TileType, sTile: TileType) =>
+  areXYsEual(fTile.x, fTile.y, sTile.x, sTile.y);
 
-export const getRandomCoordinate = (): Coordinates => ({
-  x: getRandomNumber(0, 9),
-  y: getRandomNumber(0, 9),
-});
+export const removeNullElements = <T>(arr: (T | null)[]) =>
+  arr.filter((arr) => arr !== null) as T[];

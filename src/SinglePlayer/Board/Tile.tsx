@@ -29,8 +29,8 @@ import { BoardContext } from "SinglePlayer/Board/context/BoardContext";
 import { GameContext } from "SinglePlayer/context/GameContext";
 import shellImg from "components/../../public/shell.png";
 import fireImg from "components/../../public/fire2.png";
-
-const Tile = ({ tile }: { tile: TileType }) => {
+import blockImg from "components/../../public/block.png";
+const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const { gameStage, getCurrentPlayer, makeMove } = useContext(GameContext);
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
@@ -80,7 +80,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
     [placeShipOnBoard, updateTilesBorders, checkCanDrop]
   );
   const onClick = () => {
-    if (tile.shelled) return;
+    if (tile.shelled || tile.blocked) return;
     if (tile.enemy && gameStage !== FIGHTING)
       throw new Error("Track board is visible during non fighting stage ");
     if (tile.enemy && getCurrentPlayer() === HUMAN)
@@ -89,9 +89,12 @@ const Tile = ({ tile }: { tile: TileType }) => {
 
   useEffect(() => {
     setCanBeShelled(
-      getCurrentPlayer() === HUMAN && tile.enemy && !tile.shelled
+      getCurrentPlayer() === HUMAN &&
+        tile.enemy &&
+        !tile.shelled &&
+        !tile.blocked
     );
-  }, [getCurrentPlayer, tile.enemy, tile.shelled]);
+  }, [getCurrentPlayer, tile.blocked, tile.enemy, tile.shelled]);
 
   /*  x/y board numeration */
   useEffect(() => {
@@ -131,11 +134,16 @@ const Tile = ({ tile }: { tile: TileType }) => {
       zIndex: 6,
       pointerEvents: "none",
     };
+    if (src === blockImg) {
+      imgStyle.width = (imgStyle.width as number) - 5;
+      imgStyle.height = (imgStyle.height as number) - 5;
+    }
     return <img src={src} alt={src} style={imgStyle} />;
   };
 
   //TODO: add animations
   const RenderShell = () => {
+    if (!tile.shelled && tile.blocked) return <Icon src={blockImg} />;
     if (!tile.shelled) return <></>;
     if (tile.occupiedBy === null) return <Icon src={shellImg} />;
     return <Icon src={fireImg} />;
@@ -166,6 +174,7 @@ const Tile = ({ tile }: { tile: TileType }) => {
       style={tileStyle}
     >
       <RenderShell />
+      {inDev && <>DEV</>}
       {tile.occupiedBy &&
         tile.occupiedBy !== ENEMY_SHIP &&
         tile.occupiedBy.part ===

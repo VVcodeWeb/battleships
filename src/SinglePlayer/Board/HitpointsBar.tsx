@@ -35,7 +35,7 @@ const HitpointsBar = ({
     borderTop: isWiderMD ? "1px solid white" : undefined,
     borderBottom: "1px solid white",
     borderRight: "1px solid white",
-    borderLeft: isWiderMD ? "1px solid white" : undefined,
+    borderLeft: !isWiderMD ? "1px solid white" : undefined,
     display: "flex",
     justifyContent: "flex-end",
     alignItems: "end",

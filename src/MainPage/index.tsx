@@ -1,11 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader } from "@mui/material";
+import { Card, CardContent } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { animated, useSpring } from "react-spring";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import multiImg from "components/../../public/multiplayer.jpg";
+import backgroundMulti from "components/../../public/multiplayer.jpg";
+import backgroundSingle from "components/../../public/background_2.jpg";
 import backgroudnImg from "components/../../public/background.jpg";
+import { MULTI, SINGLE } from "constants/const";
+
 const MainPageCard = ({ title, content, onClick }: any) => {
   const [hover, setHover] = useState<boolean | null>(null);
   const onHover = (value: boolean) => setHover(value);
@@ -52,10 +55,18 @@ const MainPageCard = ({ title, content, onClick }: any) => {
           opacity: 0.6,
         }}
         alt="game_mode"
-        src={multiImg}
+        src={title === MULTI ? backgroundMulti : backgroundSingle}
       />
 
-      <CardContent style={{ position: "absolute", top: 20, left: 20 }}>
+      <CardContent
+        style={{
+          padding: 0,
+          top: "35%",
+          position: "absolute",
+          width: "100%",
+          fontSize: 25,
+        }}
+      >
         {content}
       </CardContent>
     </Card>
@@ -77,11 +88,21 @@ const MainPage = () => {
       justifyContent="center"
       alignItems="center"
     >
-      <Grid2 md={4} xs={12} onClick={() => nav("/multi")}>
-        <MainPageCard title="Multiplayer" content="Compete with others" />
+      <Grid2 md={4} justifyContent="center" xs={12} display="flex">
+        <MainPageCard
+          title={MULTI}
+          content={`Compete against others
+          (coming soon)`}
+        />
       </Grid2>
-      <Grid2 md={4} xs={12} onClick={() => nav("/single")}>
-        <MainPageCard title="Single player" content="Play vs AI" />
+      <Grid2
+        md={4}
+        justifyContent="center"
+        display="flex"
+        xs={12}
+        onClick={() => nav("/single")}
+      >
+        <MainPageCard title={SINGLE} content="Play vs AI" />
       </Grid2>
     </Grid2>
   );

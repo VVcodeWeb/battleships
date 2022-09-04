@@ -14,6 +14,7 @@ import {
   HORIZONTAL,
   HUMAN,
   MIN_MD_WIDTH,
+  NO_DROP_AND_VISIBLE,
   SHIP,
   SMALLER_HEIGHT,
   SMALLER_WIDTH,
@@ -30,6 +31,7 @@ import { GameContext } from "SinglePlayer/context/GameContext";
 import shellImg from "components/../../public/shell.png";
 import fireImg from "components/../../public/fire2.png";
 import blockImg from "components/../../public/block.png";
+
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const { gameStage, getCurrentPlayer, makeMove } = useContext(GameContext);
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
@@ -154,10 +156,7 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     textAlign: "center",
     height: isWiderMD ? HEIGHT : SMALLER_HEIGHT,
     width: isWiderMD ? WIDTH : SMALLER_WIDTH,
-    border:
-      gameStage === GAME_OVER && tile.occupiedBy
-        ? CAN_DROP_AND_VISIBLE
-        : tile.border,
+    border: tile.border,
     background: `url(${waterImg})`,
     backgroundSize: "contain",
     overflow: "visible",

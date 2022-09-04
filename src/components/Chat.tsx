@@ -1,9 +1,8 @@
-import React, { useContext, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Card, CardHeader, CardContent, Avatar } from "@mui/material";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import Grid2 from "@mui/material/Unstable_Grid2";
 
-import { GameContext } from "SinglePlayer/context/GameContext";
 import { LogEntry } from "SinglePlayer/types";
 import { HUMAN } from "constants/const";
 import defaultAvatarImg from "components/../../public/default_avatar.jpg";
@@ -52,20 +51,22 @@ const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
         </Avatar>
         <Grid2
           style={{
-            background: "#ffb562",
+            background: "#d8e5ff",
             padding: 10,
             borderRadius: 30,
-            color: "white",
+            color: "#586885",
             fontWeight: "bold",
+            fontSize: 15,
           }}
         >
           <span style={{}}>{log.player}</span> shells {getLetterByX(log.x)}:
           {log.y + 1}.
           {log.success ? (
-            <span style={{ color: "aquamarine", paddingLeft: 5 }}>Success</span>
+            <span style={{ color: "green", paddingLeft: 5 }}>Success</span>
           ) : (
             <> Miss</>
           )}
+          {log.destroyed && <span>. Destroyed: {log.destroyed[0].name}</span>}
         </Grid2>
       </Grid2>
     );

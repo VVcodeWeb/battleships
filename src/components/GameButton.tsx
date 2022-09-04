@@ -1,7 +1,5 @@
-import { HearingDisabledRounded } from "@mui/icons-material";
-import { Button, useMediaQuery } from "@mui/material";
-import { MIN_MD_WIDTH } from "constants/const";
-import { useState, useEffect } from "react";
+import { Button } from "@mui/material";
+import { useState } from "react";
 import { animated, useSpring } from "react-spring";
 
 const GameButton = ({
@@ -14,17 +12,16 @@ const GameButton = ({
   hidden?: boolean;
 }) => {
   const [disable, setDisabled] = useState<boolean>(false);
-  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const handleClick = () => {
     setDisabled(true);
     onClick();
     setTimeout(() => {
       setDisabled(false);
-    }, 0);
+    }, 300);
   };
 
-  const [styles, api] = useSpring(
+  const [styles] = useSpring(
     () => ({
       from: {
         opacity: 0,

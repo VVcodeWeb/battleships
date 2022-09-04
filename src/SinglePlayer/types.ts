@@ -6,7 +6,7 @@ import {
   PLANNING,
   READY,
 } from "constants/const";
-import { ShipNames, ShipType } from "SinglePlayer/ShipDocks/types";
+import { ShipType } from "SinglePlayer/ShipDocks/types";
 
 export type Player = typeof BOT | typeof HUMAN;
 export type LogEntry = {

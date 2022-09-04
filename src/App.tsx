@@ -1,26 +1,16 @@
+import { MAIN, MULTI, SINGLE } from "constants/const";
 import { useEffect, useState } from "react";
-import {
-  BrowserRouter,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { animated, useTransition } from "react-spring";
 
 import GameProvider from "SinglePlayer/context/GameContext";
-import GameButton from "components/GameButton";
 import "./App.css";
-import MainPage from "./pages/MainPage";
+import MainPage from "./MainPage";
 import SinglePlayer from "./SinglePlayer";
-const SINGLE = "single";
-const MAIN = "main";
-const MULTI = "multi";
 
 function App() {
   type RouteNameType = keyof typeof routes;
   const location = useLocation();
-  const navigate = useNavigate();
   const [page, setPage] = useState<RouteNameType>(MAIN);
   const getTransformFrom = (page: RouteNameType) =>
     page === SINGLE ? "translate3d(0,100%, 0)" : "translate3d(0,-100%, 0)";

@@ -2,7 +2,6 @@ export const CARRIER = "carrier";
 export const DESTROYER = "destroyer";
 export const SUBMARINE_A = "submarine_A";
 export const SUBMARINE_B = "submarine_B";
-
 export const BATTLESHIP = "battleship";
 export const FRIGATE = "frigate";
 export const CARAVELA = "caravela";
@@ -43,3 +42,6 @@ export const FIGHTING = "fighting";
 export const GAME_OVER = "game over";
 
 export const NOT_ON_BOARD = -1;
+export const SINGLE = "single";
+export const MAIN = "main";
+export const MULTI = "multi";

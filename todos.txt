@@ -1,4 +1,0 @@
-1. Refactoring
-2. Design
-3. Multiplayer
-4. Change game rules

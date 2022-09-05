@@ -5,16 +5,13 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import { useMediaQuery } from "@mui/material";
 
 import {
-  CAN_DROP_AND_VISIBLE,
   COLUMNS,
   ENEMY_SHIP,
   FIGHTING,
-  GAME_OVER,
   HEIGHT,
   HORIZONTAL,
   HUMAN,
   MIN_MD_WIDTH,
-  NO_DROP_AND_VISIBLE,
   SHIP,
   SMALLER_HEIGHT,
   SMALLER_WIDTH,

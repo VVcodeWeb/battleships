@@ -1,4 +1,5 @@
 import { MAIN, MULTI, SINGLE } from "constants/const";
+import MultiPlayer from "MultiPlayer";
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { animated, useTransition } from "react-spring";
@@ -28,6 +29,7 @@ function App() {
     if (newPage === SINGLE || newPage === MULTI) setPage(newPage);
     else setPage(MAIN);
   }, [location.pathname]);
+
   //TODO: 404 page
   const routes = {
     main: <Route path="/" element={<MainPage />} />,
@@ -41,7 +43,7 @@ function App() {
         }
       />
     ),
-    multi: <Route path="/multi" element={<>Not implemented</>} />,
+    multi: <Route path="/multi" element={<MultiPlayer />} />,
   };
   return (
     <>

@@ -6,18 +6,20 @@ const GameButton = ({
   text,
   onClick,
   hidden,
+  disabled,
 }: {
   text: string;
   onClick: (e?: any) => void;
   hidden?: boolean;
+  disabled?: boolean;
 }) => {
-  const [disable, setDisabled] = useState<boolean>(false);
+  const [bounced, setBounced] = useState<boolean>(false);
 
   const handleClick = () => {
-    setDisabled(true);
+    setBounced(true);
     onClick();
     setTimeout(() => {
-      setDisabled(false);
+      setBounced(false);
     }, 300);
   };
 
@@ -40,7 +42,7 @@ const GameButton = ({
         variant="contained"
         className="gameButton"
         onClick={handleClick}
-        disabled={hidden || disable}
+        disabled={hidden || bounced || disabled}
         style={{
           borderRadius: 20,
           background: "#ffb562",

@@ -1,3 +1,12 @@
+## To be added
+
+    * display whose turn it is
+    * animations
+    * multiplayer
+    * update UI of the chat/messages
+
+## To be fixed
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

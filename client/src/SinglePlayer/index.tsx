@@ -14,7 +14,7 @@ import background2 from "components/../../public/background_2.jpg";
 import { useNavigate } from "react-router-dom";
 import Chat from "components/Chat";
 import { Player } from "SinglePlayer/types";
-import Game from "SinglePlayer/PlayGround";
+import PlayGround from "SinglePlayer/PlayGround";
 import GameButton from "components/GameButton";
 export const flex = {
   display: "flex",
@@ -91,7 +91,7 @@ const SinglePlayer = () => {
           margin={4}
         >
           <BoardProvider>
-            <Game />
+            <PlayGround />
           </BoardProvider>
         </Grid2>
       </Grid2>

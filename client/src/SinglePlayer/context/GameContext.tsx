@@ -14,7 +14,7 @@ import {
 import { LogEntry, Player, StageType } from "SinglePlayer/types";
 import { generateBoardAI, getAttackTarget } from "utils/ai";
 import { ShipType } from "SinglePlayer/ShipDocks/types";
-import { areXYsEual, delay } from "utils";
+import { areXYsEual, delay, getSize } from "utils";
 
 const initialState = {
   enemyShips: [] as ShipType[],
@@ -93,6 +93,7 @@ export const GameContext = React.createContext({
   surrender: () => {},
   disposeEnemy: (): ShipType[] => [],
   getCurrentPlayer: (): Player => HUMAN,
+  contextGetSize: (t: any) => 5 as number,
 });
 
 const GameProvider = ({ children }: any) => {
@@ -212,6 +213,7 @@ const GameProvider = ({ children }: any) => {
         surrender,
         disposeEnemy,
         getCurrentPlayer,
+        contextGetSize: getSize,
       }}
     >
       {children}

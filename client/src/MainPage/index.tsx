@@ -90,19 +90,18 @@ const MainPage = () => {
     >
       <Grid2 md={4} justifyContent="center" xs={12} display="flex">
         <MainPageCard
+          onClick={() => nav("/multi")}
           title={MULTI}
           content={`Compete against others
           (coming soon)`}
         />
       </Grid2>
-      <Grid2
-        md={4}
-        justifyContent="center"
-        display="flex"
-        xs={12}
-        onClick={() => nav("/single")}
-      >
-        <MainPageCard title={SINGLE} content="Play vs AI" />
+      <Grid2 md={4} justifyContent="center" display="flex" xs={12}>
+        <MainPageCard
+          title={SINGLE}
+          content="Play vs AI"
+          onClick={() => nav("/single")}
+        />
       </Grid2>
     </Grid2>
   );

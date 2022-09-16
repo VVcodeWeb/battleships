@@ -1,12 +1,43 @@
-import express from "express";
-import path from "path";
+import { Server } from "socket.io";
+import ShortUniqueId from "short-unique-id";
+import Room from "./Room";
+import RoomManager from "./RoomManager";
 
-const app = express();
-const PORT = 8080;
-app.use(express.static(path.resolve(__dirname, "../../client/build")));
+export const io = new Server({ cors: { origin: "*" } });
+const uid = new ShortUniqueId({ length: 8 });
 
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "../../client/public", "index.html"));
+const rooms = new RoomManager();
+io.on("connection", (socket) => {
+  console.log({ socket: socket.id });
+  socket.on("newRoom", () => {
+    const newUid = uid();
+    const room = new Room(newUid);
+    rooms.addRoom(room);
+    socket.emit("newRoomID", newUid);
+  });
+
+  socket.on("joinRoom", (roomID) => {
+    const room = rooms.getRoom(roomID);
+    if (room) {
+      try {
+        room.joinRoom(socket);
+        rooms.updateRoom(room.ID, room);
+        console.log({ roomID });
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      //handle non existing room
+    }
+  });
+
+  socket.on("playerReady", (board) => {
+    const room = rooms.findRoomByPlayer(socket.id);
+    if (room) {
+      room.playerIsReady(socket.id, board);
+      rooms.updateRoom(room.ID, room);
+    } else console.error("cant find players room");
+  });
 });
 
-app.listen(PORT, () => console.log("started"));
+io.listen(8000);

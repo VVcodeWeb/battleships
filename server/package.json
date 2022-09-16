@@ -12,6 +12,8 @@
   "dependencies": {
     "@types/websocket": "^1.0.5",
     "express": "^4.18.1",
+    "short-unique-id": "^4.4.4",
+    "socket.io": "^4.5.2",
     "websocket": "^1.0.34"
   },
   "devDependencies": {

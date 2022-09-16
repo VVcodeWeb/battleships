@@ -9,33 +9,44 @@ const uid = new ShortUniqueId({ length: 8 });
 const rooms = new RoomManager();
 io.on("connection", (socket) => {
   console.log({ socket: socket.id });
-  socket.on("newRoom", () => {
+  socket.on("room:new", () => {
     const newUid = uid();
     const room = new Room(newUid);
     rooms.addRoom(room);
-    socket.emit("newRoomID", newUid);
+    socket.emit("room:new:id", newUid);
   });
 
-  socket.on("joinRoom", (roomID) => {
+  socket.on("room:join", (roomID) => {
     const room = rooms.getRoom(roomID);
     if (room) {
       try {
         room.joinRoom(socket);
         rooms.updateRoom(room.ID, room);
         console.log({ roomID });
-      } catch (e) {
-        console.log(e);
-      }
+      } catch (e) {}
     } else {
       //handle non existing room
     }
   });
 
-  socket.on("playerReady", (board) => {
+  socket.on("player:ready", (board) => {
+    console.log("player ready");
     const room = rooms.findRoomByPlayer(socket.id);
     if (room) {
       room.playerIsReady(socket.id, board);
       rooms.updateRoom(room.ID, room);
+    } else console.error("cant find players room");
+  });
+
+  socket.on("player:move", (move) => {
+    const room = rooms.findRoomByPlayer(socket.id);
+    if (room) {
+      try {
+        room.playerTakesTurn(socket.id, move.x, move.y);
+        rooms.updateRoom(room.ID, room);
+      } catch (e: any) {
+        console.error(e?.message);
+      }
     } else console.error("cant find players room");
   });
 });

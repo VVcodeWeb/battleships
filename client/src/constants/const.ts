@@ -33,8 +33,8 @@ export const SMALLER_WIDTH = 30;
 export const COLUMNS = 10;
 export const FULL_HP = 100;
 export const ENEMY_SHIP = "enemy ship";
-export const ENEMY = "bot";
-export const ALLY = "human";
+export const ENEMY = "enemy";
+export const ALLY = "ally";
 
 export const PLANNING = "planning";
 export const READY = "ready";

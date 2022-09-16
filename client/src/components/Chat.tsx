@@ -6,6 +6,7 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import { LogEntry } from "Game/types";
 import { ALLY } from "constants/const";
 import defaultAvatarImg from "components/../../public/default_avatar.jpg";
+import useGetGameContext from "Game/hooks/useGetGameContext";
 const container: React.CSSProperties = {
   overflowY: "scroll",
   height: 80,
@@ -26,7 +27,7 @@ const getLetterByX = (x: number) => String.fromCharCode(65 + x);
 //Expand the log on click
 const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
   const scrollRef = React.useRef<HTMLDivElement>(null);
-
+  const { stage } = useGetGameContext();
   useEffect(() => {
     if (scrollRef.current)
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -102,6 +103,7 @@ const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
               key={`player-${log.player}-x-${log.x}-y-${log.y}`}
             />
           ))}
+          <div style={{ color: "black" }}>{stage}</div>
           <div ref={scrollRef}></div>
         </div>
       </CardContent>

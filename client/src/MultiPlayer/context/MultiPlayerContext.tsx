@@ -1,14 +1,7 @@
-import React, { useCallback, useEffect, useReducer } from "react";
+import React, { memo, useMemo, useReducer, useState } from "react";
 
-import {
-  ENEMY,
-  FIGHTING,
-  GAME_OVER,
-  ALLY,
-  MAX_SHIP_PARTS,
-  READY,
-} from "constants/const";
-import { Player, StageType } from "Game/types";
+import { ENEMY, FIGHTING, GAME_OVER, ALLY, READY } from "constants/const";
+import { LogEntry, Player, StageType } from "Game/types";
 import { ShipType } from "Game/ShipDocks/types";
 import { ACTION, initialState, reducer } from "reducer";
 import useSocket from "MultiPlayer/hooks/useSocket";
@@ -17,25 +10,35 @@ export const LOBBY = "lobby";
 
 export const MultiPlayerContext = React.createContext({
   ...{ ...initialState, stage: LOBBY },
+  currentPlayersTurn: ALLY,
   setGameStage: (value: StageType) => {},
   makeMove: ({ x, y, player }: { x: number; y: number; player: Player }) => {},
   finishPlanning: (board: ShipType[]) => {},
   playAgain: () => {},
   surrender: () => {},
   disposeEnemy: (): ShipType[] => [],
-  getCurrentPlayer: (): Player => ALLY,
+  updateGameLog: (gameLog: LogEntry[]) => {},
+  gameOver: (winner: string, enemyShips: ShipType[]) => {},
 });
 
 const MultiPlayerProvider = ({ children }: any) => {
   const [{ allyShips, enemyShips, gameLog, stage, winner }, dispatch] =
     useReducer(reducer, { ...initialState, stage: LOBBY });
 
-  const { gameStageListener, playerIsReady } = useSocket();
+  const [isMyFirstTurn, setIsMyFirstTurn] = useState<boolean>(false);
   const playAgain = () => dispatch({ type: ACTION.RESET_STATES });
+  const { playerIsReady, socketID, playerTakesTurn } = useSocket();
 
-  const surrender = () => setWinner(ENEMY);
-  const setWinner = (value: Player) =>
-    dispatch({ type: ACTION.END_GAME, payload: { winner: value } });
+  const surrender = () => {
+    alert("not implemented");
+  };
+  const gameOver = (winner: string, enemyShips: ShipType[]) => {
+    dispatch({
+      type: ACTION.END_GAME,
+      payload: { winner: winner === socketID ? ALLY : ENEMY },
+    });
+    dispatch({ type: ACTION.DISPOSE_ENEMY, payload: { enemyShips } });
+  };
   const disposeEnemy = () => {
     if (stage !== GAME_OVER)
       throw new Error("Trying to dispose the enemy during the game");
@@ -43,50 +46,34 @@ const MultiPlayerProvider = ({ children }: any) => {
   };
   //todo add handler for READY -> PLANNING stage switch
   const setGameStage = (value: StageType) => {
-    console.log({ stage, value });
     if (stage === FIGHTING) {
       throw new Error(`Cant change stage from FIGHTING to ${value}`);
     }
-    dispatch({ type: ACTION.SET_STAGE, payload: { value } });
+    if (stage !== value)
+      dispatch({ type: ACTION.SET_STAGE, payload: { value } });
   };
-
-  const finishPlanning = (allyBoard: ShipType[]) => {
-    if (stage === READY) {
-      playerIsReady(allyBoard, (enemyBoard) => {
+  const finishPlanning = (allyShips: ShipType[]) => {
+    if (stage === READY)
+      playerIsReady(allyShips, (firstTurnPlayer) => {
+        if (firstTurnPlayer === socketID) setIsMyFirstTurn(true);
         dispatch({
           type: ACTION.START_GAME,
           payload: {
-            allyBoard,
-            enemyBoard,
+            allyShips,
+            enemyShips: [],
           },
         });
       });
-    } else throw new Error(`Gets humans board at ${stage} game stage`);
+    else throw new Error(`Gets humans board at ${stage} game stage`);
   };
 
-  /* check for win condition */
-  useEffect(() => {
-    const checkIfPlayerWon = (player: Player): boolean => {
-      if (player !== ALLY && player !== ENEMY)
-        throw new Error(`Invalid player ${player}`);
-      const succeededShells = gameLog.filter(
-        (log) => log.player === (player === ALLY ? ALLY : ENEMY) && log.success
-      );
-      return succeededShells.length >= MAX_SHIP_PARTS;
-    };
-    if (checkIfPlayerWon(ALLY)) setWinner(ALLY);
-    if (checkIfPlayerWon(ENEMY)) setWinner(ENEMY);
-  }, [gameLog]);
-
-  const getCurrentPlayer = useCallback((): Player => {
+  const currentPlayersTurn = useMemo((): Player => {
     const lastTurn = gameLog[gameLog.length - 1];
-    if (!lastTurn) return ALLY;
-    if (lastTurn.player === ENEMY) {
-      return lastTurn.success ? ENEMY : ALLY;
-    }
+    if (!lastTurn) return isMyFirstTurn ? ALLY : ENEMY;
+    if (lastTurn.player === ENEMY) return lastTurn.success ? ENEMY : ALLY;
     if (lastTurn.player === ALLY && lastTurn.success) return ALLY;
     return ENEMY;
-  }, [gameLog]);
+  }, [gameLog, isMyFirstTurn]);
 
   const makeMove = ({
     x,
@@ -98,8 +85,19 @@ const MultiPlayerProvider = ({ children }: any) => {
     player: Player;
   }) => {
     if (stage !== FIGHTING) throw new Error(`Not a fighting stage`);
-    if (player !== getCurrentPlayer())
+    if (player !== currentPlayersTurn)
       throw new Error(`Player ${player} makes move during enemy turn`);
+
+    playerTakesTurn(x, y);
+  };
+
+  const updateGameLog = (newLog: LogEntry[]) => {
+    console.log({ serverLog: newLog });
+    const formatLog: LogEntry[] = newLog.map((log) => ({
+      ...log,
+      player: log.player === socketID ? ALLY : ENEMY,
+    }));
+    dispatch({ type: ACTION.STORE_GAME_LOG, payload: { newLog: formatLog } });
   };
 
   return (
@@ -116,7 +114,9 @@ const MultiPlayerProvider = ({ children }: any) => {
         playAgain,
         surrender,
         disposeEnemy,
-        getCurrentPlayer,
+        currentPlayersTurn,
+        updateGameLog,
+        gameOver,
       }}
     >
       {children}
@@ -124,4 +124,4 @@ const MultiPlayerProvider = ({ children }: any) => {
   );
 };
 
-export default MultiPlayerProvider;
+export default memo(MultiPlayerProvider);

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer } from "react";
+import React, { useCallback, useEffect, useMemo, useReducer } from "react";
 
 import _ from "underscore";
 
@@ -26,7 +26,7 @@ export const SinglePlayerContext = React.createContext({
   playAgain: () => {},
   surrender: () => {},
   disposeEnemy: (): ShipType[] => [],
-  getCurrentPlayer: (): Player => ALLY,
+  currentPlayersTurn: ALLY,
 });
 
 const SinglePlayerProvider = ({ children }: any) => {
@@ -57,8 +57,8 @@ const SinglePlayerProvider = ({ children }: any) => {
       dispatch({
         type: ACTION.START_GAME,
         payload: {
-          allyBoard: board,
-          enemyBoard: generateBoardAI().enemyShips,
+          allyShips: board,
+          enemyShips: generateBoardAI().enemyShips,
         },
       });
     else throw new Error(`Gets humans board at ${stage} game stage`);
@@ -78,7 +78,7 @@ const SinglePlayerProvider = ({ children }: any) => {
     if (checkIfPlayerWon(ENEMY)) setWinner(ENEMY);
   }, [gameLog]);
 
-  const getCurrentPlayer = useCallback((): Player => {
+  const currentPlayersTurn = useMemo((): Player => {
     const lastTurn = gameLog[gameLog.length - 1];
     if (!lastTurn) return ALLY;
     if (lastTurn.player === ENEMY) {
@@ -91,7 +91,7 @@ const SinglePlayerProvider = ({ children }: any) => {
   const makeMove = useCallback(
     ({ x, y, player }: { x: number; y: number; player: Player }) => {
       if (stage !== FIGHTING) throw new Error(`Not a fighting stage`);
-      if (player !== getCurrentPlayer())
+      if (player !== currentPlayersTurn)
         throw new Error(`Player ${player} makes move during enemy turn`);
       const allShipsTilesToCheck = player === ALLY ? enemyShips : allyShips;
       const shipShelled = _.find(
@@ -128,7 +128,7 @@ const SinglePlayerProvider = ({ children }: any) => {
         },
       });
     },
-    [stage, getCurrentPlayer, gameLog, enemyShips, allyShips]
+    [stage, currentPlayersTurn, gameLog, enemyShips, allyShips]
   );
 
   /* ENEMY takes a turn */
@@ -138,8 +138,8 @@ const SinglePlayerProvider = ({ children }: any) => {
       const { x, y } = getAttackTarget({ gameLog: gameLog });
       makeMove({ x, y, player: ENEMY });
     };
-    if (getCurrentPlayer() === ENEMY && stage === FIGHTING) takeTurnAI();
-  }, [getCurrentPlayer, makeMove, allyShips, gameLog, stage]);
+    if (currentPlayersTurn === ENEMY && stage === FIGHTING) takeTurnAI();
+  }, [currentPlayersTurn, makeMove, allyShips, gameLog, stage]);
   return (
     <SinglePlayerContext.Provider
       value={{
@@ -154,7 +154,7 @@ const SinglePlayerProvider = ({ children }: any) => {
         playAgain,
         surrender,
         disposeEnemy,
-        getCurrentPlayer,
+        currentPlayersTurn,
       }}
     >
       {children}

@@ -30,7 +30,7 @@ import blockImg from "components/../../public/block.png";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
-  const { stage, getCurrentPlayer, makeMove } = useGetGameContext();
+  const { stage, currentPlayersTurn, makeMove } = useGetGameContext();
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
   const [canBeShelled, setCanBeShelled] = useState<boolean>(false);
@@ -79,21 +79,23 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     [placeShipOnBoard, updateTilesBorders, checkCanDrop]
   );
   const onClick = () => {
-    if (tile.shelled || tile.blocked) return;
-    if (tile.enemy && stage !== FIGHTING)
-      throw new Error("Track board is visible during non fighting stage ");
-    if (tile.enemy && getCurrentPlayer() === ALLY)
-      makeMove({ x: tile.x, y: tile.y, player: ALLY });
+    setTimeout(() => {
+      if (tile.shelled || tile.blocked) return;
+      if (tile.enemy && stage !== FIGHTING)
+        throw new Error("Track board is visible during non fighting stage ");
+      if (tile.enemy && currentPlayersTurn === ALLY)
+        makeMove({ x: tile.x, y: tile.y, player: ALLY });
+    }, 50);
   };
 
   useEffect(() => {
     setCanBeShelled(
-      getCurrentPlayer() === ALLY &&
+      currentPlayersTurn === ALLY &&
         tile.enemy &&
         !tile.shelled &&
         !tile.blocked
     );
-  }, [getCurrentPlayer, tile.blocked, tile.enemy, tile.shelled]);
+  }, [currentPlayersTurn, tile.blocked, tile.enemy, tile.shelled]);
 
   /*  x/y board numeration */
   useEffect(() => {

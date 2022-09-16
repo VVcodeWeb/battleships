@@ -1,56 +1,50 @@
 import { ShipType } from "Game/ShipDocks/types";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 type Callback = (args: any) => void;
 const socket = io("ws://localhost:8000");
 const useSocket = () => {
-  const { roomID: ID } = useParams();
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
-  const [roomID, setRoomID] = useState<string>("");
+  const { roomID } = useParams();
   useEffect(() => {
     socket.on("connect", () => setIsConnected(true));
     socket.on("disconnect", () => setIsConnected(false));
-    console.log("Socket islistening: " + socket.connected);
     return () => {
       socket.off("connect");
       socket.off("disconnect");
     };
   }, []);
 
-  useEffect(() => {
-    if (ID) setRoomID(ID);
-  }, [ID]);
-  useEffect(() => {
+  const joinRoom = () => {
     if (roomID) {
-      console.log("join room");
-      socket.emit("joinRoom", roomID);
+      //console.log("join room");
+      socket.emit("room:join", roomID);
     }
-  }, [roomID]);
-
+  };
   const createNewRoom = (callback?: Callback) => {
     if (!callback) {
-      socket.off("newRoomID");
+      socket.off("room:new:id");
       return;
     }
-    socket.emit("newRoom");
-    socket.on("newRoomID", callback);
+    socket.emit("room:new");
+    socket.on("room:new:id", callback);
   };
 
-  const gameStageListener = (callback?: Callback) => {
+  const planningStageListener = (callback?: Callback) => {
     if (!callback) {
-      socket.off("stage");
+      socket.off("game:stage:planning");
       return;
     }
-    socket.on("stage", callback);
+    socket.on("game:stage:planning", callback);
   };
 
   const invalidRoomListener = (callback?: Callback) => {
     if (!callback) {
-      socket.off("invalidRoom");
+      socket.off("room:invalid");
       return;
     }
-    socket.on("noRoom", callback);
+    socket.on("room:invalid", callback);
   };
 
   const greetingsListener = (callback?: Callback) => {
@@ -62,10 +56,29 @@ const useSocket = () => {
   };
 
   const playerIsReady = (board: ShipType[], callback: Callback) => {
-    socket.emit("playerReady", board);
-    socket.on("bothPlayersReady", callback);
-    socket.on("disconnect", () => socket.off("bothPlayersReady"));
+    socket.emit("player:ready", board);
+    socket.on("game:stage:fighting", callback);
+    socket.on("disconnect", () => socket.off("game:stage:fighting"));
   };
+
+  const gameLogListener = (callback?: Callback) => {
+    if (!callback) {
+      socket.off("game:gameLog");
+      return;
+    }
+    socket.on("game:gameLog", callback);
+  };
+
+  const gameOverListener = (callback?: Callback) => {
+    if (!callback) {
+      socket.off("game:stage:over");
+      return;
+    }
+    socket.on("game:stage:over", callback);
+  };
+
+  const playerTakesTurn = (x: number, y: number) =>
+    socket.emit("player:move", { x, y });
 
   const connect = () => socket.connect();
   const disconnect = () => socket.disconnect();
@@ -75,10 +88,14 @@ const useSocket = () => {
     disconnect,
     createNewRoom,
     greetingsListener,
-    gameStageListener,
+    planningStageListener,
     invalidRoomListener,
     playerIsReady,
-    roomID,
+    playerTakesTurn,
+    gameOverListener,
+    gameLogListener,
+    joinRoom,
+    socketID: socket.id,
   };
 };
 

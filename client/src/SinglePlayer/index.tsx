@@ -1,10 +1,13 @@
+import Background from "components/Background";
 import Game from "Game";
 import SinglePlayerProvider from "SinglePlayer/context/SinglePlayerContext";
 
 const SinglePlayer = () => {
   return (
     <SinglePlayerProvider>
-      <Game />
+      <Background type="single">
+        <Game />
+      </Background>
     </SinglePlayerProvider>
   );
 };

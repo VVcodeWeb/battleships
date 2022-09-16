@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import _ from "underscore";
 
 import {
@@ -19,7 +19,6 @@ import {
   getAdjacent,
   getBlockedTiles,
 } from "utils";
-import { SinglePlayerContext } from "SinglePlayer/context/SinglePlayerContext";
 import { LogEntry, Player } from "Game/types";
 import { ShipType } from "Game/ShipDocks/types";
 import { getBorder } from "Game/Board/utils";

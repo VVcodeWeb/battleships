@@ -29,6 +29,7 @@ const Game = () => {
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
   const onPlayAgainClick = () => playAgain();
   const onMainMenuClick = () => naviagte("/");
+  //todo rewrite without useeffect
   useEffect(() => setOpen(Boolean(winner)), [winner]);
 
   //todo: add the winner avatar
@@ -69,10 +70,6 @@ const Game = () => {
         minHeight="100vh"
         justifyContent="center"
         alignItems="flex-start"
-        style={{
-          background: `url(${background2})`,
-          backgroundSize: "100% 100%",
-        }}
       >
         <Grid2
           container

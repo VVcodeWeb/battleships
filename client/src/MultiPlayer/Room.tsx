@@ -1,5 +1,5 @@
-import { useNavigate } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { memo, useContext, useEffect, useState } from "react";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
 import Background from "components/Background";
@@ -9,43 +9,51 @@ import {
   LOBBY,
   MultiPlayerContext,
 } from "MultiPlayer/context/MultiPlayerContext";
-import useGetGameContext from "Game/hooks/useGetGameContext";
+import { PLANNING } from "constants/const";
 
 const Room = () => {
-  const { greetingsListener, invalidRoomListener, roomID, gameStageListener } =
-    useSocket();
-  const { stage, setGameStage } = useContext(MultiPlayerContext);
+  const { roomID } = useParams();
+  const {
+    greetingsListener,
+    invalidRoomListener,
+    joinRoom,
+    planningStageListener,
+    gameLogListener,
+    gameOverListener,
+  } = useSocket();
+  const { stage, setGameStage, updateGameLog, gameOver } =
+    useContext(MultiPlayerContext);
   const nav = useNavigate();
   const [players, setPlayers] = useState<string[]>([]);
-
-  //todo refactoring
   useEffect(() => {
-    console.log("re render");
-    greetingsListener((players) => {
-      console.log({ players });
-      setPlayers(players);
-    });
+    joinRoom();
+    greetingsListener((players) => setPlayers(players));
     invalidRoomListener(() => nav("/multi"));
-    gameStageListener((newStage) => {
-      console.log("new stage " + newStage);
-      console.log(setGameStage);
-      setGameStage(newStage);
-    });
+    planningStageListener(() => setGameStage(PLANNING));
+    gameLogListener((gameLog) => updateGameLog(gameLog));
+    gameOverListener((data) => gameOver(data.winner, data.enemyShips));
     return () => {
       greetingsListener();
       invalidRoomListener();
-      gameStageListener();
+      planningStageListener();
+      gameLogListener();
+      gameOverListener();
     };
   }, [
-    gameStageListener,
+    gameOver,
+    gameLogListener,
     greetingsListener,
     invalidRoomListener,
+    joinRoom,
     nav,
+    planningStageListener,
     setGameStage,
+    updateGameLog,
+    gameOverListener,
   ]);
 
   return (
-    <Background>
+    <Background type="multi">
       {stage === LOBBY && (
         <Grid2
           container
@@ -71,4 +79,4 @@ const Room = () => {
   );
 };
 
-export default Room;
+export default memo(Room);

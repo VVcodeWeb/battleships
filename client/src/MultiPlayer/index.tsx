@@ -25,7 +25,7 @@ const MultiPlayer = () => {
     nav(`/multi/${roomID}`);
   };
   return (
-    <Background>
+    <Background type="multi">
       <Grid2
         container
         justifyContent="center"

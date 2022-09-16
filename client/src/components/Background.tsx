@@ -1,7 +1,14 @@
 import Grid2 from "@mui/material/Unstable_Grid2";
 import backgroundMulti from "components/../../public/multi2.png";
+import backgroundSingle from "components/../../public/background_2.jpg";
 
-const Background = ({ children }: { children: any }) => (
+const Background = ({
+  children,
+  type,
+}: {
+  children: any;
+  type: "single" | "multi";
+}) => (
   <Grid2
     container
     direction="row"
@@ -10,8 +17,11 @@ const Background = ({ children }: { children: any }) => (
     alignItems="center"
     gap={1}
     style={{
-      background: `url(${backgroundMulti})`,
-      backgroundSize: "100% 100%",
+      background: `url(${
+        type === "multi" ? backgroundMulti : backgroundSingle
+      })`,
+      backgroundSize: "cover",
+      backgroundRepeat: "no-repeat",
     }}
   >
     {children}

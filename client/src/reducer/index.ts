@@ -19,11 +19,13 @@ type State = {
 export type Action =
   | { type: typeof ACTION.RESET_STATES }
   | { type: typeof ACTION.END_GAME; payload: { winner: Player } }
+  | { type: typeof ACTION.STORE_GAME_LOG; payload: { newLog: LogEntry[] } }
   | { type: typeof ACTION.SET_STAGE; payload: { value: StageType } }
   | { type: typeof ACTION.STORE_MOVE; payload: { value: LogEntry } }
+  | { type: typeof ACTION.DISPOSE_ENEMY; payload: { enemyShips: ShipType[] } }
   | {
       type: typeof ACTION.START_GAME;
-      payload: { allyBoard: ShipType[]; enemyBoard: ShipType[] };
+      payload: { allyShips: ShipType[]; enemyShips: ShipType[] };
     };
 
 export const reducer = (state: State, action: Action) => {
@@ -32,8 +34,13 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         stage: FIGHTING as StageType,
-        enemyShips: action.payload.enemyBoard,
-        allyShips: action.payload.allyBoard,
+        enemyShips: action.payload.enemyShips,
+        allyShips: action.payload.allyShips,
+      };
+    case ACTION.DISPOSE_ENEMY:
+      return {
+        ...state,
+        enemyShips: action.payload.enemyShips,
       };
     case ACTION.SET_STAGE:
       return {
@@ -44,6 +51,12 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         gameLog: [...state.gameLog, action.payload.value],
+      };
+    }
+    case ACTION.STORE_GAME_LOG: {
+      return {
+        ...state,
+        gameLog: action.payload.newLog,
       };
     }
     case ACTION.END_GAME: {
@@ -69,4 +82,6 @@ export const ACTION = {
   STORE_MOVE: "update_game_log" as "update_game_log",
   END_GAME: "end game" as "end game",
   RESET_STATES: "play again" as "play again",
+  STORE_GAME_LOG: "store new log" as "store new log",
+  DISPOSE_ENEMY: "dispose enemy" as "dispose enemy",
 };

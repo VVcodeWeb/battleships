@@ -1,4 +1,5 @@
 import { Button } from "@mui/material";
+import useStyles from "hooks/useStyle";
 import { useState } from "react";
 import { animated, useSpring } from "react-spring";
 
@@ -13,6 +14,7 @@ const GameButton = ({
   hidden?: boolean;
   disabled?: boolean;
 }) => {
+  const styles = useStyles();
   const [bounced, setBounced] = useState<boolean>(false);
 
   const handleClick = () => {
@@ -23,7 +25,7 @@ const GameButton = ({
     }, 300);
   };
 
-  const [styles] = useSpring(
+  const [animStyle] = useSpring(
     () => ({
       from: {
         opacity: 0,
@@ -37,7 +39,7 @@ const GameButton = ({
     [hidden]
   );
   return (
-    <animated.div style={styles}>
+    <animated.div style={animStyle}>
       <Button
         variant="contained"
         className="gameButton"
@@ -45,8 +47,9 @@ const GameButton = ({
         disabled={hidden || bounced || disabled}
         style={{
           borderRadius: 20,
-          background: "#ffb562",
+          background: styles.mainColor,
           fontWeight: "bold",
+          textShadow: "1px 1px 1px #808080",
         }}
       >
         {text}

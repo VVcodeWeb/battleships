@@ -9,7 +9,7 @@ import useSocket from "MultiPlayer/hooks/useSocket";
 export const LOBBY = "lobby";
 
 export const MultiPlayerContext = React.createContext({
-  ...{ ...initialState, stage: LOBBY },
+  ...{ ...initialState, stage: LOBBY as StageType },
   currentPlayersTurn: ALLY,
   setGameStage: (value: StageType) => {},
   makeMove: ({ x, y, player }: { x: number; y: number; player: Player }) => {},

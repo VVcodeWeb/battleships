@@ -1,13 +1,13 @@
-import { useMediaQuery } from "@mui/material";
-import { ALLY, ENEMY, MIN_MD_WIDTH } from "constants/const";
+import { ALLY, ENEMY } from "constants/const";
 import { Player } from "Game/types";
 import loseImg from "components/../../public/lose.png";
 import winImg from "components/../../public/win.png";
-const GameOverImage = ({ winner }: { winner: Player | null }) => {
-  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
+import useStyles from "hooks/useStyle";
 
+const GameOverImage = ({ winner }: { winner: Player | null }) => {
+  const styles = useStyles();
   const imgSize = {
-    width: isWiderMD ? 500 : 350,
+    width: styles.gameOverImageWidth,
     maxWidth: "100%",
     height: 400,
   };

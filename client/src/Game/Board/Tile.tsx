@@ -2,22 +2,16 @@ import { useContext, useEffect, useState } from "react";
 import { DropTargetMonitor, useDrop } from "react-dnd";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
-import { useMediaQuery } from "@mui/material";
 
 import {
   COLUMNS,
   ENEMY_SHIP,
   FIGHTING,
-  HEIGHT,
   HORIZONTAL,
   ALLY,
-  MIN_MD_WIDTH,
   SHIP,
-  SMALLER_HEIGHT,
-  SMALLER_WIDTH,
   TILE,
   VERTICAL,
-  WIDTH,
 } from "constants/const";
 import waterImg from "components/../../public/water.jpg";
 import Ship from "Game/ShipDocks/Ship";
@@ -28,13 +22,14 @@ import shellImg from "components/../../public/shell.png";
 import fireImg from "components/../../public/fire2.png";
 import blockImg from "components/../../public/block.png";
 import useGetGameContext from "Game/hooks/useGetGameContext";
+import useStyles from "hooks/useStyle";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
+  const styles = useStyles();
   const { stage, currentPlayersTurn, makeMove } = useGetGameContext();
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
   const [canBeShelled, setCanBeShelled] = useState<boolean>(false);
-  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   const handleDragDrop = (item: any) =>
     placeShipOnBoard({
@@ -130,8 +125,8 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
       position: "absolute",
       top: 0,
       left: 0,
-      width: isWiderMD ? WIDTH : SMALLER_WIDTH,
-      height: isWiderMD ? HEIGHT : SMALLER_HEIGHT,
+      width: styles.tilesWidth,
+      height: styles.tilesHeight,
       zIndex: 6,
       pointerEvents: "none",
     };
@@ -151,15 +146,16 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   };
 
   const tileStyle: React.CSSProperties = {
-    color: "white",
+    color: styles.textColorBoard,
     textAlign: "center",
-    height: isWiderMD ? HEIGHT : SMALLER_HEIGHT,
-    width: isWiderMD ? WIDTH : SMALLER_WIDTH,
+    height: styles.tilesHeight,
+    width: styles.tilesWidth,
     border: tile.border,
     background: `url(${waterImg})`,
     backgroundSize: "contain",
     overflow: "visible",
     position: "relative",
+    textShadow: styles.textShadowBoard,
     cursor: canBeShelled ? "pointer" : "default",
   };
   //TODO: add proper type check for occupied by
@@ -181,11 +177,13 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
             style={{
               position: "absolute",
               top:
-                tile.occupiedBy.orientation === HORIZONTAL && !isWiderMD
-                  ? -5
+                tile.occupiedBy.orientation === HORIZONTAL
+                  ? styles.distanceShipTile
                   : 0,
               left:
-                tile.occupiedBy.orientation === VERTICAL && !isWiderMD ? -5 : 0,
+                tile.occupiedBy.orientation === VERTICAL
+                  ? styles.distanceShipTile
+                  : 0,
             }}
           >
             <Ship ship={tile.occupiedBy} />

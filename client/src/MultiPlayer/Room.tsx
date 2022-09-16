@@ -53,7 +53,7 @@ const Room = () => {
   ]);
 
   return (
-    <Background type="multi">
+    <Background>
       {stage === LOBBY && (
         <Grid2
           container

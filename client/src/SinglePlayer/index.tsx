@@ -5,7 +5,7 @@ import SinglePlayerProvider from "SinglePlayer/context/SinglePlayerContext";
 const SinglePlayer = () => {
   return (
     <SinglePlayerProvider>
-      <Background type="single">
+      <Background>
         <Game />
       </Background>
     </SinglePlayerProvider>

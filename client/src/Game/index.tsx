@@ -7,7 +7,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import BoardProvider from "Game/Board/context/BoardContext";
-import { ENEMY, ALLY, FIGHTING, GAME_OVER } from "constants/const";
+import { ENEMY, ALLY, FIGHTING } from "constants/const";
 import Chat from "components/Chat";
 import PlayGround from "Game/PlayGround";
 import GameButton from "components/GameButton";

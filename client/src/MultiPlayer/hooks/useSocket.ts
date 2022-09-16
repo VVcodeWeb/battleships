@@ -2,8 +2,8 @@ import { ShipType } from "Game/ShipDocks/types";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-type Callback = (args: any) => void;
 const socket = io("ws://localhost:8000");
+type Callback = (args: any) => void;
 const useSocket = () => {
   const [isConnected, setIsConnected] = useState<boolean>(socket.connected);
   const { roomID } = useParams();

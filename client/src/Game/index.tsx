@@ -1,21 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { Modal, Divider } from "@mui/material";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Divider, Modal, useMediaQuery } from "@mui/material";
 
 import BoardProvider from "Game/Board/context/BoardContext";
-import { ENEMY, ALLY, MIN_MD_WIDTH } from "constants/const";
-import loseImg from "components/../../public/lose.png";
-import winImg from "components/../../public/win.png";
-import background2 from "components/../../public/background_2.jpg";
-import { useNavigate } from "react-router-dom";
+import { ENEMY, ALLY, FIGHTING, GAME_OVER } from "constants/const";
 import Chat from "components/Chat";
-import { Player } from "Game/types";
 import PlayGround from "Game/PlayGround";
 import GameButton from "components/GameButton";
 import useGetGameContext from "Game/hooks/useGetGameContext";
+import GameOverImage from "components/GameOverImage";
+import PlayersAvatar from "components/PlayersAvatar";
 export const flex = {
   display: "flex",
   justifyContent: "center",
@@ -24,26 +22,14 @@ export const flex = {
 
 const Game = () => {
   const naviagte = useNavigate();
-  const { winner, playAgain, gameLog } = useGetGameContext();
+  const { winner, playAgain, gameLog, currentPlayersTurn, stage } =
+    useGetGameContext();
   const [open, setOpen] = useState<boolean>(false);
-  const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
   const onPlayAgainClick = () => playAgain();
   const onMainMenuClick = () => naviagte("/");
   //todo rewrite without useeffect
   useEffect(() => setOpen(Boolean(winner)), [winner]);
 
-  //todo: add the winner avatar
-  const GameOverImage = ({ winner }: { winner: Player | null }) => {
-    const imgSize = {
-      width: isWiderMD ? 500 : 350,
-      maxWidth: "100%",
-      height: 400,
-    };
-    if (winner === ALLY) return <img style={imgSize} src={winImg} alt="win" />;
-    if (winner === ENEMY)
-      return <img style={imgSize} src={loseImg} alt="lose" />;
-    return <>Invalid winner</>;
-  };
   return (
     <DndProvider backend={HTML5Backend}>
       <Modal open={open}>
@@ -76,9 +62,22 @@ const Game = () => {
           xs={12}
           md={12}
           justifyContent="center"
+          gap={2}
           alignItems="center"
         >
+          {stage === FIGHTING && (
+            <PlayersAvatar
+              player={ALLY}
+              playersTurn={currentPlayersTurn === ALLY}
+            />
+          )}
           <Chat gameLog={gameLog} />
+          {stage === FIGHTING && (
+            <PlayersAvatar
+              player={ENEMY}
+              playersTurn={currentPlayersTurn === ENEMY}
+            />
+          )}
         </Grid2>
         <Grid2
           container

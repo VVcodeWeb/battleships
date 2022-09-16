@@ -23,11 +23,9 @@ const emptyLogStyle: React.CSSProperties = {
   fontStyle: "italic",
 };
 const getLetterByX = (x: number) => String.fromCharCode(65 + x);
-//TODO: add system messages like game stage, winner etc
 //Expand the log on click
 const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
   const scrollRef = React.useRef<HTMLDivElement>(null);
-  const { stage } = useGetGameContext();
   useEffect(() => {
     if (scrollRef.current)
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -103,7 +101,6 @@ const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
               key={`player-${log.player}-x-${log.x}-y-${log.y}`}
             />
           ))}
-          <div style={{ color: "black" }}>{stage}</div>
           <div ref={scrollRef}></div>
         </div>
       </CardContent>

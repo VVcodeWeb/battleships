@@ -3,11 +3,11 @@ import { useContext } from "react";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useMediaQuery } from "@mui/material";
 
-import { BoardContext } from "SinglePlayer/Board/context/BoardContext";
-import { GameContext } from "SinglePlayer/context/GameContext";
+import { BoardContext } from "Game/Board/context/BoardContext";
+import { SinglePlayerContext } from "SinglePlayer/context/SinglePlayerContext";
 import { generateBoardAI } from "utils/ai";
-import ShipDocks from "SinglePlayer/ShipDocks";
-import Board from "SinglePlayer/Board";
+import ShipDocks from "Game/ShipDocks";
+import Board from "Game/Board";
 import GameButton from "components/GameButton";
 import {
   FIGHTING,
@@ -18,10 +18,11 @@ import {
   READY,
 } from "constants/const";
 import { useNavigate } from "react-router-dom";
+import useGetGameContext from "Game/hooks/useGetGameContext";
 
-const Game = () => {
+const PlayGround = () => {
   const navigate = useNavigate();
-  const { gameStage, setGameStage, surrender } = useContext(GameContext);
+  const { stage, setGameStage, surrender } = useGetGameContext();
   const { dockShips, autoSetBoard, tiles, enemyTiles, resetBoard } =
     useContext(BoardContext);
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
@@ -52,28 +53,28 @@ const Game = () => {
         </Grid2>
         <Grid2>
           <GameButton
-            hidden={gameStage !== FIGHTING}
+            hidden={stage !== FIGHTING}
             text="Surrender"
             onClick={onSurrenderClick}
           />
         </Grid2>
         <Grid2>
           <GameButton
-            hidden={gameStage !== PLANNING}
+            hidden={stage !== PLANNING}
             text="Auto generate board"
             onClick={onAutoPlacementBoard}
           />
         </Grid2>
         <Grid2>
           <GameButton
-            hidden={gameStage !== PLANNING || dockShips.length > 0}
+            hidden={stage !== PLANNING || dockShips.length > 0}
             text="Ready"
             onClick={onReadyClick}
           />
         </Grid2>
         <Grid2>
           <GameButton
-            hidden={gameStage !== PLANNING || dockShips.length === MAX_SHIPS}
+            hidden={stage !== PLANNING || dockShips.length === MAX_SHIPS}
             text="Reset"
             onClick={onResetClick}
           />
@@ -86,14 +87,14 @@ const Game = () => {
         alignItems="flex-start"
         container
       >
-        <ShipDocks hidden={gameStage !== PLANNING} />
+        <ShipDocks hidden={stage !== PLANNING} />
         <Board
           tiles={enemyTiles}
-          hidden={gameStage !== FIGHTING && gameStage !== GAME_OVER}
+          hidden={stage !== FIGHTING && stage !== GAME_OVER}
         />
       </Grid2>
     </>
   );
 };
 
-export default Game;
+export default PlayGround;

@@ -1,4 +1,4 @@
-import { ShipType } from "SinglePlayer/ShipDocks/types";
+import { ShipType } from "Game/ShipDocks/types";
 import {
   CAN_DROP_AND_VISIBLE,
   DEFAULT_BORDER,

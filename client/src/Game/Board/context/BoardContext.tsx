@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useReducer } from "react";
 import _ from "underscore";
 
 import {
-  BOT,
+  ENEMY,
   DEFAULT_BORDER,
   ENEMY_SHIP,
   GAME_OVER,
-  HUMAN,
+  ALLY,
   READY,
 } from "constants/const";
-import { BorderType, TileType } from "SinglePlayer/Board/types";
+import { BorderType, TileType } from "Game/Board/types";
 import {
   areXYsEual,
   generateTiles,
@@ -19,10 +19,11 @@ import {
   getAdjacent,
   getBlockedTiles,
 } from "utils";
-import { GameContext } from "SinglePlayer/context/GameContext";
-import { LogEntry, Player } from "SinglePlayer/types";
-import { ShipType } from "SinglePlayer/ShipDocks/types";
-import { getBorder } from "SinglePlayer/Board/utils";
+import { SinglePlayerContext } from "SinglePlayer/context/SinglePlayerContext";
+import { LogEntry, Player } from "Game/types";
+import { ShipType } from "Game/ShipDocks/types";
+import { getBorder } from "Game/Board/utils";
+import useGetGameContext from "Game/hooks/useGetGameContext";
 
 const initialState = {
   tiles: generateTiles({ enemy: false }) as TileType[],
@@ -99,15 +100,15 @@ const reducer = (state: State, action: ActionType): State | never => {
 
     case ACTION.UPDATE_BOARD:
       const gameLog = action.payload;
-      const blockedCoordinates = getBlockedTiles(gameLog, HUMAN);
+      const blockedCoordinates = getBlockedTiles(gameLog, ALLY);
       const getUpdatedTile = (tile: TileType, ofPlayer: Player) => {
         for (let { x, y, success, player } of gameLog) {
           if (player !== ofPlayer && areXYsEual(tile.x, tile.y, x, y)) {
             tile.shelled = true;
-            if (player === HUMAN && success) tile.occupiedBy = ENEMY_SHIP;
+            if (player === ALLY && success) tile.occupiedBy = ENEMY_SHIP;
           }
           if (
-            ofPlayer !== HUMAN &&
+            ofPlayer !== ALLY &&
             _.findWhere(blockedCoordinates, { x: tile.x, y: tile.y })
           )
             tile.blocked = true;
@@ -116,8 +117,8 @@ const reducer = (state: State, action: ActionType): State | never => {
       };
       return {
         ...state,
-        tiles: state.tiles.map((tile) => getUpdatedTile(tile, HUMAN)),
-        enemyTiles: state.enemyTiles.map((tile) => getUpdatedTile(tile, BOT)),
+        tiles: state.tiles.map((tile) => getUpdatedTile(tile, ALLY)),
+        enemyTiles: state.enemyTiles.map((tile) => getUpdatedTile(tile, ENEMY)),
       };
 
     case ACTION.DISPOSE_ENEMY: {
@@ -181,8 +182,8 @@ export const BoardContext = React.createContext({
  */
 const BoardProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { gameLog, gameStage, getHumansBoardAndStart, winner, disposeEnemy } =
-    useContext(GameContext);
+  const { gameLog, stage, finishPlanning, winner, disposeEnemy } =
+    useGetGameContext();
 
   const resetBoard = () => dispatch({ type: ACTION.RESET_BOARD });
   const autoSetBoard = (tiles: TileType[]) =>
@@ -241,7 +242,7 @@ const BoardProvider = ({ children }: any) => {
 
   /* returns ships positions from the board upwards  */
   useEffect(() => {
-    if (gameStage === READY) {
+    if (stage === READY) {
       const ships = state.tiles
         .filter((tile) => tile.occupiedBy)
         .map((tile) => {
@@ -256,16 +257,16 @@ const BoardProvider = ({ children }: any) => {
             part: tile.occupiedBy.part,
           };
         });
-      getHumansBoardAndStart(ships);
+      finishPlanning(ships);
     }
-  }, [gameStage, getHumansBoardAndStart, state.tiles]);
+  }, [stage, finishPlanning, state.tiles]);
 
   useEffect(() => {
-    if (gameStage === GAME_OVER) {
+    if (stage === GAME_OVER) {
       const ships = disposeEnemy();
       dispatch({ type: ACTION.DISPOSE_ENEMY, payload: { ships } });
     }
-  }, [disposeEnemy, gameStage]);
+  }, [disposeEnemy, stage]);
 
   useEffect(() => {
     gameLog.length > 0 &&

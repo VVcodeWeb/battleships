@@ -1,13 +1,13 @@
 import _ from "underscore";
 
-import { TileType } from "SinglePlayer/Board/types";
+import { TileType } from "Game/Board/types";
 import {
   PATROL,
   VERTICAL,
   HORIZONTAL,
   DEFAULT_BORDER,
   PART_0,
-  BOT,
+  ENEMY,
   COLUMNS,
 } from "constants/const";
 import {
@@ -15,8 +15,8 @@ import {
   ShipOrientation,
   Coordinates,
   ShipType,
-} from "SinglePlayer/ShipDocks/types";
-import { LogEntry } from "SinglePlayer/types";
+} from "Game/ShipDocks/types";
+import { LogEntry } from "Game/types";
 import {
   generateTiles,
   getAllships,
@@ -44,7 +44,7 @@ export const getAttackTarget = ({
 }: {
   gameLog: LogEntry[];
 }): Coordinates => {
-  const shells = gameLog.filter((log) => log.player === BOT);
+  const shells = gameLog.filter((log) => log.player === ENEMY);
   const hits = shells.filter((shell) => shell.success);
   const suggestions: Coordinates[] = [];
   for (let hit of hits) {
@@ -56,7 +56,7 @@ export const getAttackTarget = ({
   let validSuggestions = suggestions.filter(
     (sug) => !shelledBefore(sug.x, sug.y, shells)
   );
-  const blockedCoordinates = getBlockedTiles(gameLog, BOT);
+  const blockedCoordinates = getBlockedTiles(gameLog, ENEMY);
   validSuggestions = validSuggestions.filter(
     (sug) => !Boolean(_.findWhere(blockedCoordinates, { x: sug.x, y: sug.y }))
   );

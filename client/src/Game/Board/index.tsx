@@ -4,9 +4,8 @@ import { animated, useSpring } from "react-spring";
 import Grid2 from "@mui/material/Unstable_Grid2";
 import { useMediaQuery } from "@mui/material";
 
-import Tile from "SinglePlayer/Board/Tile";
-import { GameContext } from "SinglePlayer/context/GameContext";
-import { TileType } from "SinglePlayer/Board/types";
+import Tile from "Game/Board/Tile";
+import { TileType } from "Game/Board/types";
 import {
   COLUMNS,
   MIN_MD_WIDTH,
@@ -15,11 +14,12 @@ import {
   SMALLER_WIDTH,
   WIDTH,
 } from "constants/const";
-import HitpointsBar from "SinglePlayer/Board/HitpointsBar";
+import HitpointsBar from "Game/Board/HitpointsBar";
+import useGetGameContext from "Game/hooks/useGetGameContext";
 
 //TODO: add whois turn
 const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
-  const { gameStage } = useContext(GameContext);
+  const { stage } = useGetGameContext();
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
 
   //TODO: animations
@@ -60,7 +60,7 @@ const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
           ))}
         </Grid2>
         <HitpointsBar
-          hidden={gameStage === PLANNING || gameStage === READY}
+          hidden={stage === PLANNING || stage === READY}
           numPartsDamaged={getPartsDamaged(tiles)}
         />
       </Grid2>

@@ -1,14 +1,15 @@
 import {
-  BOT,
+  ENEMY,
   FIGHTING,
   GAME_OVER,
-  HUMAN,
+  ALLY,
   PLANNING,
   READY,
 } from "constants/const";
-import { ShipType } from "SinglePlayer/ShipDocks/types";
+import { ShipType } from "Game/ShipDocks/types";
+import { LOBBY } from "MultiPlayer/context/MultiPlayerContext";
 
-export type Player = typeof BOT | typeof HUMAN;
+export type Player = typeof ENEMY | typeof ALLY;
 export type LogEntry = {
   player: Player;
   x: number;
@@ -18,6 +19,7 @@ export type LogEntry = {
 };
 
 export type StageType =
+  | typeof LOBBY
   | typeof PLANNING
   | typeof READY
   | typeof FIGHTING

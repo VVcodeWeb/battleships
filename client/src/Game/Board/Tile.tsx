@@ -10,7 +10,7 @@ import {
   FIGHTING,
   HEIGHT,
   HORIZONTAL,
-  HUMAN,
+  ALLY,
   MIN_MD_WIDTH,
   SHIP,
   SMALLER_HEIGHT,
@@ -20,17 +20,17 @@ import {
   WIDTH,
 } from "constants/const";
 import waterImg from "components/../../public/water.jpg";
-import Ship from "SinglePlayer/ShipDocks/Ship";
-import { TileType } from "SinglePlayer/Board/types";
+import Ship from "Game/ShipDocks/Ship";
+import { TileType } from "Game/Board/types";
 import { getShipPartByIdx, getSize } from "utils";
-import { BoardContext } from "SinglePlayer/Board/context/BoardContext";
-import { GameContext } from "SinglePlayer/context/GameContext";
+import { BoardContext } from "Game/Board/context/BoardContext";
 import shellImg from "components/../../public/shell.png";
 import fireImg from "components/../../public/fire2.png";
 import blockImg from "components/../../public/block.png";
+import useGetGameContext from "Game/hooks/useGetGameContext";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
-  const { gameStage, getCurrentPlayer, makeMove } = useContext(GameContext);
+  const { stage, getCurrentPlayer, makeMove } = useGetGameContext();
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
   const [canBeShelled, setCanBeShelled] = useState<boolean>(false);
@@ -80,15 +80,15 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   );
   const onClick = () => {
     if (tile.shelled || tile.blocked) return;
-    if (tile.enemy && gameStage !== FIGHTING)
+    if (tile.enemy && stage !== FIGHTING)
       throw new Error("Track board is visible during non fighting stage ");
-    if (tile.enemy && getCurrentPlayer() === HUMAN)
-      makeMove({ x: tile.x, y: tile.y, player: HUMAN });
+    if (tile.enemy && getCurrentPlayer() === ALLY)
+      makeMove({ x: tile.x, y: tile.y, player: ALLY });
   };
 
   useEffect(() => {
     setCanBeShelled(
-      getCurrentPlayer() === HUMAN &&
+      getCurrentPlayer() === ALLY &&
         tile.enemy &&
         !tile.shelled &&
         !tile.blocked

@@ -3,7 +3,7 @@ import {
   ShipNames,
   ShipPartType,
   ShipType,
-} from "SinglePlayer/ShipDocks/types";
+} from "Game/ShipDocks/types";
 import {
   BATTLESHIP,
   CARAVELA,
@@ -24,8 +24,8 @@ import {
   PATROL_BOAT_B,
   VERTICAL,
 } from "constants/const";
-import { TileType } from "SinglePlayer/Board/types";
-import { LogEntry, Player } from "SinglePlayer/types";
+import { TileType } from "Game/Board/types";
+import { LogEntry, Player } from "Game/types";
 
 export const getSize = (ship: ShipType | ShipNames): number => {
   let name = "";

@@ -3,7 +3,7 @@ import {
   NO_DROP_AND_VISIBLE,
   DEFAULT_BORDER,
 } from "constants/const";
-import { BorderType } from "SinglePlayer/Board/types";
+import { BorderType } from "Game/Board/types";
 
 export const getBorder = ({
   hovered,

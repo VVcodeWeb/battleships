@@ -3,8 +3,8 @@ import { Card, CardHeader, CardContent, Avatar } from "@mui/material";
 import SmartToyOutlinedIcon from "@mui/icons-material/SmartToyOutlined";
 import Grid2 from "@mui/material/Unstable_Grid2";
 
-import { LogEntry } from "SinglePlayer/types";
-import { HUMAN } from "constants/const";
+import { LogEntry } from "Game/types";
+import { ALLY } from "constants/const";
 import defaultAvatarImg from "components/../../public/default_avatar.jpg";
 const container: React.CSSProperties = {
   overflowY: "scroll",
@@ -38,14 +38,14 @@ const Chat = ({ gameLog }: { gameLog: LogEntry[] }) => {
         container
         justifyContent="flex-start"
         alignItems="center"
-        direction={log.player === HUMAN ? "row" : "row-reverse"}
+        direction={log.player === ALLY ? "row" : "row-reverse"}
         style={entryLog}
       >
         <Avatar
           sx={{ width: 35, height: 35, background: "#ffb562" }}
-          src={log.player === HUMAN ? defaultAvatarImg : undefined}
+          src={log.player === ALLY ? defaultAvatarImg : undefined}
         >
-          {log.player !== HUMAN && (
+          {log.player !== ALLY && (
             <SmartToyOutlinedIcon style={{ color: "white" }} />
           )}
         </Avatar>

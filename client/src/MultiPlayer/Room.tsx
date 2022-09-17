@@ -1,15 +1,25 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { memo, useContext, useEffect, useState } from "react";
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
+
 import Background from "components/Background";
 import useSocket from "MultiPlayer/hooks/useSocket";
 import Game from "Game";
+import { PLANNING } from "constants/const";
 import {
   LOBBY,
   MultiPlayerContext,
 } from "MultiPlayer/context/MultiPlayerContext";
-import { PLANNING } from "constants/const";
+import useStyles from "hooks/useStyle";
 
 const Room = () => {
   const { roomID } = useParams();
@@ -25,6 +35,8 @@ const Room = () => {
     useContext(MultiPlayerContext);
   const nav = useNavigate();
   const [players, setPlayers] = useState<string[]>([]);
+
+  //todo: refactor
   useEffect(() => {
     joinRoom();
     greetingsListener((players) => setPlayers(players));
@@ -52,6 +64,44 @@ const Room = () => {
     gameOverListener,
   ]);
 
+  //todo: add animation
+  const CopyOnClick = ({ text }: { text: string }) => {
+    const styles = useStyles();
+    const onClick = () => navigator.clipboard.writeText(text);
+    return (
+      <Tooltip title="Copy to the clipboard" placement="top">
+        <Typography
+          onClick={onClick}
+          style={{
+            cursor: "copy",
+            textAlign: "center",
+            width: "60%",
+            margin: "0 auto",
+            background: styles.mainColor,
+            padding: 5,
+            borderRadius: 15,
+          }}
+        >
+          {text}
+        </Typography>
+      </Tooltip>
+    );
+  };
+
+  const LobbyCard = ({
+    header,
+    children,
+  }: {
+    header: string;
+    children: any;
+  }) => (
+    <Grid2 xs={4} height={150}>
+      <Card elevation={3} style={{ height: "100%  " }}>
+        <CardHeader title={header} style={{ textAlign: "center" }} />
+        <CardContent>{children}</CardContent>
+      </Card>
+    </Grid2>
+  );
   return (
     <Background>
       {stage === LOBBY && (
@@ -60,21 +110,24 @@ const Room = () => {
           justifyContent="center"
           alignItems="center"
           display="flex"
-          direction="column"
+          gap={2}
+          direction="row"
           style={{
-            minHeight: 200,
-            minWidth: 200,
-            background: "white",
+            position: "absolute",
+            minWidth: "100%",
+            left: 0,
+            top: "40%",
           }}
         >
-          <p>Lobby</p>
-          <p>Room id: {roomID}</p>
-          {players?.map((player) => (
-            <p key={player}>{player}</p>
-          ))}
+          <LobbyCard header="Room ID">
+            <CopyOnClick text={roomID as string} />
+          </LobbyCard>
+          <LobbyCard header="Send the invite link">
+            <CopyOnClick text={window.location.href} />
+          </LobbyCard>
         </Grid2>
       )}
-      {stage !== LOBBY && <Game />}
+      <Game />
     </Background>
   );
 };

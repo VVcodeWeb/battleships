@@ -1,8 +1,8 @@
 import { Button } from "@mui/material";
-import useStyles from "hooks/useStyle";
 import { useState } from "react";
 import { animated, useSpring } from "react-spring";
 
+import useStyles from "hooks/useStyle";
 const GameButton = ({
   text,
   onClick,

@@ -5,9 +5,12 @@
     * Add multi player UI theme(colors, etc)
     * Add timer for multiplayer
     * Replace socket id as an indetification method
+    * navigation
+    * display "versus" screen before the fighting stage
 
 ## To be fixed
 
+    * responsiveness
     * moves/ship placement validation on the server.
 
 # Getting Started with Create React App

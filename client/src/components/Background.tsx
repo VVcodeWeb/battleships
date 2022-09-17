@@ -1,5 +1,6 @@
 import Grid2 from "@mui/material/Unstable_Grid2";
 import useStyles from "hooks/useStyle";
+import React from "react";
 
 const Background = ({ children }: { children: any }) => {
   const styles = useStyles();
@@ -15,6 +16,7 @@ const Background = ({ children }: { children: any }) => {
         background: `url(${styles.mainBackgroundImage})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
+        position: "relative",
       }}
     >
       {children}
@@ -22,4 +24,4 @@ const Background = ({ children }: { children: any }) => {
   );
 };
 
-export default Background;
+export default React.memo(Background);

@@ -115,7 +115,7 @@ const SinglePlayerProvider = ({ children }: any) => {
           return false;
         });
       }
-      const timestamp = new Date().getSeconds();
+      const timestamp = Date.now();
       dispatch({
         type: ACTION.STORE_MOVE,
         payload: {

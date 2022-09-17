@@ -99,7 +99,7 @@ export default class Room {
       }
       if (player1?.status === "ready" && player2?.status === "ready") {
         this.stage = FIGHTING;
-        console.log("setting figthing");
+        console.log("set figthing");
         io.to(this.ID).emit("game:stage:fighting", player1.ID);
       }
     }
@@ -137,7 +137,7 @@ export default class Room {
         return false;
       });
     }
-    const timestamp = new Date().getSeconds();
+    const timestamp = Date.now();
     this.gameLog.push({
       player: currentPlayer,
       x,

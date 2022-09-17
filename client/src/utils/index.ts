@@ -235,3 +235,5 @@ export const areTilesEqual = (fTile: TileType, sTile: TileType) =>
 //TODO: replace with underscore js function
 export const removeNullElements = <T>(arr: (T | null)[]) =>
   arr.filter((arr) => arr !== null) as T[];
+
+export const getLetterByX = (x: number) => String.fromCharCode(65 + x);

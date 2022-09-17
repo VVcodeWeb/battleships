@@ -17,6 +17,7 @@ import {
 } from "constants/const";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
+import { LOBBY } from "MultiPlayer/context/MultiPlayerContext";
 
 const PlayGround = () => {
   const navigate = useNavigate();
@@ -31,11 +32,15 @@ const PlayGround = () => {
   const onResetClick = () => resetBoard();
   const onMainMenuClick = () => navigate("/");
 
-  //TODO: idea: add transition animation for the buttons
+  //TODO:  add transition animation for the buttons
   return (
     <>
-      <Grid2 xs={12} md={5} justifyContent={styles.boardJustify}>
-        <Board tiles={tiles} />
+      <Grid2
+        xs={12}
+        md={stage === READY ? 12 : 5}
+        justifyContent={styles.boardJustify}
+      >
+        <Board tiles={tiles} hidden={stage === LOBBY} />
       </Grid2>
       <Grid2
         xs={12}
@@ -46,9 +51,6 @@ const PlayGround = () => {
         container
         spacing={4}
       >
-        <Grid2>
-          <GameButton text="Go back" onClick={onMainMenuClick} />
-        </Grid2>
         <Grid2>
           <GameButton
             hidden={stage !== FIGHTING}

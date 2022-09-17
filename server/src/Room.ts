@@ -9,6 +9,7 @@ type LogEntry = {
   y: number;
   success: boolean;
   destroyed: any[] | null;
+  timestamp: number;
 };
 const LOBBY = "lobby";
 const PLANNING = "planning";
@@ -98,6 +99,7 @@ export default class Room {
       }
       if (player1?.status === "ready" && player2?.status === "ready") {
         this.stage = FIGHTING;
+        console.log("setting figthing");
         io.to(this.ID).emit("game:stage:fighting", player1.ID);
       }
     }
@@ -135,12 +137,14 @@ export default class Room {
         return false;
       });
     }
+    const timestamp = new Date().getSeconds();
     this.gameLog.push({
       player: currentPlayer,
       x,
       y,
       success: Boolean(shipShelled),
       destroyed: shipShelled && isShipDestroyed ? allShipTiles : null,
+      timestamp,
     });
     io.to(this.ID).emit("game:gameLog", this.gameLog);
 

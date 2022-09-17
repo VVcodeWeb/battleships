@@ -1,6 +1,5 @@
 ## To be added
 
-    * display whose turn it is
     * animations
     * update UI of the chat/messages
     * Add multi player UI theme(colors, etc)

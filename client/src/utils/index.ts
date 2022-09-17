@@ -5,6 +5,7 @@ import {
   ShipType,
 } from "Game/ShipDocks/types";
 import {
+  ALLY,
   BATTLESHIP,
   CARAVELA,
   COLUMNS,
@@ -12,6 +13,7 @@ import {
   DROMON,
   DROMON_A,
   DROMON_B,
+  ENEMY,
   FRIGATE,
   NOT_ON_BOARD,
   PART_0,

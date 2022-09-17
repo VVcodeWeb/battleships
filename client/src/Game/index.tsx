@@ -7,13 +7,13 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import BoardProvider from "Game/Board/context/BoardContext";
-import { ENEMY, ALLY, FIGHTING } from "constants/const";
-import Chat from "components/Chat";
+import { ENEMY, ALLY } from "constants/const";
 import PlayGround from "Game/PlayGround";
 import GameButton from "components/GameButton";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import GameOverImage from "components/GameOverImage";
-import PlayersAvatar from "components/PlayersAvatar";
+import PlayerMainAvatar from "components/PlayerMainAvatar";
+import Chat from "components/Chat";
 export const flex = {
   display: "flex",
   justifyContent: "center",
@@ -22,8 +22,8 @@ export const flex = {
 
 const Game = () => {
   const naviagte = useNavigate();
-  const { winner, playAgain, gameLog, currentPlayersTurn, stage } =
-    useGetGameContext();
+  const { winner, playAgain } = useGetGameContext();
+
   const [open, setOpen] = useState<boolean>(false);
   const onPlayAgainClick = () => playAgain();
   const onMainMenuClick = () => naviagte("/");
@@ -65,19 +65,9 @@ const Game = () => {
           gap={2}
           alignItems="center"
         >
-          {stage === FIGHTING && (
-            <PlayersAvatar
-              player={ALLY}
-              playersTurn={currentPlayersTurn === ALLY}
-            />
-          )}
-          <Chat gameLog={gameLog} />
-          {stage === FIGHTING && (
-            <PlayersAvatar
-              player={ENEMY}
-              playersTurn={currentPlayersTurn === ENEMY}
-            />
-          )}
+          <PlayerMainAvatar player={ALLY} />
+          <Chat />
+          <PlayerMainAvatar player={ENEMY} />
         </Grid2>
         <Grid2
           container

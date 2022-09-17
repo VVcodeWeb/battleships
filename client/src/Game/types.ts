@@ -16,6 +16,7 @@ export type LogEntry = {
   y: number;
   success: boolean;
   destroyed: ShipType[] | null;
+  timestamp: number;
 };
 
 export type StageType =

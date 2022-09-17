@@ -7,9 +7,13 @@ import {
   SMALLER_WIDTH,
   WIDTH,
   COLUMNS,
+  ALLY,
+  ENEMY,
 } from "constants/const";
 import backgroundMulti from "components/../../public/multi2.png";
 import backgroundSingle from "components/../../public/background_2.jpg";
+import { Player } from "Game/types";
+import defaultAvatarImg from "components/../../public/default_avatar.png";
 
 const useStyles = () => {
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
@@ -33,6 +37,12 @@ const useStyles = () => {
   const mainBackgroundImage = singlePlayer ? backgroundSingle : backgroundMulti;
 
   const gameOverImageWidth = isWiderMD ? 500 : 350;
+
+  const getPlayerIcon = (player: Player) => {
+    if (player === ALLY) return defaultAvatarImg;
+    if (player === ENEMY) return;
+  };
+
   return {
     textShadowBoard,
     textColorBoard,

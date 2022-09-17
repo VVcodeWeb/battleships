@@ -26,7 +26,7 @@ export const SinglePlayerContext = React.createContext({
   playAgain: () => {},
   surrender: () => {},
   disposeEnemy: (): ShipType[] => [],
-  currentPlayersTurn: ALLY,
+  currentPlayersTurn: ALLY as Player,
 });
 
 const SinglePlayerProvider = ({ children }: any) => {
@@ -115,6 +115,7 @@ const SinglePlayerProvider = ({ children }: any) => {
           return false;
         });
       }
+      const timestamp = new Date().getSeconds();
       dispatch({
         type: ACTION.STORE_MOVE,
         payload: {
@@ -124,6 +125,7 @@ const SinglePlayerProvider = ({ children }: any) => {
             y,
             success: Boolean(shipShelled),
             destroyed: shipShelled && isShipDestroyed ? allShipTiles : null,
+            timestamp,
           },
         },
       });

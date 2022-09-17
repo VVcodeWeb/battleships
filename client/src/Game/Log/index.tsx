@@ -8,13 +8,13 @@ import {
 } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
 
-import { FIGHTING, GAME_OVER, PLANNING, READY } from "constants/const";
+import { FIGHTING, GAME_OVER, LOBBY, PLANNING, READY } from "constants/const";
 import useGetGameContext from "Game/hooks/useGetGameContext";
-import { LOBBY } from "MultiPlayer/context/MultiPlayerContext";
 import useStyles from "hooks/useStyle";
 import PlayerAvatar from "components/PlayerAvatar";
 import Entry from "Game/Log/Entry";
 import { LogEntry } from "Game/types";
+
 const container: React.CSSProperties = {
   overflowY: "scroll",
   height: 80,

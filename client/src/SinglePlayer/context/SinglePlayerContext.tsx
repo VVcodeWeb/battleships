@@ -93,6 +93,11 @@ const SinglePlayerProvider = ({ children }: any) => {
       if (stage !== FIGHTING) throw new Error(`Not a fighting stage`);
       if (player !== currentPlayersTurn)
         throw new Error(`Player ${player} makes move during enemy turn`);
+
+      const shelledBefore = gameLog.find(
+        (log) => log.x === x && log.y === y && log.player === player
+      );
+      if (shelledBefore) throw new Error(`Duplicated move `);
       const allShipsTilesToCheck = player === ALLY ? enemyShips : allyShips;
       const shipShelled = _.find(
         allShipsTilesToCheck,
@@ -123,9 +128,9 @@ const SinglePlayerProvider = ({ children }: any) => {
             player,
             x,
             y,
+            timestamp,
             success: Boolean(shipShelled),
             destroyed: shipShelled && isShipDestroyed ? allShipTiles : null,
-            timestamp,
           },
         },
       });

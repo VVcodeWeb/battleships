@@ -33,12 +33,12 @@ export const getSize = (ship: ShipType | ShipNames): number => {
   let name = "";
   if (typeof ship === "string") name = ship;
   else name = ship.name;
-  const n = name.toLowerCase();
+  const n = name?.toLowerCase();
   if (n === BATTLESHIP) return 5;
   if (n === FRIGATE) return 4;
   if (n === CARAVELA) return 3;
-  if (n.includes(DROMON)) return 2;
-  if (n.includes(PATROL)) return 1;
+  if (n?.includes(DROMON)) return 2;
+  if (n?.includes(PATROL)) return 1;
   throw new Error(`Invalid ship name ${ship}`);
 };
 export const getAllships = (): ShipType[] => {

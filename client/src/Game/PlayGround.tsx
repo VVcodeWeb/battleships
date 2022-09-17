@@ -1,5 +1,4 @@
-import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, memo } from "react";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
 
@@ -11,16 +10,15 @@ import GameButton from "components/GameButton";
 import {
   FIGHTING,
   GAME_OVER,
+  LOBBY,
   MAX_SHIPS,
   PLANNING,
   READY,
 } from "constants/const";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
-import { LOBBY } from "MultiPlayer/context/MultiPlayerContext";
 
 const PlayGround = () => {
-  const navigate = useNavigate();
   const styles = useStyles();
   const { stage, setGameStage, surrender } = useGetGameContext();
   const { dockShips, autoSetBoard, tiles, enemyTiles, resetBoard } =
@@ -30,7 +28,6 @@ const PlayGround = () => {
   const onReadyClick = () => setGameStage(READY);
   const onSurrenderClick = () => surrender();
   const onResetClick = () => resetBoard();
-  const onMainMenuClick = () => navigate("/");
 
   //TODO:  add transition animation for the buttons
   return (

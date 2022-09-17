@@ -1,12 +1,17 @@
 import React, { memo, useMemo, useReducer, useState } from "react";
 
-import { ENEMY, FIGHTING, GAME_OVER, ALLY, READY } from "constants/const";
+import {
+  ENEMY,
+  FIGHTING,
+  GAME_OVER,
+  ALLY,
+  READY,
+  LOBBY,
+} from "constants/const";
 import { LogEntry, Player, StageType } from "Game/types";
 import { ShipType } from "Game/ShipDocks/types";
 import { ACTION, initialState, reducer } from "reducer";
 import useSocket from "MultiPlayer/hooks/useSocket";
-
-export const LOBBY = "lobby";
 
 export const MultiPlayerContext = React.createContext({
   ...{ ...initialState, stage: LOBBY as StageType },

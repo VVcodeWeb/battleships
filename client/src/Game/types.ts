@@ -5,9 +5,9 @@ import {
   ALLY,
   PLANNING,
   READY,
+  LOBBY,
 } from "constants/const";
 import { ShipType } from "Game/ShipDocks/types";
-import { LOBBY } from "MultiPlayer/context/MultiPlayerContext";
 
 export type Player = typeof ENEMY | typeof ALLY;
 export type LogEntry = {

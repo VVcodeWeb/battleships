@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  Paper,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -14,11 +13,8 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 import Background from "components/Background";
 import useSocket from "MultiPlayer/hooks/useSocket";
 import Game from "Game";
-import { PLANNING } from "constants/const";
-import {
-  LOBBY,
-  MultiPlayerContext,
-} from "MultiPlayer/context/MultiPlayerContext";
+import { LOBBY, PLANNING } from "constants/const";
+import { MultiPlayerContext } from "MultiPlayer/context/MultiPlayerContext";
 import useStyles from "hooks/useStyle";
 
 const Room = () => {

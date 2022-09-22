@@ -44,3 +44,5 @@ export const NOT_ON_BOARD = -1;
 export const SINGLE = "single";
 export const MAIN = "main";
 export const MULTI = "multi";
+
+export const USER_ID = "userID";

@@ -92,8 +92,7 @@ const MainPage = () => {
         <MainPageCard
           onClick={() => nav("/multi")}
           title={MULTI}
-          content={`Compete against others
-          (coming soon)`}
+          content={`Compete against others`}
         />
       </Grid2>
       <Grid2 md={4} justifyContent="center" display="flex" xs={12}>

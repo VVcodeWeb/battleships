@@ -29,6 +29,7 @@ const PlayGround = () => {
   const onSurrenderClick = () => surrender();
   const onResetClick = () => resetBoard();
 
+  //TODO: add hook for conditional rendering depending on the game stage
   //TODO:  add transition animation for the buttons
   return (
     <>

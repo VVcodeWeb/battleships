@@ -32,7 +32,7 @@ const MultiPlayerProvider = ({ children }: any) => {
 
   const [isMyFirstTurn, setIsMyFirstTurn] = useState<boolean>(false);
   const playAgain = () => dispatch({ type: ACTION.RESET_STATES });
-  const { playerIsReady, socketID, playerTakesTurn } = useSocket();
+  const { playerIsReady, getUserID, playerTakesTurn } = useSocket();
 
   const surrender = () => {
     alert("not implemented");
@@ -40,7 +40,7 @@ const MultiPlayerProvider = ({ children }: any) => {
   const gameOver = (winner: string, enemyShips: ShipType[]) => {
     dispatch({
       type: ACTION.END_GAME,
-      payload: { winner: winner === socketID ? ALLY : ENEMY },
+      payload: { winner: winner === getUserID() ? ALLY : ENEMY },
     });
     dispatch({ type: ACTION.DISPOSE_ENEMY, payload: { enemyShips } });
   };
@@ -60,7 +60,7 @@ const MultiPlayerProvider = ({ children }: any) => {
   const finishPlanning = (allyShips: ShipType[]) => {
     if (stage === READY)
       playerIsReady(allyShips, (firstTurnPlayer) => {
-        if (firstTurnPlayer === socketID) setIsMyFirstTurn(true);
+        if (firstTurnPlayer === getUserID()) setIsMyFirstTurn(true);
         dispatch({
           type: ACTION.START_GAME,
           payload: {
@@ -100,7 +100,7 @@ const MultiPlayerProvider = ({ children }: any) => {
     console.log({ serverLog: newLog });
     const formatLog: LogEntry[] = newLog.map((log) => ({
       ...log,
-      player: log.player === socketID ? ALLY : ENEMY,
+      player: log.player === getUserID() ? ALLY : ENEMY,
     }));
     dispatch({ type: ACTION.STORE_GAME_LOG, payload: { newLog: formatLog } });
   };

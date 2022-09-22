@@ -26,7 +26,6 @@ import fireImg from "components/../../public/test.gif";
 import blockImg from "components/../../public/block.png";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
-import { Co2Sharp } from "@mui/icons-material";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const styles = useStyles();
@@ -35,7 +34,6 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     useContext(BoardContext);
 
   const handleDragDrop = (item: any) => {
-    console.log("handle Drop");
     placeShipOnBoard({
       ...item,
       x: tile.x,
@@ -44,15 +42,14 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   };
 
   const handleHover = (item: any, monitor: DropTargetMonitor<any, unknown>) => {
-    console.log("handle hover");
     updateTilesBorders({
+      hovered: true,
+      canDrop: monitor.canDrop(),
       ship: {
         ...item,
         x: tile.x,
         y: tile.y,
       },
-      hovered: true,
-      canDrop: monitor.canDrop(),
     });
   };
 
@@ -105,7 +102,7 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
       gameTiles[idx].classList.add(`item_c_${idx}`);
   }, [tile.enemy, tile.x, tile.y]);
 
-  /* if not hovered anymore remove border styles */
+  /* if not hovered anymore remove border styles from itself and adjacent tiles*/
   useEffect(() => {
     if (!tile.enemy && !isOver && item && stage === PLANNING)
       updateTilesBorders({

@@ -7,13 +7,9 @@ import {
   SMALLER_WIDTH,
   WIDTH,
   COLUMNS,
-  ALLY,
-  ENEMY,
 } from "constants/const";
 import backgroundMulti from "components/../../public/multi2.png";
 import backgroundSingle from "components/../../public/background_2.jpg";
-import { Player } from "Game/types";
-import defaultAvatarImg from "components/../../public/default_avatar.png";
 
 const useStyles = () => {
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);

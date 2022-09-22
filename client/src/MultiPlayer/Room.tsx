@@ -20,7 +20,7 @@ import useStyles from "hooks/useStyle";
 const Room = () => {
   const { roomID } = useParams();
   const {
-    greetingsListener,
+    joinedRoomListener,
     invalidRoomListener,
     joinRoom,
     planningStageListener,
@@ -31,17 +31,17 @@ const Room = () => {
     useContext(MultiPlayerContext);
   const nav = useNavigate();
   const [players, setPlayers] = useState<string[]>([]);
+  joinRoom();
 
-  //todo: refactor
+  //TODO: refactor
   useEffect(() => {
-    joinRoom();
-    greetingsListener((players) => setPlayers(players));
+    joinedRoomListener((players) => setPlayers(players));
     invalidRoomListener(() => nav("/multi"));
     planningStageListener(() => setGameStage(PLANNING));
     gameLogListener((gameLog) => updateGameLog(gameLog));
     gameOverListener((data) => gameOver(data.winner, data.enemyShips));
     return () => {
-      greetingsListener();
+      joinedRoomListener();
       invalidRoomListener();
       planningStageListener();
       gameLogListener();
@@ -50,9 +50,8 @@ const Room = () => {
   }, [
     gameOver,
     gameLogListener,
-    greetingsListener,
+    joinedRoomListener,
     invalidRoomListener,
-    joinRoom,
     nav,
     planningStageListener,
     setGameStage,

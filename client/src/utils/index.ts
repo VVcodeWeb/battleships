@@ -209,6 +209,7 @@ export const getAdjacentCoordinates = (
   }
   return adjacentTiles;
 };
+//rewrite using pipes
 export const getBlockedTiles = (
   gameLog: LogEntry[],
   forPlayer: Player

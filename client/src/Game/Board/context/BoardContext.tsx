@@ -7,7 +7,7 @@ import { getTilesForShip, getShipPartByIdx, getAdjacent } from "utils";
 import { ShipType } from "Game/ShipDocks/types";
 import { getBorder } from "Game/Board/utils";
 import useGetGameContext from "Game/hooks/useGetGameContext";
-import { ACTION, initialState, reducer } from "Game/Board/context/recuder";
+import { ACTION, initialState, reducer } from "Game/Board/context/reducer";
 
 type UpdateTilesBordersType = {
   ship: ShipType;

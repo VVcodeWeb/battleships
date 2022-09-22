@@ -16,14 +16,14 @@ const MultiPlayer = () => {
     setRoomID(e.target.value);
 
   const onCreateRoomClick = () => {
+    console.log("new room click");
     createNewRoom((id: any) => {
       console.log(id);
       nav(`/multi/${id}`);
     });
   };
-  const onJoinRoomClick = () => {
-    nav(`/multi/${roomID}`);
-  };
+  const onJoinRoomClick = () => nav(`/multi/${roomID}`);
+
   return (
     <Background>
       <Grid2

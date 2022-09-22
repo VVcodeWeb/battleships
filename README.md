@@ -1,10 +1,17 @@
+## Implemented
+   * Single player mode against a bot. The bot utilize hunt & explore strategy.
+   * Multiplayer mode via invite link.
+
 ## To be added
 
-    * animations
-    * update UI of the chat/messages
+    * Animations
+    * Update UI of the chat/messages
     * Add multi player UI theme(colors, etc)
     * Add timer for multiplayer
     * Replace socket id as an indetification method
+    * Update multiplayer lobby UI
+    * Store players board in the local storage
+    * Proper reconnect & disconnect logic in the multiplayer mode
 
 ## To be fixed
 

@@ -23,3 +23,4 @@
 The single-player mode is available by just launching the client.
 To enable multiplayer launching of the server.
 
+<img width="1363" alt="image" src="https://user-images.githubusercontent.com/59254134/191859124-095738ee-5cf2-4428-a449-f8c60d7d8f52.png">

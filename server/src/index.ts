@@ -1,49 +1,59 @@
 import { Server } from "socket.io";
 import ShortUniqueId from "short-unique-id";
 import Room from "./Room";
-import RoomManager from "./RoomManager";
-
+import RoomManager from "./RoomsManager";
+//TODO: replace before deployingw
 export const io = new Server({ cors: { origin: "*" } });
-const uid = new ShortUniqueId({ length: 8 });
-
 const rooms = new RoomManager();
+
+const generateID = new ShortUniqueId({ length: 8 });
+io.use((socket, next) => {
+  const userID = socket.handshake.auth.userID;
+  if (userID) socket.data.userID = userID;
+  next();
+});
+
 io.on("connection", (socket) => {
-  console.log({ socket: socket.id });
+  console.log({ socket: socket.id, user: socket.data.userID });
   socket.on("room:new", () => {
-    const newUid = uid();
-    const room = new Room(newUid);
-    rooms.addRoom(room);
+    const newUid = generateID();
+
+    console.log("new room");
+    rooms.add(newUid);
     socket.emit("room:new:id", newUid);
   });
 
   socket.on("room:join", (roomID) => {
-    const room = rooms.getRoom(roomID);
+    const room = rooms.get(roomID);
+    //2 users without ID && no users are in the room -> generate ID, store in the room, respond with generated ID
+    //user without ID && 2 users in  the room -> error
     if (room) {
       try {
+        const userID = socket.data.userID;
+        console.log({ userConnecting: userID });
         room.joinRoom(socket);
-        rooms.updateRoom(room.ID, room);
-        console.log({ roomID });
+        rooms.update(room.ID, room);
       } catch (e) {}
     } else {
-      //handle non existing room
+      //TODO: handle non existing room
     }
   });
 
   socket.on("player:ready", (board) => {
     console.log("player ready");
-    const room = rooms.findRoomByPlayer(socket.id);
+    const room = rooms.findByPlayer(socket.id);
     if (room) {
       room.playerIsReady(socket.id, board);
-      rooms.updateRoom(room.ID, room);
+      rooms.update(room.ID, room);
     } else console.error("cant find players room");
   });
 
   socket.on("player:move", (move) => {
-    const room = rooms.findRoomByPlayer(socket.id);
+    const room = rooms.findByPlayer(socket.id);
     if (room) {
       try {
         room.playerTakesTurn(socket.id, move.x, move.y);
-        rooms.updateRoom(room.ID, room);
+        rooms.update(room.ID, room);
       } catch (e: any) {
         console.error(e?.message);
       }

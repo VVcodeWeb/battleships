@@ -20,9 +20,9 @@
 
 ## Getting Started
 
-The single-player mode is available by just launching the client.
-To enable multiplayer launching of the server.
+The single-player mode is available by launching the client.
+To enable multiplayer launch the server too.
 
 <img width="48%" alt="image" src="https://user-images.githubusercontent.com/59254134/191859124-095738ee-5cf2-4428-a449-f8c60d7d8f52.png">
-<img width="48%" alt="image" s src="https://user-images.githubusercontent.com/59254134/191859547-10f7ca24-eb77-473d-8d76-2462454ad864.png">
+<img width="48%" alt="image" src="https://user-images.githubusercontent.com/59254134/191859547-10f7ca24-eb77-473d-8d76-2462454ad864.png">
 

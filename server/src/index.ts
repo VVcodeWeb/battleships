@@ -25,12 +25,8 @@ io.on("connection", (socket) => {
 
   socket.on("room:join", (roomID) => {
     const room = rooms.get(roomID);
-    //2 users without ID && no users are in the room -> generate ID, store in the room, respond with generated ID
-    //user without ID && 2 users in  the room -> error
     if (room) {
       try {
-        const userID = socket.data.userID;
-        console.log({ userConnecting: userID });
         room.joinRoom(socket);
         rooms.update(room.ID, room);
       } catch (e) {}

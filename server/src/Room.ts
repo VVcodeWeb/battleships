@@ -49,15 +49,18 @@ export default class Room {
 
   //TODO: finish
   private handleReconnect = (ID: string) => {
+    console.log("Reconnect");
     if (this.getPlayer(ID)) console.log(`ALREADY IN THE ROOM ${ID}`);
   };
 
   private handleNewConnection = (socket: Socket) => {
+    console.log("New connection");
     if (this.isRoomFull()) throw new Error("FULL ROOM");
     const newID = generateID();
     if (!this.player1) this.player1 = this.getNewPlayer(newID);
     else if (!this.player2) this.player2 = this.getNewPlayer(newID);
     socket.join(this.ID);
+    console.log(`New user ${newID} created in the room`);
     io.to(this.ID).emit("room:joined", {
       players: [this.player1?.ID, this.player2?.ID],
       userID: newID,
@@ -70,6 +73,7 @@ export default class Room {
   };
   joinRoom = (socket: Socket) => {
     const currentUserID = socket.data.userID;
+    console.log(`User ${currentUserID} joining ${this.ID}`);
     if (currentUserID) this.handleReconnect(currentUserID);
     else this.handleNewConnection(socket);
   };

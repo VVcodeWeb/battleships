@@ -19,8 +19,8 @@ const PlayerAvatar = ({ player, ...rest }: { player: Player }) => {
     singlePlayer && player === ENEMY ? botAvatar : undefined;
   const StyledBadge = styled(Badge)(({ theme }) => ({
     "& .MuiBadge-badge": {
-      backgroundColor: isConnected ? "#44b700" : "red",
-      color: isConnected ? "#44b700" : "red",
+      backgroundColor: true ? "#44b700" : "red",
+      color: true ? "#44b700" : "red",
       boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
       "&::after": {
         position: "absolute",

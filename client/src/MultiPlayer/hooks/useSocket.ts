@@ -5,6 +5,7 @@ import { io, Socket } from "socket.io-client";
 
 import { USER_ID } from "constants/const";
 import { ShipType } from "Game/ShipDocks/types";
+import { ContentPasteSearchOutlined } from "@mui/icons-material";
 
 type Callback = (args: any) => void;
 //TODO: get Player type from the backedn
@@ -13,26 +14,37 @@ type dataType = {
   players: any | null[];
 };
 
+//TODO: cover socket with types
 const useSocket = () => {
-  const [isConnected, setIsConnected] = useState<boolean>(false);
   const { roomID } = useParams();
   const socketRef = useRef<Socket<any, any> | null>(null);
-  const isInRoomRef = useRef<boolean>(false);
+  const isJoiningRoomRef = useRef<boolean>(false);
   useEffect(() => {
-    if (!socketRef.current) socketRef.current = io("ws://localhost:8000");
-
-    socketRef.current.on("connect", () => setIsConnected(true));
-    socketRef.current.on("disconnect", () => setIsConnected(false));
+    if (!socketRef.current)
+      socketRef.current = io("ws://localhost:8000", {
+        autoConnect: false,
+        reconnectionAttempts: 5,
+      });
+    connect();
     socketRef.current.auth = { userID: window.localStorage.getItem(USER_ID) };
-
+    socketRef.current?.on("room:joined", (data: dataType) => {
+      console.log(data);
+      isJoiningRoomRef.current = false;
+      if (data.userID && socketRef.current) {
+        storeUserID(data.userID);
+        socketRef.current.auth = { userID: data.userID };
+      }
+    });
     return () => {
-      socketRef.current?.removeAllListeners();
-      socketRef.current?.disconnect();
+      console.log("Clean up");
+      socketRef.current?.off("room:joined");
     };
   }, []);
 
   const joinRoom = () => {
-    if (roomID && !isInRoomRef.current) {
+    if (roomID && !isJoiningRoomRef.current) {
+      console.log("joining room");
+      isJoiningRoomRef.current = true;
       socketRef.current?.emit("room:join", roomID);
     }
   };
@@ -69,7 +81,6 @@ const useSocket = () => {
     }
     socketRef.current?.on("room:joined", (data: dataType) => {
       console.log(data);
-      isInRoomRef.current = true;
       if (data.userID && socketRef.current) {
         storeUserID(data.userID);
         socketRef.current.auth = { userID: data.userID };
@@ -114,11 +125,10 @@ const useSocket = () => {
   const connect = () => socketRef.current?.connect();
   const disconnect = () => socketRef.current?.disconnect();
   return {
-    isConnected,
+    isConnected: socketRef.current?.connected,
     connect,
     disconnect,
     createNewRoom,
-    joinedRoomListener,
     planningStageListener,
     invalidRoomListener,
     playerIsReady,

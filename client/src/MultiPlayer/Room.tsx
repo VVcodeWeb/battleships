@@ -20,37 +20,37 @@ import useStyles from "hooks/useStyle";
 const Room = () => {
   const { roomID } = useParams();
   const {
-    joinedRoomListener,
     invalidRoomListener,
     joinRoom,
     planningStageListener,
     gameLogListener,
     gameOverListener,
+    isConnected,
   } = useSocket();
   const { stage, setGameStage, updateGameLog, gameOver } =
     useContext(MultiPlayerContext);
   const nav = useNavigate();
-  const [players, setPlayers] = useState<string[]>([]);
-  joinRoom();
-
+  useEffect(() => {
+    if (isConnected) {
+      joinRoom();
+    }
+  }, [isConnected, joinRoom]);
   //TODO: refactor
   useEffect(() => {
-    joinedRoomListener((players) => setPlayers(players));
     invalidRoomListener(() => nav("/multi"));
     planningStageListener(() => setGameStage(PLANNING));
     gameLogListener((gameLog) => updateGameLog(gameLog));
     gameOverListener((data) => gameOver(data.winner, data.enemyShips));
     return () => {
-      joinedRoomListener();
       invalidRoomListener();
       planningStageListener();
       gameLogListener();
       gameOverListener();
     };
   }, [
+    joinRoom,
     gameOver,
     gameLogListener,
-    joinedRoomListener,
     invalidRoomListener,
     nav,
     planningStageListener,
@@ -91,7 +91,7 @@ const Room = () => {
     children: any;
   }) => (
     <Grid2 xs={4} height={150}>
-      <Card elevation={3} style={{ height: "100%  " }}>
+      <Card elevation={3} style={{ height: "100%" }}>
         <CardHeader title={header} style={{ textAlign: "center" }} />
         <CardContent>{children}</CardContent>
       </Card>

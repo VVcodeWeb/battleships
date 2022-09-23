@@ -18,7 +18,7 @@ const MultiPlayer = () => {
   const onCreateRoomClick = () => {
     console.log("new room click");
     createNewRoom((id: any) => {
-      console.log(id);
+      console.log("Navigating to the new room");
       nav(`/multi/${id}`);
     });
   };

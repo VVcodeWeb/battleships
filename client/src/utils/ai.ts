@@ -102,7 +102,7 @@ export const placeShipOnTemporarBoard = (
           tile.border = DEFAULT_BORDER;
         }
       });
-    } else throw new Error("Try to place ship over null tile");
+    } else throw new Error("Trying to place ship over null tile");
   }
 };
 export const generateBoardAI = (): {
@@ -130,8 +130,8 @@ export const generateBoardAI = (): {
       const shipTiles = getTilesForShip(ship, tiles);
       if (shipTiles.length !== _.compact(shipTiles).length) continue;
       const adjacentTiles = getAdjacent(shipTiles as TileType[], tiles);
-      const isOccupied = shipTiles.some((t) => t?.occupiedBy !== null);
-      const isBlocked = adjacentTiles.some((t) => t?.occupiedBy !== null);
+      const isOccupied = shipTiles.some((tile) => tile?.occupiedBy !== null);
+      const isBlocked = adjacentTiles.some((tile) => tile?.occupiedBy !== null);
       if (isOccupied || isBlocked) continue;
       placeShipOnTemporarBoard(
         ship,

@@ -6,6 +6,7 @@ import Room from "MultiPlayer/Room";
 import MainPage from "./MainPage";
 import SinglePlayer from "./SinglePlayer";
 import MultiPlayerProvider from "MultiPlayer/context/MultiPlayerContext";
+import Wrapper from "MultiPlayer/Wrapper";
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
           path="multi/:roomID"
           element={
             <MultiPlayerProvider>
-              <Room />
+              <Wrapper>
+                <Room />
+              </Wrapper>
             </MultiPlayerProvider>
           }
         />

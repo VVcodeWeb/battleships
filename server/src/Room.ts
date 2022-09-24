@@ -1,7 +1,6 @@
 import ShortUniqueId from "short-unique-id";
 import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { io } from ".";
 import {
   GameStage,
   LogEntry,

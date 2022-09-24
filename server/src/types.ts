@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 //TODO: share code with frontend to avoid repeating code
 export type LogEntry = {
@@ -30,9 +30,9 @@ export type Player = {
   ships: any[];
 };
 export type RoomType = {
-  ID: string;
-  player1: Player | null;
-  player2: Player | null;
-  gameLog: LogEntry[];
-  stage: GameStage;
+  io: Server;
+  socket: Socket;
+  roomID: string;
+  userID: string;
+  action: "join" | "create";
 };

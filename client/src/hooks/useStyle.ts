@@ -7,16 +7,13 @@ import {
   SMALLER_WIDTH,
   WIDTH,
   COLUMNS,
-  ALLY,
-  ENEMY,
-} from "constants/const";
+} from "shared/constants";
 import backgroundMulti from "components/../../public/multi2.png";
 import backgroundSingle from "components/../../public/background_2.jpg";
-import { Player } from "Game/types";
-import defaultAvatarImg from "components/../../public/default_avatar.png";
 
 const useStyles = () => {
   const isWiderMD = useMediaQuery(MIN_MD_WIDTH);
+  const isWider650 = useMediaQuery("(min-width: 650px)");
   const singlePlayer = window.location.pathname.includes("single");
   const textShadowBoard = singlePlayer
     ? "1px 1px 1px black"
@@ -38,10 +35,7 @@ const useStyles = () => {
 
   const gameOverImageWidth = isWiderMD ? 500 : 350;
 
-  const getPlayerIcon = (player: Player) => {
-    if (player === ALLY) return defaultAvatarImg;
-    if (player === ENEMY) return;
-  };
+  const chatSize = isWider650 ? 600 : 350;
 
   return {
     textShadowBoard,
@@ -55,6 +49,7 @@ const useStyles = () => {
     mainColor,
     mainBackgroundImage,
     gameOverImageWidth,
+    chatSize,
   };
 };
 

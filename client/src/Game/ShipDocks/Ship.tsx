@@ -16,7 +16,7 @@ import {
   SMALLER_WIDTH,
   SMALLER_HEIGHT,
   NOT_ON_BOARD,
-} from "constants/const";
+} from "shared/constants";
 import { getShipPartByIdx, getSize } from "utils";
 
 const Ship = ({ ship }: { ship: ShipType }) => {

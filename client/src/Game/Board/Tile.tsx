@@ -1,57 +1,60 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { DropTargetMonitor, useDrop } from "react-dnd";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { Tooltip, Zoom } from "@mui/material";
 
 import {
   COLUMNS,
   ENEMY_SHIP,
-  FIGHTING,
   HORIZONTAL,
   ALLY,
   SHIP,
   TILE,
   VERTICAL,
-} from "constants/const";
+} from "shared/constants";
 import waterImg from "components/../../public/water.jpg";
 import Ship from "Game/ShipDocks/Ship";
 import { TileType } from "Game/Board/types";
-import { getShipPartByIdx, getSize } from "utils";
+import { getLetterByX, getShipPartByIdx, getSize } from "utils";
 import { BoardContext } from "Game/Board/context/BoardContext";
 import shellImg from "components/../../public/shell.png";
-import fireImg from "components/../../public/fire2.png";
+import fireImg from "components/../../public/test.gif";
 import blockImg from "components/../../public/block.png";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
+import { PLANNING, FIGHTING } from "shared/constants";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const styles = useStyles();
   const { stage, currentPlayersTurn, makeMove } = useGetGameContext();
   const { updateTilesBorders, placeShipOnBoard, checkCanDrop } =
     useContext(BoardContext);
-  const [canBeShelled, setCanBeShelled] = useState<boolean>(false);
 
-  const handleDragDrop = (item: any) =>
+  const handleDragDrop = (item: any) => {
     placeShipOnBoard({
       ...item,
       x: tile.x,
       y: tile.y,
     });
+  };
 
-  const handleHover = (item: any, monitor: DropTargetMonitor<any, unknown>) =>
+  const handleHover = (item: any, monitor: DropTargetMonitor<any, unknown>) => {
     updateTilesBorders({
+      hovered: true,
+      canDrop: monitor.canDrop(),
       ship: {
         ...item,
         x: tile.x,
         y: tile.y,
       },
-      hovered: true,
-      canDrop: monitor.canDrop(),
     });
+  };
 
   const handleCanDrop = (item: any) => {
     if (!item || item.enemy) return false;
-    if (item.enemy) return false;
+    if (stage !== PLANNING) return false;
+
     return checkCanDrop({
       ...item,
       x: tile.x,
@@ -59,11 +62,14 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     });
   };
 
+  const handleCanDrag = () => stage === PLANNING;
+
   const [{ isOver, item }, drop] = useDrop(
     () => ({
       accept: SHIP,
       hover: handleHover,
       canDrop: handleCanDrop,
+      canDrag: handleCanDrag,
       drop: handleDragDrop,
       collect: (monitor) => ({
         item: monitor.getItem(),
@@ -74,23 +80,12 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     [placeShipOnBoard, updateTilesBorders, checkCanDrop]
   );
   const onClick = () => {
-    setTimeout(() => {
-      if (tile.shelled || tile.blocked) return;
-      if (tile.enemy && stage !== FIGHTING)
-        throw new Error("Track board is visible during non fighting stage ");
-      if (tile.enemy && currentPlayersTurn === ALLY)
-        makeMove({ x: tile.x, y: tile.y, player: ALLY });
-    }, 50);
+    if (tile.shelled || tile.blocked) return;
+    if (tile.enemy && stage !== FIGHTING)
+      throw new Error("Track board is visible during non fighting stage ");
+    if (tile.enemy && currentPlayersTurn === ALLY)
+      makeMove({ x: tile.x, y: tile.y, player: ALLY });
   };
-
-  useEffect(() => {
-    setCanBeShelled(
-      currentPlayersTurn === ALLY &&
-        tile.enemy &&
-        !tile.shelled &&
-        !tile.blocked
-    );
-  }, [currentPlayersTurn, tile.blocked, tile.enemy, tile.shelled]);
 
   /*  x/y board numeration */
   useEffect(() => {
@@ -105,9 +100,9 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
       gameTiles[idx].classList.add(`item_c_${idx}`);
   }, [tile.enemy, tile.x, tile.y]);
 
-  /* if not hovered anymore remove border styles */
+  /* if not hovered anymore remove border styles from itself and adjacent tiles*/
   useEffect(() => {
-    if (!tile.enemy && !isOver && item)
+    if (!tile.enemy && !isOver && item && stage === PLANNING)
       updateTilesBorders({
         ship: {
           ...(item as any),
@@ -144,7 +139,14 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
     if (tile.occupiedBy === null) return <Icon src={shellImg} />;
     return <Icon src={fireImg} />;
   };
-
+  const canBeShelled = useMemo(
+    () =>
+      currentPlayersTurn === ALLY &&
+      tile.enemy &&
+      !tile.shelled &&
+      !tile.blocked,
+    [currentPlayersTurn, tile.blocked, tile.enemy, tile.shelled]
+  );
   const tileStyle: React.CSSProperties = {
     color: styles.textColorBoard,
     textAlign: "center",
@@ -160,36 +162,49 @@ const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   };
   //TODO: add proper type check for occupied by
   return (
-    <Grid2
-      onClick={onClick}
-      ref={drop}
-      xs={1}
-      className={tile.enemy ? `${TILE}_enemy` : TILE}
-      style={tileStyle}
+    <Tooltip
+      placement="top"
+      TransitionComponent={Zoom}
+      followCursor
+      enterNextDelay={600}
+      arrow
+      title={
+        <div style={{ pointerEvents: "none" }}>
+          {getLetterByX(tile.x)}:{tile.y + 1}
+        </div>
+      }
     >
-      <RenderShell />
-      {inDev && <>DEV</>}
-      {tile.occupiedBy &&
-        tile.occupiedBy !== ENEMY_SHIP &&
-        tile.occupiedBy.part ===
-          getShipPartByIdx(getSize(tile.occupiedBy) - 1) && (
-          <div
-            style={{
-              position: "absolute",
-              top:
-                tile.occupiedBy.orientation === HORIZONTAL
-                  ? styles.distanceShipTile
-                  : 0,
-              left:
-                tile.occupiedBy.orientation === VERTICAL
-                  ? styles.distanceShipTile
-                  : 0,
-            }}
-          >
-            <Ship ship={tile.occupiedBy} />
-          </div>
-        )}
-    </Grid2>
+      <Grid2
+        onClick={onClick}
+        ref={drop}
+        xs={1}
+        className={tile.enemy ? `${TILE}_enemy` : TILE}
+        style={tileStyle}
+      >
+        <RenderShell />
+        {inDev && <>DEV</>}
+        {tile.occupiedBy &&
+          tile.occupiedBy !== ENEMY_SHIP &&
+          tile.occupiedBy.part ===
+            getShipPartByIdx(getSize(tile.occupiedBy) - 1) && (
+            <div
+              style={{
+                position: "absolute",
+                top:
+                  tile.occupiedBy.orientation === HORIZONTAL
+                    ? styles.distanceShipTile
+                    : 0,
+                left:
+                  tile.occupiedBy.orientation === VERTICAL
+                    ? styles.distanceShipTile
+                    : 0,
+              }}
+            >
+              <Ship ship={tile.occupiedBy} />
+            </div>
+          )}
+      </Grid2>
+    </Tooltip>
   );
 };
 

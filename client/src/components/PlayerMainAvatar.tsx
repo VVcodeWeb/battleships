@@ -1,7 +1,8 @@
-import { ALLY, ENEMY, FIGHTING } from "constants/const";
-import { Player } from "Game/types";
+import { ALLY, ENEMY } from "shared/constants";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import PlayerAvatar from "components/PlayerAvatar";
+import { FIGHTING } from "shared/constants";
+import { Player } from "@shared/types";
 type PlayerAvatarType = {
   player: Player;
 };

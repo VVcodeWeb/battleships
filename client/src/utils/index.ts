@@ -5,7 +5,6 @@ import {
   ShipType,
 } from "Game/ShipDocks/types";
 import {
-  ALLY,
   BATTLESHIP,
   CARAVELA,
   COLUMNS,
@@ -13,7 +12,6 @@ import {
   DROMON,
   DROMON_A,
   DROMON_B,
-  ENEMY,
   FRIGATE,
   NOT_ON_BOARD,
   PART_0,
@@ -25,20 +23,20 @@ import {
   PATROL_BOAT_A,
   PATROL_BOAT_B,
   VERTICAL,
-} from "constants/const";
+} from "shared/constants";
 import { TileType } from "Game/Board/types";
-import { LogEntry, Player } from "Game/types";
+import { ClientLogEntry, Player } from "@shared/types";
 
 export const getSize = (ship: ShipType | ShipNames): number => {
   let name = "";
   if (typeof ship === "string") name = ship;
   else name = ship.name;
-  const n = name.toLowerCase();
+  const n = name?.toLowerCase();
   if (n === BATTLESHIP) return 5;
   if (n === FRIGATE) return 4;
   if (n === CARAVELA) return 3;
-  if (n.includes(DROMON)) return 2;
-  if (n.includes(PATROL)) return 1;
+  if (n?.includes(DROMON)) return 2;
+  if (n?.includes(PATROL)) return 1;
   throw new Error(`Invalid ship name ${ship}`);
 };
 export const getAllships = (): ShipType[] => {
@@ -209,8 +207,9 @@ export const getAdjacentCoordinates = (
   }
   return adjacentTiles;
 };
+//rewrite using pipes
 export const getBlockedTiles = (
-  gameLog: LogEntry[],
+  gameLog: ClientLogEntry[],
   forPlayer: Player
 ): Coordinates[] => {
   const playerShellsLogs = gameLog.filter((log) => log.player === forPlayer);
@@ -235,3 +234,5 @@ export const areTilesEqual = (fTile: TileType, sTile: TileType) =>
 //TODO: replace with underscore js function
 export const removeNullElements = <T>(arr: (T | null)[]) =>
   arr.filter((arr) => arr !== null) as T[];
+
+export const getLetterByX = (x: number) => String.fromCharCode(65 + x);

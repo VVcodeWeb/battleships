@@ -6,24 +6,37 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 
 import GameButton from "components/GameButton";
 import Background from "components/Background";
-import useSocket from "MultiPlayer/hooks/useSocket";
+import configuration from "config/configuration";
+import { USER_ID } from "shared/constants";
 
 const MultiPlayer = () => {
   const [roomID, setRoomID] = useState<string>("");
-  const { createNewRoom } = useSocket();
   const nav = useNavigate();
   const onChangeRoomID = (e: ChangeEvent<HTMLInputElement>) =>
     setRoomID(e.target.value);
 
-  const onCreateRoomClick = () => {
-    createNewRoom((id: any) => {
-      console.log(id);
-      nav(`/multi/${id}`);
-    });
+  const onCreateRoomClick = async () => {
+    console.log("new room click");
+    console.log("Navigating to the new room");
+    fetch(`http://${configuration().api}/room/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: localStorage.getItem(USER_ID),
+      }),
+    })
+      .then(async (res) => {
+        const roomId = (await res.json()).roomId;
+        nav(`/multi/${roomId}`);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
-  const onJoinRoomClick = () => {
-    nav(`/multi/${roomID}`);
-  };
+  const onJoinRoomClick = () => nav(`/multi/${roomID}`);
+
   return (
     <Background>
       <Grid2

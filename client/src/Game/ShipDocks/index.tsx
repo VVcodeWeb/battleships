@@ -5,7 +5,7 @@ import { Box } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
 
 import Ship from "Game/ShipDocks/Ship";
-import { HEIGHT, WIDTH } from "constants/const";
+import { HEIGHT, WIDTH } from "shared/constants";
 import { BoardContext } from "Game/Board/context/BoardContext";
 import { getSize } from "utils";
 

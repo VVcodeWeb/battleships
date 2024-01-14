@@ -1,80 +1,90 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { memo, useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect } from "react";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
+
 import Background from "components/Background";
-import useSocket from "MultiPlayer/hooks/useSocket";
 import Game from "Game";
-import {
-  LOBBY,
-  MultiPlayerContext,
-} from "MultiPlayer/context/MultiPlayerContext";
-import { PLANNING } from "constants/const";
+import { MultiPlayerContext } from "MultiPlayer/context/MultiPlayerContext";
+import CopyOnClick from "MultiPlayer/components/CopyOnClick";
+import LobbyCard from "MultiPlayer/components/LobbyCard";
+import { SocketContext } from "MultiPlayer/context/SocketContext";
+import { FIGHTING, GAME_OVER, WAITING_FOR_PLAYERS } from "shared/constants";
+import { FightingStageData, GameOverData } from "@shared/types";
 
 const Room = () => {
   const { roomID } = useParams();
-  const {
-    greetingsListener,
-    invalidRoomListener,
-    joinRoom,
-    planningStageListener,
-    gameLogListener,
-    gameOverListener,
-  } = useSocket();
-  const { stage, setGameStage, updateGameLog, gameOver } =
-    useContext(MultiPlayerContext);
+  const { socket } = useContext(SocketContext);
   const nav = useNavigate();
-  const [players, setPlayers] = useState<string[]>([]);
-  useEffect(() => {
-    joinRoom();
-    greetingsListener((players) => setPlayers(players));
-    invalidRoomListener(() => nav("/multi"));
-    planningStageListener(() => setGameStage(PLANNING));
-    gameLogListener((gameLog) => updateGameLog(gameLog));
-    gameOverListener((data) => gameOver(data.winner, data.enemyShips));
-    return () => {
-      greetingsListener();
-      invalidRoomListener();
-      planningStageListener();
-      gameLogListener();
-      gameOverListener();
-    };
-  }, [
-    gameOver,
-    gameLogListener,
-    greetingsListener,
-    invalidRoomListener,
-    joinRoom,
-    nav,
-    planningStageListener,
-    setGameStage,
-    updateGameLog,
-    gameOverListener,
-  ]);
+  const { stage, setGameStage, updateGameLog, serverStartsGame, gameOver } =
+    useContext(MultiPlayerContext);
 
+  useEffect(() => {
+    console.log(`user with id is joining the room`);
+    socket.emit("room:join", roomID as string, (response) => {
+      if (response.error) nav("/404");
+    });
+  }, [roomID, socket, nav]);
+
+  useEffect(() => {
+    const isFightingStageData = (
+      data: FightingStageData | GameOverData | undefined
+    ): data is FightingStageData =>
+      (data as FightingStageData)?.firstMove !== undefined;
+    const isGameOverData = (
+      data: FightingStageData | GameOverData | undefined
+    ): data is GameOverData => (data as GameOverData)?.winner !== undefined;
+
+    socket.on("game:update", (serverGameLog) => {
+      updateGameLog(serverGameLog);
+    });
+
+    socket.on("stage:set", (stage, data) => {
+      switch (stage) {
+        case FIGHTING:
+          isFightingStageData(data) && serverStartsGame(data);
+          break;
+        case GAME_OVER:
+          isGameOverData(data) && gameOver(data);
+          break;
+        default:
+          setGameStage(stage);
+      }
+    });
+
+    return () => {
+      socket.removeListener("stage:set");
+      socket.removeListener("game:update");
+    };
+  }, [gameOver, serverStartsGame, setGameStage, socket, updateGameLog]);
+
+  //todo: add animation
   return (
     <Background>
-      {stage === LOBBY && (
+      {stage === WAITING_FOR_PLAYERS && (
         <Grid2
           container
           justifyContent="center"
           alignItems="center"
           display="flex"
-          direction="column"
+          gap={2}
+          direction="row"
           style={{
-            minHeight: 200,
-            minWidth: 200,
-            background: "white",
+            position: "absolute",
+            minWidth: "100%",
+            left: 0,
+            top: "40%",
           }}
         >
-          <p>Lobby</p>
-          <p>Room id: {roomID}</p>
-          {players?.map((player) => (
-            <p key={player}>{player}</p>
-          ))}
+          <LobbyCard header="Room ID">
+            <CopyOnClick text={roomID as string} />
+          </LobbyCard>
+          <LobbyCard header="Send the invite link">
+            <CopyOnClick text={window.location.href} />
+          </LobbyCard>
         </Grid2>
       )}
-      {stage !== LOBBY && <Game />}
+      <Game />
     </Background>
   );
 };

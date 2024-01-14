@@ -1,8 +1,8 @@
-import { ALLY, ENEMY } from "constants/const";
-import { Player } from "Game/types";
+import { ALLY, ENEMY } from "shared/constants";
 import loseImg from "components/../../public/lose.png";
 import winImg from "components/../../public/win.png";
 import useStyles from "hooks/useStyle";
+import { Player } from "@shared/types";
 
 const GameOverImage = ({ winner }: { winner: Player | null }) => {
   const styles = useStyles();

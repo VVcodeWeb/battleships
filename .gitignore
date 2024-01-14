@@ -6,6 +6,7 @@
 client/node_modules
 server/node_modules
 shared/node_modules
+node_modules
 # testing
 /coverage
 
@@ -24,4 +25,5 @@ yarn-debug.log*
 yarn-error.log*
 .vscode
 client/build
+server/src/RoomsManager/rooms.json
 temp.txt

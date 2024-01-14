@@ -5,20 +5,30 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
+    "start": "ts-node src/index.ts",
     "build": "tsc"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@socket.io/redis-adapter": "^7.2.0",
+    "@types/underscore": "^1.11.4",
     "@types/websocket": "^1.0.5",
+    "body-parser": "^1.20.2",
+    "consola": "^2.15.3",
+    "cors": "^2.8.5",
     "express": "^4.18.1",
+    "redis": "^4.3.1",
     "short-unique-id": "^4.4.4",
     "socket.io": "^4.5.2",
+    "underscore": "^1.13.4",
+    "uuid": "^9.0.0",
     "websocket": "^1.0.34"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/node": "^18.7.14",
+    "@types/uuid": "^9.0.1",
     "nodemon": "^2.0.19",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",

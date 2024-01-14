@@ -9,14 +9,13 @@ import {
   PART_0,
   ENEMY,
   COLUMNS,
-} from "constants/const";
+} from "shared/constants";
 import {
   ShipNames,
   ShipOrientation,
   Coordinates,
   ShipType,
 } from "Game/ShipDocks/types";
-import { LogEntry } from "Game/types";
 import {
   generateTiles,
   getAllships,
@@ -26,6 +25,7 @@ import {
   getAdjacent,
   getBlockedTiles,
 } from "utils";
+import { ClientLogEntry } from "@shared/types";
 
 export const getRandomCoordinate = (): Coordinates => ({
   x: _.random(COLUMNS - 1),
@@ -36,13 +36,13 @@ export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
   return _.random(1) === 0 ? VERTICAL : HORIZONTAL;
 };
 
-const shelledBefore = (x: number, y: number, log: LogEntry[]): boolean =>
+const shelledBefore = (x: number, y: number, log: ClientLogEntry[]): boolean =>
   Boolean(log.find((l) => l.x === x && l.y === y));
 
 export const getAttackTarget = ({
   gameLog,
 }: {
-  gameLog: LogEntry[];
+  gameLog: ClientLogEntry[];
 }): Coordinates => {
   const shells = gameLog.filter((log) => log.player === ENEMY);
   const hits = shells.filter((shell) => shell.success);
@@ -102,7 +102,7 @@ export const placeShipOnTemporarBoard = (
           tile.border = DEFAULT_BORDER;
         }
       });
-    } else throw new Error("Try to place ship over null tile");
+    } else throw new Error("Trying to place ship over null tile");
   }
 };
 export const generateBoardAI = (): {
@@ -130,8 +130,8 @@ export const generateBoardAI = (): {
       const shipTiles = getTilesForShip(ship, tiles);
       if (shipTiles.length !== _.compact(shipTiles).length) continue;
       const adjacentTiles = getAdjacent(shipTiles as TileType[], tiles);
-      const isOccupied = shipTiles.some((t) => t?.occupiedBy !== null);
-      const isBlocked = adjacentTiles.some((t) => t?.occupiedBy !== null);
+      const isOccupied = shipTiles.some((tile) => tile?.occupiedBy !== null);
+      const isBlocked = adjacentTiles.some((tile) => tile?.occupiedBy !== null);
       if (isOccupied || isBlocked) continue;
       placeShipOnTemporarBoard(
         ship,

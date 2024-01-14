@@ -1,3 +1,8 @@
+export const WAITING_FOR_PLAYERS = "waiting_for_players";
+export const PLANNING = "planning";
+export const READY = "ready";
+export const FIGHTING = "figthing";
+export const GAME_OVER = "game over";
 export const CARRIER = "carrier";
 export const DESTROYER = "destroyer";
 export const SUBMARINE_A = "submarine_A";
@@ -35,14 +40,8 @@ export const FULL_HP = 100;
 export const ENEMY_SHIP = "enemy ship";
 export const ENEMY = "enemy";
 export const ALLY = "ally";
-export const PLANNING = "planning";
-export const READY = "ready";
-export const FIGHTING = "fighting";
-export const GAME_OVER = "game over";
-export const LOBBY = "lobby";
 export const NOT_ON_BOARD = -1;
 export const SINGLE = "single";
 export const MAIN = "main";
 export const MULTI = "multi";
-
-export const USER_ID = "userID";
+export const USER_ID = "userId";

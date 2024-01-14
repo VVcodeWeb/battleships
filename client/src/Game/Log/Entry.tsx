@@ -1,8 +1,8 @@
 import { Typography } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
+import { ClientLogEntry, Player } from "@shared/types";
 
-import { ALLY } from "constants/const";
-import { LogEntry, Player } from "Game/types";
+import { ALLY } from "shared/constants";
 import { getLetterByX } from "utils";
 
 const entryLog: React.CSSProperties = {
@@ -39,7 +39,7 @@ const Entry = ({
   log,
   displayTimestamp,
 }: {
-  log: LogEntry;
+  log: ClientLogEntry;
   displayTimestamp: boolean;
 }) => {
   return (

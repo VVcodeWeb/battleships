@@ -1,16 +1,14 @@
 import { Avatar, Badge, styled } from "@mui/material";
-import { ALLY, ENEMY } from "constants/const";
-import { Player } from "Game/types";
+import { ALLY, ENEMY } from "shared/constants";
 import useStyles from "hooks/useStyle";
 import defaultAvatarImg from "components/../../public/default_avatar.png";
 import enemyAvatar from "components/../../public/enemy_avatar.png";
 import botAvatar from "components/../../public/bot_avatar.png";
-import useSocket from "MultiPlayer/hooks/useSocket";
+import { Player } from "@shared/types";
 
 //TODO display if enemy is disconnected
 const PlayerAvatar = ({ player, ...rest }: { player: Player }) => {
   const styles = useStyles();
-  const { isConnected } = useSocket();
   const singlePlayer = window.location.pathname.includes("single");
   const avatarAllyIcon = player === ALLY ? defaultAvatarImg : undefined;
   const avatarEnemyIcon =

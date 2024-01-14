@@ -7,25 +7,23 @@ import { Tooltip, Zoom } from "@mui/material";
 import {
   COLUMNS,
   ENEMY_SHIP,
-  FIGHTING,
   HORIZONTAL,
   ALLY,
   SHIP,
   TILE,
   VERTICAL,
-  PLANNING,
-} from "constants/const";
+} from "shared/constants";
 import waterImg from "components/../../public/water.jpg";
 import Ship from "Game/ShipDocks/Ship";
 import { TileType } from "Game/Board/types";
 import { getLetterByX, getShipPartByIdx, getSize } from "utils";
 import { BoardContext } from "Game/Board/context/BoardContext";
 import shellImg from "components/../../public/shell.png";
-//import fireImg from "components/../../public/fire2.png";
 import fireImg from "components/../../public/test.gif";
 import blockImg from "components/../../public/block.png";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
+import { PLANNING, FIGHTING } from "shared/constants";
 
 const Tile = ({ tile, inDev }: { tile: TileType; inDev?: boolean }) => {
   const styles = useStyles();

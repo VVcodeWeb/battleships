@@ -7,7 +7,7 @@ import {
   SMALLER_WIDTH,
   WIDTH,
   COLUMNS,
-} from "constants/const";
+} from "shared/constants";
 import backgroundMulti from "components/../../public/multi2.png";
 import backgroundSingle from "components/../../public/background_2.jpg";
 

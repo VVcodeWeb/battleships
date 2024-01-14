@@ -1,4 +1,4 @@
-import { useContext, memo } from "react";
+import { useContext } from "react";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
 
@@ -7,16 +7,16 @@ import { generateBoardAI } from "utils/ai";
 import ShipDocks from "Game/ShipDocks";
 import Board from "Game/Board";
 import GameButton from "components/GameButton";
-import {
-  FIGHTING,
-  GAME_OVER,
-  LOBBY,
-  MAX_SHIPS,
-  PLANNING,
-  READY,
-} from "constants/const";
+import { MAX_SHIPS } from "shared/constants";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
+import {
+  READY,
+  WAITING_FOR_PLAYERS,
+  FIGHTING,
+  PLANNING,
+  GAME_OVER,
+} from "shared/constants";
 
 const PlayGround = () => {
   const styles = useStyles();
@@ -38,7 +38,7 @@ const PlayGround = () => {
         md={stage === READY ? 12 : 5}
         justifyContent={styles.boardJustify}
       >
-        <Board tiles={tiles} hidden={stage === LOBBY} />
+        <Board tiles={tiles} hidden={stage === WAITING_FOR_PLAYERS} />
       </Grid2>
       <Grid2
         xs={12}

@@ -1,105 +1,67 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { memo, useContext, useEffect, useState } from "react";
+import { memo, useContext, useEffect } from "react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Tooltip,
-  Typography,
-} from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
 
 import Background from "components/Background";
-import useSocket from "MultiPlayer/hooks/useSocket";
 import Game from "Game";
-import { LOBBY, PLANNING } from "constants/const";
 import { MultiPlayerContext } from "MultiPlayer/context/MultiPlayerContext";
-import useStyles from "hooks/useStyle";
+import CopyOnClick from "MultiPlayer/components/CopyOnClick";
+import LobbyCard from "MultiPlayer/components/LobbyCard";
+import { SocketContext } from "MultiPlayer/context/SocketContext";
+import { FIGHTING, GAME_OVER, WAITING_FOR_PLAYERS } from "shared/constants";
+import { FightingStageData, GameOverData } from "@shared/types";
 
 const Room = () => {
   const { roomID } = useParams();
-  const {
-    invalidRoomListener,
-    joinRoom,
-    planningStageListener,
-    gameLogListener,
-    gameOverListener,
-    isConnected,
-  } = useSocket();
-  const { stage, setGameStage, updateGameLog, gameOver } =
-    useContext(MultiPlayerContext);
+  const { socket } = useContext(SocketContext);
   const nav = useNavigate();
+  const { stage, setGameStage, updateGameLog, serverStartsGame, gameOver } =
+    useContext(MultiPlayerContext);
+
   useEffect(() => {
-    if (isConnected) {
-      joinRoom();
-    }
-  }, [isConnected, joinRoom]);
-  //TODO: refactor
+    console.log(`user with id is joining the room`);
+    socket.emit("room:join", roomID as string, (response) => {
+      if (response.error) nav("/404");
+    });
+  }, [roomID, socket, nav]);
+
   useEffect(() => {
-    invalidRoomListener(() => nav("/multi"));
-    planningStageListener(() => setGameStage(PLANNING));
-    gameLogListener((gameLog) => updateGameLog(gameLog));
-    gameOverListener((data) => gameOver(data.winner, data.enemyShips));
+    const isFightingStageData = (
+      data: FightingStageData | GameOverData | undefined
+    ): data is FightingStageData =>
+      (data as FightingStageData)?.firstMove !== undefined;
+    const isGameOverData = (
+      data: FightingStageData | GameOverData | undefined
+    ): data is GameOverData => (data as GameOverData)?.winner !== undefined;
+
+    socket.on("game:update", (serverGameLog) => {
+      updateGameLog(serverGameLog);
+    });
+
+    socket.on("stage:set", (stage, data) => {
+      switch (stage) {
+        case FIGHTING:
+          isFightingStageData(data) && serverStartsGame(data);
+          break;
+        case GAME_OVER:
+          isGameOverData(data) && gameOver(data);
+          break;
+        default:
+          setGameStage(stage);
+      }
+    });
+
     return () => {
-      invalidRoomListener();
-      planningStageListener();
-      gameLogListener();
-      gameOverListener();
+      socket.removeListener("stage:set");
+      socket.removeListener("game:update");
     };
-  }, [
-    joinRoom,
-    gameOver,
-    gameLogListener,
-    invalidRoomListener,
-    nav,
-    planningStageListener,
-    setGameStage,
-    updateGameLog,
-    gameOverListener,
-  ]);
+  }, [gameOver, serverStartsGame, setGameStage, socket, updateGameLog]);
 
   //todo: add animation
-  const CopyOnClick = ({ text }: { text: string }) => {
-    const styles = useStyles();
-    const onClick = () => navigator.clipboard.writeText(text);
-    return (
-      <Tooltip title="Copy to the clipboard" placement="top">
-        <Typography
-          onClick={onClick}
-          style={{
-            cursor: "copy",
-            textAlign: "center",
-            width: "60%",
-            margin: "0 auto",
-            background: styles.mainColor,
-            padding: 5,
-            borderRadius: 15,
-          }}
-        >
-          {text}
-        </Typography>
-      </Tooltip>
-    );
-  };
-
-  const LobbyCard = ({
-    header,
-    children,
-  }: {
-    header: string;
-    children: any;
-  }) => (
-    <Grid2 xs={4} height={150}>
-      <Card elevation={3} style={{ height: "100%" }}>
-        <CardHeader title={header} style={{ textAlign: "center" }} />
-        <CardContent>{children}</CardContent>
-      </Card>
-    </Grid2>
-  );
   return (
     <Background>
-      {stage === LOBBY && (
+      {stage === WAITING_FOR_PLAYERS && (
         <Grid2
           container
           justifyContent="center"

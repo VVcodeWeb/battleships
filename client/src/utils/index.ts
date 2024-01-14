@@ -5,7 +5,6 @@ import {
   ShipType,
 } from "Game/ShipDocks/types";
 import {
-  ALLY,
   BATTLESHIP,
   CARAVELA,
   COLUMNS,
@@ -13,7 +12,6 @@ import {
   DROMON,
   DROMON_A,
   DROMON_B,
-  ENEMY,
   FRIGATE,
   NOT_ON_BOARD,
   PART_0,
@@ -25,9 +23,9 @@ import {
   PATROL_BOAT_A,
   PATROL_BOAT_B,
   VERTICAL,
-} from "constants/const";
+} from "shared/constants";
 import { TileType } from "Game/Board/types";
-import { LogEntry, Player } from "Game/types";
+import { ClientLogEntry, Player } from "@shared/types";
 
 export const getSize = (ship: ShipType | ShipNames): number => {
   let name = "";
@@ -211,7 +209,7 @@ export const getAdjacentCoordinates = (
 };
 //rewrite using pipes
 export const getBlockedTiles = (
-  gameLog: LogEntry[],
+  gameLog: ClientLogEntry[],
   forPlayer: Player
 ): Coordinates[] => {
   const playerShellsLogs = gameLog.filter((log) => log.player === forPlayer);

@@ -6,7 +6,8 @@ import Room from "MultiPlayer/Room";
 import MainPage from "./MainPage";
 import SinglePlayer from "./SinglePlayer";
 import MultiPlayerProvider from "MultiPlayer/context/MultiPlayerContext";
-import Wrapper from "MultiPlayer/Wrapper";
+import UserProvider from "MultiPlayer/context/UserContext";
+import SocketProvider from "MultiPlayer/context/SocketContext";
 
 function App() {
   return (
@@ -14,15 +15,24 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPage />} />
         <Route path="/single" element={<SinglePlayer />} />
-        <Route path="multi" element={<MultiPlayer />} />
+        <Route
+          path="multi"
+          element={
+            <UserProvider>
+              <MultiPlayer />
+            </UserProvider>
+          }
+        />
         <Route
           path="multi/:roomID"
           element={
-            <MultiPlayerProvider>
-              <Wrapper>
-                <Room />
-              </Wrapper>
-            </MultiPlayerProvider>
+            <UserProvider>
+              <SocketProvider>
+                <MultiPlayerProvider>
+                  <Room />
+                </MultiPlayerProvider>
+              </SocketProvider>
+            </UserProvider>
           }
         />
       </Routes>

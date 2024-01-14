@@ -7,7 +7,7 @@ import { useState } from "react";
 import backgroundMulti from "components/../../public/multiplayer.jpg";
 import backgroundSingle from "components/../../public/background_2.jpg";
 import backgroudnImg from "components/../../public/background.jpg";
-import { MULTI, SINGLE } from "constants/const";
+import { MULTI, SINGLE } from "shared/constants";
 
 const MainPageCard = ({ title, content, onClick }: any) => {
   const [hover, setHover] = useState<boolean | null>(null);

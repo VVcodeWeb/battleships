@@ -8,12 +8,18 @@ import {
 } from "@mui/material";
 import Grid2 from "@mui/material/Unstable_Grid2";
 
-import { FIGHTING, GAME_OVER, LOBBY, PLANNING, READY } from "constants/const";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
 import PlayerAvatar from "components/PlayerAvatar";
 import Entry from "Game/Log/Entry";
-import { LogEntry } from "Game/types";
+import {
+  PLANNING,
+  FIGHTING,
+  WAITING_FOR_PLAYERS,
+  READY,
+  GAME_OVER,
+} from "shared/constants";
+import { ClientLogEntry } from "@shared/types";
 
 const container: React.CSSProperties = {
   overflowY: "scroll",
@@ -81,8 +87,10 @@ const Chat = () => {
     const firstTurnPlayer =
       gameLog.length > 0 ? gameLog[0].player : currentPlayersTurn;
 
-    const timestampToDisplay = (log: LogEntry, nextLog?: LogEntry) =>
-      log.player !== nextLog?.player;
+    const timestampToDisplay = (
+      log: ClientLogEntry,
+      nextLog?: ClientLogEntry
+    ) => log.player !== nextLog?.player;
 
     return (
       <div style={{ color: "black", textAlign: "center", width: "100%" }}>
@@ -104,14 +112,16 @@ const Chat = () => {
   const LogIcon = {
     [PLANNING]: <Avatar style={{ background: "transparent" }}>📝</Avatar>,
     [FIGHTING]: <></>,
-    [LOBBY]: <Avatar style={{ background: "transparent" }}>📡</Avatar>,
+    [WAITING_FOR_PLAYERS]: (
+      <Avatar style={{ background: "transparent" }}>📡</Avatar>
+    ),
     [READY]: <Avatar style={{ background: "transparent" }}>✔️</Avatar>,
     [GAME_OVER]: <Avatar style={{ background: "transparent" }}>�</Avatar>,
   };
   const LogContent = {
     [PLANNING]: <RenderPlanning />,
     [FIGHTING]: <RenderGameLog />,
-    [LOBBY]: <RenderLobbyWaiting />,
+    [WAITING_FOR_PLAYERS]: <RenderLobbyWaiting />,
     [READY]: <RenderReadyWaiting />,
     [GAME_OVER]: <RenderGameOver />,
   };

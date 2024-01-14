@@ -1,27 +1,30 @@
-import { PLANNING, FIGHTING, GAME_OVER } from "constants/const";
+import { ClientLogEntry, GameStage, Player } from "@shared/types";
 import { ShipType } from "Game/ShipDocks/types";
-import { LogEntry, StageType, Player } from "Game/types";
+import { FIGHTING, GAME_OVER, PLANNING } from "shared/constants";
 
 export const initialState = {
   enemyShips: [] as ShipType[],
   allyShips: [] as ShipType[],
-  gameLog: [] as LogEntry[],
-  stage: PLANNING as StageType,
+  gameLog: [] as ClientLogEntry[],
+  stage: PLANNING as GameStage,
   winner: null as null | Player,
 };
 type State = {
   enemyShips: ShipType[];
   allyShips: ShipType[];
-  gameLog: LogEntry[];
-  stage: StageType;
+  gameLog: ClientLogEntry[];
+  stage: GameStage;
   winner: null | Player;
 };
 export type Action =
   | { type: typeof ACTION.RESET_STATES }
   | { type: typeof ACTION.END_GAME; payload: { winner: Player } }
-  | { type: typeof ACTION.STORE_GAME_LOG; payload: { newLog: LogEntry[] } }
-  | { type: typeof ACTION.SET_STAGE; payload: { value: StageType } }
-  | { type: typeof ACTION.STORE_MOVE; payload: { value: LogEntry } }
+  | {
+      type: typeof ACTION.STORE_GAME_LOG;
+      payload: { newLog: ClientLogEntry[] };
+    }
+  | { type: typeof ACTION.SET_STAGE; payload: { value: GameStage } }
+  | { type: typeof ACTION.STORE_MOVE; payload: { value: ClientLogEntry } }
   | { type: typeof ACTION.DISPOSE_ENEMY; payload: { enemyShips: ShipType[] } }
   | {
       type: typeof ACTION.START_GAME;
@@ -33,7 +36,7 @@ export const reducer = (state: State, action: Action) => {
     case ACTION.START_GAME:
       return {
         ...state,
-        stage: FIGHTING as StageType,
+        stage: FIGHTING as GameStage,
         enemyShips: action.payload.enemyShips,
         allyShips: action.payload.allyShips,
       };
@@ -63,7 +66,7 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         winner: action.payload.winner,
-        stage: GAME_OVER as StageType,
+        stage: GAME_OVER as GameStage,
       };
     }
     case ACTION.RESET_STATES: {

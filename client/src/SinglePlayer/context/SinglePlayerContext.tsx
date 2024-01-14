@@ -2,25 +2,18 @@ import React, { useCallback, useEffect, useMemo, useReducer } from "react";
 
 import _ from "underscore";
 
-import {
-  ENEMY,
-  FIGHTING,
-  GAME_OVER,
-  ALLY,
-  MAX_SHIP_PARTS,
-  READY,
-  PLANNING,
-} from "constants/const";
-import { Player, StageType } from "Game/types";
+import { ENEMY, ALLY, MAX_SHIP_PARTS } from "shared/constants";
 import { generateBoardAI, getAttackTarget } from "utils/ai";
 import { ShipType } from "Game/ShipDocks/types";
 import { areXYsEual, delay } from "utils";
 import { ACTION, initialState, reducer } from "reducer";
+import { GameStage, Player } from "shared/types";
+import { FIGHTING, GAME_OVER, PLANNING, READY } from "shared/constants";
 
 initialState.stage = PLANNING;
 export const SinglePlayerContext = React.createContext({
   ...initialState,
-  setGameStage: (value: StageType) => {},
+  setGameStage: (value: GameStage) => {},
   makeMove: ({ x, y, player }: { x: number; y: number; player: Player }) => {},
   finishPlanning: (board: ShipType[]) => {},
   playAgain: () => {},
@@ -41,7 +34,7 @@ const SinglePlayerProvider = ({ children }: any) => {
       throw new Error("Trying to dispose the enemy during the game");
     return enemyShips;
   };
-  const setGameStage = (value: StageType) => {
+  const setGameStage = (value: GameStage) => {
     console.log("Single player context");
     console.log({ stage, value });
 

@@ -1,13 +1,14 @@
 import React, { useEffect, useReducer } from "react";
 import _ from "underscore";
 
-import { ENEMY_SHIP, GAME_OVER, READY } from "constants/const";
+import { ENEMY_SHIP } from "shared/constants";
 import { TileType } from "Game/Board/types";
 import { getTilesForShip, getShipPartByIdx, getAdjacent } from "utils";
 import { ShipType } from "Game/ShipDocks/types";
 import { getBorder } from "Game/Board/utils";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import { ACTION, initialState, reducer } from "Game/Board/context/reducer";
+import { READY, GAME_OVER } from "shared/constants";
 
 type UpdateTilesBordersType = {
   ship: ShipType;

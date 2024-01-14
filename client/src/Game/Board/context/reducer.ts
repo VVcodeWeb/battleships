@@ -1,21 +1,21 @@
-import { DEFAULT_BORDER, ALLY, ENEMY_SHIP, ENEMY } from "constants/const";
+import { DEFAULT_BORDER, ALLY, ENEMY_SHIP, ENEMY } from "shared/constants";
 import { TileType, BorderType } from "Game/Board/types";
 import { ShipType } from "Game/ShipDocks/types";
-import { LogEntry, Player } from "Game/types";
 import _ from "underscore";
 import { generateTiles, getAllships, getBlockedTiles, areXYsEual } from "utils";
+import { ClientLogEntry, Player } from "@shared/types";
 
 export const initialState = {
   tiles: generateTiles({ enemy: false }) as TileType[],
   enemyTiles: generateTiles({ enemy: true }) as TileType[],
-  localGameLog: [] as LogEntry[],
+  localGameLog: [] as ClientLogEntry[],
   dockShips: getAllships() as ShipType[],
 };
 
 type State = {
   tiles: TileType[];
   enemyTiles: TileType[];
-  localGameLog: LogEntry[];
+  localGameLog: ClientLogEntry[];
   dockShips: ShipType[];
 };
 type ActionType =
@@ -24,7 +24,7 @@ type ActionType =
   | { type: typeof ACTION.RESET_BOARD }
   | {
       type: typeof ACTION.UPDATE_BOARD;
-      payload: LogEntry[];
+      payload: ClientLogEntry[];
     }
   | {
       type: typeof ACTION.PLACE_SHIP_PART_ON_BOARD;

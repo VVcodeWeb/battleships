@@ -4,7 +4,7 @@ import {
   DEFAULT_BORDER,
   ENEMY_SHIP,
   NO_DROP_AND_VISIBLE,
-} from "constants/const";
+} from "shared/constants";
 export type TileType = {
   x: number;
   y: number;

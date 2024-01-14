@@ -9,14 +9,13 @@ import {
   PART_0,
   ENEMY,
   COLUMNS,
-} from "constants/const";
+} from "shared/constants";
 import {
   ShipNames,
   ShipOrientation,
   Coordinates,
   ShipType,
 } from "Game/ShipDocks/types";
-import { LogEntry } from "Game/types";
 import {
   generateTiles,
   getAllships,
@@ -26,6 +25,7 @@ import {
   getAdjacent,
   getBlockedTiles,
 } from "utils";
+import { ClientLogEntry } from "@shared/types";
 
 export const getRandomCoordinate = (): Coordinates => ({
   x: _.random(COLUMNS - 1),
@@ -36,13 +36,13 @@ export const getRandomOrientation = (name: ShipNames): ShipOrientation => {
   return _.random(1) === 0 ? VERTICAL : HORIZONTAL;
 };
 
-const shelledBefore = (x: number, y: number, log: LogEntry[]): boolean =>
+const shelledBefore = (x: number, y: number, log: ClientLogEntry[]): boolean =>
   Boolean(log.find((l) => l.x === x && l.y === y));
 
 export const getAttackTarget = ({
   gameLog,
 }: {
-  gameLog: LogEntry[];
+  gameLog: ClientLogEntry[];
 }): Coordinates => {
   const shells = gameLog.filter((log) => log.player === ENEMY);
   const hits = shells.filter((shell) => shell.success);

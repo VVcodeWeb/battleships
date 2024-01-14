@@ -3,7 +3,7 @@ import { animated, useSpring } from "react-spring";
 
 import { useMediaQuery } from "@mui/material";
 
-import { FULL_HP, MAX_SHIP_PARTS, MIN_MD_WIDTH } from "constants/const";
+import { FULL_HP, MAX_SHIP_PARTS, MIN_MD_WIDTH } from "shared/constants";
 
 const HitpointsBar = ({
   numPartsDamaged,

@@ -1,9 +1,6 @@
 import { Server } from "socket.io";
 import consola from "consola";
-import {
-  ClientToServerEvents,
-  ServerToClientEvents,
-} from "../../../shared/types";
+import { ClientToServerEvents, ServerToClientEvents } from "shared/types";
 import Room from "../models/Room";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { config } from "../config";

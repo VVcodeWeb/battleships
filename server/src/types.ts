@@ -1,7 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
-import { GameStage, ServerLogEntry, ShipType } from "../../shared/types";
-//TODO: share code with frontend to avoid repeating code
+import { GameStage, ServerLogEntry, ShipType } from "shared/types";
 
 export type IOtype = Server<
   DefaultEventsMap,

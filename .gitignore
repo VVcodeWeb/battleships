@@ -27,3 +27,4 @@ yarn-error.log*
 client/build
 server/src/RoomsManager/rooms.json
 temp.txt
+server/dist

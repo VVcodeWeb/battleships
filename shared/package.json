@@ -6,7 +6,7 @@
   "module": "index.ts",
   "typings": "./index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc index.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     }
   },
   "dependencies": {
+    "typescript": "^5.3.3",
     "underscore": "^1.13.6"
   },
   "devDependencies": {

@@ -10,10 +10,10 @@ import {
   ServerLogEntry,
   ServerToClientEvents,
   ShipType,
-} from "../../../shared/types";
+} from "shared/types";
 import { Model } from "./Model";
-import { FIGHTING, GAME_OVER, PLANNING } from "../../../shared/constants";
-import { checkIfPlayerWon, getMoveResult } from "../../../shared/game";
+import { FIGHTING, GAME_OVER, PLANNING } from "shared/constants";
+import { checkIfPlayerWon, getMoveResult } from "shared/game";
 import { DefaultEventsMap } from "socket.io/dist/typed-events";
 import { config } from "../config";
 

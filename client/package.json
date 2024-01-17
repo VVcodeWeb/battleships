@@ -23,7 +23,6 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-spring": "^9.5.2",
-    "sharedM": "file:../shared/socketEvents.ts",
     "short-unique-id": "^4.4.4",
     "socket.io-client": "^4.5.2",
     "typescript": "^4.7.4",
@@ -32,6 +31,7 @@
   },
   "proxy": "http://localhost:8080",
   "scripts": {
+    "install-shared": "npm install --install-links ../shared",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

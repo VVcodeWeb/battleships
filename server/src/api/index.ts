@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import bodyParser from "body-parser";
 import consola from "consola";
 import Room from "../models/Room";
-import { WAITING_FOR_PLAYERS } from "../../../shared/constants";
+import { WAITING_FOR_PLAYERS } from "shared/constants";
 
 const app = express();
 app.use(cors());

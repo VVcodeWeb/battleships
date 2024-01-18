@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build images
-        run: docker-compose build --no-cache
+        run: docker-compose -f docker-compose.yml build --no-cache
 
       - name: Push images to Container Registry
-        run: docker compose -f docker-compose.yml push
+        run: docker-compose -f docker-compose.yml push

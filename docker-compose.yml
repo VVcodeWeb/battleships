@@ -13,6 +13,7 @@ services:
 
   backend:
     container_name: backend
+    image: battleships-backend
     depends_on:
       - redis
     environment:
@@ -29,6 +30,7 @@ services:
 
   frontend:
     container_name: frontend
+    image: battleships-frontend
     build:
       context: .
       dockerfile: ./client/Dockerfile

@@ -3,7 +3,7 @@ version: "3.9"
 services:
   redis:
     tty: true
-    image: redis:latest
+    image: battleships-redis:latest
     restart: always
     command: redis-server
     ports:

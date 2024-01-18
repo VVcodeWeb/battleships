@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
 
 import Grid2 from "@mui/material/Unstable_Grid2";
 
@@ -8,18 +7,18 @@ import { generateBoardAI } from "utils/ai";
 import ShipDocks from "Game/ShipDocks";
 import Board from "Game/Board";
 import GameButton from "components/GameButton";
-import {
-  FIGHTING,
-  GAME_OVER,
-  MAX_SHIPS,
-  PLANNING,
-  READY,
-} from "constants/const";
+import { MAX_SHIPS } from "shared/constants";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
+import {
+  READY,
+  WAITING_FOR_PLAYERS,
+  FIGHTING,
+  PLANNING,
+  GAME_OVER,
+} from "shared/constants";
 
 const PlayGround = () => {
-  const navigate = useNavigate();
   const styles = useStyles();
   const { stage, setGameStage, surrender } = useGetGameContext();
   const { dockShips, autoSetBoard, tiles, enemyTiles, resetBoard } =
@@ -29,13 +28,17 @@ const PlayGround = () => {
   const onReadyClick = () => setGameStage(READY);
   const onSurrenderClick = () => surrender();
   const onResetClick = () => resetBoard();
-  const onMainMenuClick = () => navigate("/");
 
-  //TODO: idea: add transition animation for the buttons
+  //TODO: add hook for conditional rendering depending on the game stage
+  //TODO:  add transition animation for the buttons
   return (
     <>
-      <Grid2 xs={12} md={5} justifyContent={styles.boardJustify}>
-        <Board tiles={tiles} />
+      <Grid2
+        xs={12}
+        md={stage === READY ? 12 : 5}
+        justifyContent={styles.boardJustify}
+      >
+        <Board tiles={tiles} hidden={stage === WAITING_FOR_PLAYERS} />
       </Grid2>
       <Grid2
         xs={12}
@@ -46,9 +49,6 @@ const PlayGround = () => {
         container
         spacing={4}
       >
-        <Grid2>
-          <GameButton text="Go back" onClick={onMainMenuClick} />
-        </Grid2>
         <Grid2>
           <GameButton
             hidden={stage !== FIGHTING}

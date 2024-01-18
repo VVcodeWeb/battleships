@@ -1,0 +1,26 @@
+{
+  "name": "shared",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "module": "index.ts",
+  "typings": "./index.d.ts",
+  "scripts": {
+    "build": "tsc index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "importSort": {
+    ".js, .jsx, .ts, .tsx": {
+      "style": "module",
+      "parser": "typescript"
+    }
+  },
+  "dependencies": {
+    "typescript": "^5.3.3",
+    "underscore": "^1.13.6"
+  },
+  "devDependencies": {
+    "@types/underscore": "^1.11.4"
+  }
+}

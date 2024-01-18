@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "shared": "file:../shared",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "@mui/icons-material": "^5.10.2",
@@ -22,14 +23,15 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.1",
     "react-spring": "^9.5.2",
+    "short-unique-id": "^4.4.4",
     "socket.io-client": "^4.5.2",
     "typescript": "^4.7.4",
     "underscore": "^1.13.4",
-    "web-vitals": "^2.1.4",
-    "sharedM": "file:../shared/socketEvents.ts"
+    "web-vitals": "^2.1.4"
   },
   "proxy": "http://localhost:8080",
   "scripts": {
+    "install-shared": "npm install --install-links ../shared",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

@@ -7,7 +7,7 @@ import { useState } from "react";
 import backgroundMulti from "components/../../public/multiplayer.jpg";
 import backgroundSingle from "components/../../public/background_2.jpg";
 import backgroudnImg from "components/../../public/background.jpg";
-import { MULTI, SINGLE } from "constants/const";
+import { MULTI, SINGLE } from "shared/constants";
 
 const MainPageCard = ({ title, content, onClick }: any) => {
   const [hover, setHover] = useState<boolean | null>(null);
@@ -92,8 +92,7 @@ const MainPage = () => {
         <MainPageCard
           onClick={() => nav("/multi")}
           title={MULTI}
-          content={`Compete against others
-          (coming soon)`}
+          content={`Compete against others`}
         />
       </Grid2>
       <Grid2 md={4} justifyContent="center" display="flex" xs={12}>

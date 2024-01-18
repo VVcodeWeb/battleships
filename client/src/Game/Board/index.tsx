@@ -4,10 +4,11 @@ import Grid2 from "@mui/material/Unstable_Grid2";
 
 import Tile from "Game/Board/Tile";
 import { TileType } from "Game/Board/types";
-import { COLUMNS, PLANNING, READY } from "constants/const";
+import { COLUMNS } from "shared/constants";
 import HitpointsBar from "Game/Board/HitpointsBar";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import useStyles from "hooks/useStyle";
+import { PLANNING, READY } from "shared/constants";
 
 const Board = ({ tiles, hidden }: { tiles: TileType[]; hidden?: boolean }) => {
   const { stage } = useGetGameContext();

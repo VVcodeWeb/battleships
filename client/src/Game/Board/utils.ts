@@ -2,7 +2,7 @@ import {
   CAN_DROP_AND_VISIBLE,
   NO_DROP_AND_VISIBLE,
   DEFAULT_BORDER,
-} from "constants/const";
+} from "shared/constants";
 import { BorderType } from "Game/Board/types";
 
 export const getBorder = ({

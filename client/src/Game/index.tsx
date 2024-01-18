@@ -7,13 +7,13 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import BoardProvider from "Game/Board/context/BoardContext";
-import { ENEMY, ALLY } from "constants/const";
+import { ENEMY, ALLY } from "shared/constants";
 import PlayGround from "Game/PlayGround";
 import GameButton from "components/GameButton";
 import useGetGameContext from "Game/hooks/useGetGameContext";
 import GameOverImage from "components/GameOverImage";
 import PlayerMainAvatar from "components/PlayerMainAvatar";
-import Chat from "components/Chat";
+import Log from "Game/Log";
 export const flex = {
   display: "flex",
   justifyContent: "center",
@@ -66,7 +66,7 @@ const Game = () => {
           alignItems="center"
         >
           <PlayerMainAvatar player={ALLY} />
-          <Chat />
+          <Log />
           <PlayerMainAvatar player={ENEMY} />
         </Grid2>
         <Grid2

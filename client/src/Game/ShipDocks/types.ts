@@ -13,7 +13,7 @@ import {
   DROMON_B,
   PART_3,
   PART_4,
-} from "constants/const";
+} from "shared/constants";
 
 export type ShipNames =
   | typeof BATTLESHIP

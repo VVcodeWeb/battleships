@@ -3,7 +3,7 @@ version: "3.9"
 services:
   redis:
     tty: true
-    image: battleships-redis:latest
+    image: redis:latest
     restart: always
     command: redis-server
     ports:
@@ -13,7 +13,7 @@ services:
 
   backend:
     container_name: backend
-    image: battleships-backend
+    image: ghcr.io/vvcodeweb/battleships-backend:latest
     depends_on:
       - redis
     environment:
@@ -30,7 +30,7 @@ services:
 
   frontend:
     container_name: frontend
-    image: battleships-frontend
+    image: ghcr.io/vvcodeweb/battleships-frontend:latest
     build:
       context: .
       dockerfile: ./client/Dockerfile

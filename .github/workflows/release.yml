@@ -21,16 +21,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # # https://github.com/docker/login-action
-      # - name: Log into registry ${{ env.REGISTRY }}
-      #   uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-      #   with:
-      #     registry: ${{ env.REGISTRY }}
-      #     username: ${{ github.actor }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to registry
-        run: docker login ghcr.io -u ${{ github.actor }}  -p ${{ secrets.GITHUB_TOKEN }}
+      # - name: Login to registry
+      #   run: docker login ghcr.io -u ${{ github.actor }}  -p ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build images
         run: docker-compose -f docker-compose.yml build

@@ -29,9 +29,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Login to registry
-      #   run: docker login ghcr.io -u ${{ github.actor }}  -p ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build images
         run: docker-compose -f docker-compose.yml build
 

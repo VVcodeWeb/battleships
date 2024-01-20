@@ -12,8 +12,8 @@ const server = http.createServer(api);
 redis.connect();
 io.listen(server);
 SocketHolder.io = io;
-server.listen(config.IO_PORT, () => {
+server.listen(config.API_PORT, () => {
   consola.info(
-    `SocketIO and Express server are listening on ${config.IO_PORT}`
+    `SocketIO and Express server are listening on ${config.API_PORT}`
   );
 });

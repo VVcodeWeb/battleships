@@ -18,7 +18,7 @@ const MultiPlayer = () => {
   const onCreateRoomClick = async () => {
     console.log("new room click");
     console.log("Navigating to the new room");
-    fetch(`http://${configuration().api}/room/create`, {
+    fetch(`${configuration.apiUrl}/room/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

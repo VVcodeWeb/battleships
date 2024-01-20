@@ -14,7 +14,7 @@ const UserIdWrapper = ({ children }: { children: JSX.Element }) => {
   useEffect(() => {
     if (!userId) {
       console.log("call");
-      fetch(`http://${configuration().api}/generate-user-id`)
+      fetch(`${configuration.apiUrl}/generate-user-id`)
         .then(async (res) => {
           const newId = (await res.json()).userId;
           localStorage.setItem(USER_ID, newId);

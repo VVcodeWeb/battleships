@@ -3,8 +3,8 @@
 # dependencies
 /.pnp
 .pnp.js
-client/node_modules
-server/node_modules
+ui/node_modules
+api/node_modules
 shared/node_modules
 node_modules
 # testing
@@ -24,7 +24,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vscode
-client/build
-server/src/RoomsManager/rooms.json
+ui/build
+api/src/RoomsManager/rooms.json
 temp.txt
-server/dist
+api/dist
+api/build

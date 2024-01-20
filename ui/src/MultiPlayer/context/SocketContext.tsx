@@ -8,7 +8,7 @@ type SocketContextType = {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 };
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  `ws://${configuration().api}`,
+  configuration.socketUrl,
   {
     auth: { userId: window.localStorage.getItem(USER_ID) },
     autoConnect: false,

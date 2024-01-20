@@ -33,7 +33,7 @@ services:
     pull_policy: never
     build:
       context: .
-      dockerfile: ./client/Dockerfile
+      dockerfile: ./ui/Dockerfile
     ports:
       - 8080:80
 
